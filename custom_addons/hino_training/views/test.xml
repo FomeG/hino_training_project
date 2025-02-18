@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <record id="view_employee_tree" model="ir.ui.view">
+        <field name="name">hr.employee.custom.tree</field>
+        <field name="model">hr.employee.custom</field>
+        <field name="arch" type="xml">
+            <tree string="Danh sách nhân viên">
+                <field name="name" />
+                <field name="age" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_employee_list" model="ir.actions.act_window">
+        <field name="name">Danh sách nhân viên</field>
+        <field name="res_model">hr.employee.custom</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+</odoo>
