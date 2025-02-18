@@ -33,6 +33,7 @@ Long description of module's purpose
         
         'views/test.xml',
         'views/menu.xml',
+        'views/application/application.xml',
         
         
         

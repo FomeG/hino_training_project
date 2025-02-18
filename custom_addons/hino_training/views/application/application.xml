@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_tree" model="ir.ui.view">
+        <field name="name">application.tree</field>
+        <field name="model">application</field>
+        <field name="arch" type="xml">
+            <tree string="Application List">
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_application_for_atc_list" model="ir.actions.act_window">
+        <field name="name">Applicayion List</field>
+        <field name="res_model">application</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+</odoo>

@@ -26,7 +26,7 @@
         name="Application for Attending Training Courses"
         parent="menu_training_root"
         sequence="4"
-        action="action_employee_list" />
+        action="action_application_for_atc_list" />
 
 
 </odoo>
