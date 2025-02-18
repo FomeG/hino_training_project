@@ -1,19 +1,8 @@
-# -*- coding: utf-8 -*-
+from odoo import models, fields
 
-# from odoo import models, fields, api
+class EmployeeCustom(models.Model):
+    _name = 'hr.employee.custom'
+    _description = 'Custom Employee Model'
 
-
-# class hino_training(models.Model):
-#     _name = 'hino_training.hino_training'
-#     _description = 'hino_training.hino_training'
-
-#     name = fields.Char()
-#     value = fields.Integer()
-#     value2 = fields.Float(compute="_value_pc", store=True)
-#     description = fields.Text()
-#
-#     @api.depends('value')
-#     def _value_pc(self):
-#         for record in self:
-#             record.value2 = float(record.value) / 100
-
+    name = fields.Char(string="Tên", required=True)
+    age = fields.Integer(string="Tuổi")
