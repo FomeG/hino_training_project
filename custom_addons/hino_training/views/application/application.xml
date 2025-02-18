@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_application_for_atc_tree" model="ir.ui.view">
+        <field name="name">application.tree</field>
+        <field name="model">application</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="x_applicant_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_application_for_atc_form" model="ir.ui.view">
+        <field name="name">application.form</field>
+        <field name="model">application</field>
+        <field name="arch" type="xml">
+            <form>
+                <div>
+                    <button name="action_button_edit" type="object" string="Edit"
+                            class="me-2 oe_stat_button border-2 border-primary bg-light text-primary"
+                            icon="fa-gear"
+                            invisible="0">
+                        <!--                        <field name="appointment_count" widget="statinfo" string=" Appointments"/>-->
+                    </button>
+
+                    <button name="action_button_save" type="object" string="Save"
+                            class="me-2 oe_stat_button border-2 border-success bg-light text-success"
+                            icon="fa-file-text-o"
+                            invisible="0">
+                        <!--                        <field name="repair_order_count" widget="statinfo" string=" Orders"/>-->
+                    </button>
+                </div>
+
+
+                <header>
+                    <button name="action_button_edit" invisible="0" type="object"
+                            string="Edit" class="oe_highlight"/>
+                    <button name="action_button_save" invisible="0" type="object"
+                            string="Save" class="oe_highlight"/>
+                </header>
+
+                <sheet>
+                    <h3>Application No.</h3>
+                    <h1>
+                        <field name="name" readonly="1" placeholder=""/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="x_applicant_id"/>
+                            <field name="x_department_id"/>
+                            <field name="x_position_id"/>
+                        </group>
+
+                        <group>
+                            <field name="x_date"/>
+                        </group>
+                    </group>
+
+                    <group string="Training course information">
+                        <group>
+                            <field name="x_course_title"/>
+                            <field name="x_start_date"/>
+                            <field name="x_end_date"/>
+                            <field name="x_vendor_id"/>
+                            <field name="x_staff_id"/>
+                            <field name="x_slots"/>
+                            <field name="x_remaining_slots"/>
+                            <field name="x_training_content"/>
+                        </group>
+
+                        <group>
+                            <field name="x_purpose_training"/>
+                            <field name="x_start_date_confirm"/>
+                            <field name="x_end_date_confirm"/>
+                            <field name="x_department_apply_id"/>
+                            <field name="x_training_plan_id"/>
+                            <field name="x_training_method"/>
+                        </group>
+                    </group>
+
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="action_application_for_atc_list" model="ir.actions.act_window">
+        <field name="name">Application for Attending Courses</field>
+        <field name="res_model">application</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+</odoo>
