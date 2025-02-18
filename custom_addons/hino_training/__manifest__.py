@@ -18,14 +18,30 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base','hr'],
 
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
         'views/views.xml',
         'views/templates.xml',
+        
+        
+        
+        
+        
+        
+        'views/test.xml',
+        'views/menu.xml',
+        
+        
+        
+        
+        
+        
     ],
+    
+    
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
