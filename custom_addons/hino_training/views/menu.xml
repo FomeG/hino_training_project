@@ -14,7 +14,7 @@
         name="Training Need"
         parent="menu_training_root"
         sequence="2"
-        action="action_employee_list" />
+        action="action_training_need_view" />
 
     <menuitem id="menu_training_courses"
         name="Training Courses"
@@ -27,6 +27,13 @@
         parent="menu_training_root"
         sequence="4"
         action="action_employee_list" />
+
+
+    <!-- <menuitem id="menu_training_application"
+        name="TEST_BROCHURE"
+        parent="menu_training_root"
+        sequence="5"
+        action="action_training_brochure" /> -->
 
 
 </odoo>

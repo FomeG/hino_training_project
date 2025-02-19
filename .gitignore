@@ -10,6 +10,7 @@ _build/
 **/i18n/
 **/i18n/*
 
+
 /custom_addons/
 /custom_addons/*
 !/custom_addons/
@@ -17,9 +18,12 @@ _build/
 !/custom_addons/hino_training/
 
 
+/custom_addons/hino_training/context.html
+
+
 # /addons/*
 # !/addons/
-# !/addons/repair/
+# !/addons/hr/
 # !/addons/stock/
 # !/addons/product/
 # !/addons/sale/
@@ -30,6 +34,10 @@ _build/
 # !/enterprise-17.0/
 
 # !/enterprise-17.0/appointment/
+
+
+
+
 
 
 # dotfiles

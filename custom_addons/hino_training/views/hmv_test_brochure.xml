@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_training_brochure_tree" model="ir.ui.view">
+        <field name="name">hmv.training.brochure.tree</field>
+        <field name="model">hmv.training.brochure</field>
+        <field name="arch" type="xml">
+            <tree string="Training Brochures" decoration-info="state == 'draft'" 
+                  decoration-success="state == 'approved'" 
+                  decoration-danger="state == 'rejected'" 
+                  sample="1">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="year"/>
+                <field name="start_date"/>
+                <field name="employee_id"/>
+                <field name="company_id" optional="hide"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state == 'approved'"
+                       decoration-info="state == 'draft'"
+                       decoration-danger="state == 'rejected'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_training_brochure_form" model="ir.ui.view">
+        <field name="name">hmv.training.brochure.form</field>
+        <field name="model">hmv.training.brochure</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_edit" string="Edit" type="object" 
+                            class="oe_highlight"
+                            invisible="state not in ['draft', 'rejected']"/>
+                    <button name="action_save" string="Save" type="object" 
+                            class="oe_highlight"
+                            invisible="state != 'draft'"/>
+                    <button name="action_update_course" string="Update Course" 
+                            type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="draft,submitted,approved,rejected"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="code" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="year"/>
+                            <field name="start_date"/>
+                        </group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <!-- <notebook>
+                        <page string="Training Courses" name="training_courses">
+                            <field name="training_course_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook> -->
+                </sheet>
+
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+
+
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_training_brochure" model="ir.actions.act_window">
+        <field name="name">Training Brochures</field>
+        <field name="res_model">hmv.training.brochure</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
