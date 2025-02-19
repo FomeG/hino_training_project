@@ -18,14 +18,15 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base', 'hr'],
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
-        
+        'security/ir.model.access.csv',
+        'data/sequence.xml',
+
+        'views/hmv_training_brochure.xml',
+
         
         
         
