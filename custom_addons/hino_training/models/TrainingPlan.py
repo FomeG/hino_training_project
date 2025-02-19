@@ -1,8 +1,8 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError
 
 class TrainingPlan(models.Model):
-    _name = 'training.plan'
+    _name = 'hmv.training.plan'
     _description = 'Training Plan'
 
     # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
@@ -26,12 +26,15 @@ class TrainingPlan(models.Model):
     )
 
     # Khóa học dự kiến (Many2one tham chiếu đến model hmv.trainng.brochure)
-    training_brochure_id = fields.Many2one(
-        'hmv.trainng.brochure',
+    # training_brochure_id = fields.Many2one(
+    #     'hmv.trainng.brochure',
+    #     string="Training Brochure",
+    #     required=True,
+    # )
+    training_brochure_id2 = fields.Char(
         string="Training Brochure",
-        required=True,
+        required=True
     )
-
     # Tổng chi phí các khóa học theo từng tab
     # (Có thể bạn sẽ tính toán bằng công thức SUM các trường fee từ một model con liên quan)
     total_training_fee = fields.Float(
@@ -52,9 +55,10 @@ class TrainingPlan(models.Model):
     state = fields.Selection(
         [
             ('draft', 'Draft'),
-            ('submitted', 'Submitted'),
+            ('fd_processing', 'Fd Processing'),
+            ('hr_manager_processing', 'Hr Manager Processing'),
             ('approved', 'Approved'),
-            ('rejected', 'Rejected'),
+            ('cancel', 'Cancel'),
         ],
         string="State",
         required=True,
@@ -70,24 +74,19 @@ class TrainingPlan(models.Model):
 
     # --- Các nút (button) hành động trên form view ---
 
+  
     def action_edit(self):
-        """
-        Cho phép sửa bản ghi Training Plan khi chưa submit
-        hoặc khi phiếu bị từ chối (rejected).
-        """
-        for rec in self:
-            if rec.state not in ['draft', 'rejected']:
-                raise UserError(_("Training Plan chỉ được phép sửa khi chưa submit hoặc khi phiếu đã bị từ chối."))
-        # Thực hiện các logic cần thiết để chuyển qua chế độ edit
+        for record in self:
+            if record.state in ['submitted', 'approved']:
+                raise ValidationError(_('You can only edit a Training Plan that is not submitted or rejected.'))
         return True
-
     def action_save(self):
         """
         Cho phép lưu lại bản ghi Training Plan khi trạng thái là draft.
         """
         for rec in self:
             if rec.state != 'draft':
-                raise UserError(_("Training Plan chỉ được phép lưu lại khi ở trạng thái chưa submit."))
+                raise ValidationError(_("Training Plan chỉ được phép lưu lại khi ở trạng thái chưa submit."))
         # Ở đây lưu ý: thao tác save (write) thường được Odoo xử lý tự động khi nhấn nút Lưu.
         # Nếu cần logic bổ sung thì thực hiện ở đây.
         return True
@@ -104,3 +103,31 @@ class TrainingPlan(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+    def action_send_approval(self):
+            self.ensure_one()
+            # Logic gửi duyệt
+            self.state = 'approved'
+            return True
+
+    def action_fd_processing(self):
+            self.ensure_one()
+            # Logic hủy
+            self.state = 'fd_processing'
+            return True
+
+    def action_print(self):
+            self.ensure_one()
+            # Logic in phiếu
+            return True
+    def action_cancel(self):
+            self.ensure_one()
+            # Logic in phiếu
+            self.state='cancel'
+            return True
+
+    def action_Hr_Manager_Processing(self):
+            self.ensure_one()
+            # Logic từ chối
+            self.state = 'hr_manager_processing'
+            return True
+    training_course_ids = fields.One2many('hmv.training.course', 'training_id', string="Training Courses")
