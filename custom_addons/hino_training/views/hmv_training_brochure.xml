@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_hmv_training_brochure_tree" model="ir.ui.view">
+        <field name="name">hmv.training.brochure.tree</field>
+        <field name="model">hmv.training.brochure</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="code"/>
+                <field name="year"/>
+                <field name="created_on"/>
+                <field name="employee_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="company_id"/>
+                <field name="name"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hmv_training_brochure_form" model="ir.ui.view">
+        <field name="name">hmv.training.brochure.form</field>
+        <field name="model">hmv.training.brochure</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit" type="object"
+                        invisible="state != 'draft'" class="btn-info"/>
+                    <button name="action_approve" string="Approve" type="object"
+                        invisible="state != 'submitted'" class="btn-success"/>
+                    <button name="action_reject" string="Reject" type="object"
+                        invisible="state != 'approved'" class="btn-danger"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <h3>Training Brochure No.</h3>
+                    <h1>
+                        <field name="code" readonly="1"/>
+                    </h1>
+
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="year"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                        </group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="company_id"/>
+                            <field name="created_on"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                            <!-- Tab 1: Company Courses -->
+                        <page string="Training courses provided by company">
+                            <field name="company_training_ids">
+                                <tree>
+                                    <field name="course_name"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <!-- Tab 2: Factory Training -->
+                        <page string="Factory Training">
+                            <field name="factory_training_ids">
+                                <tree>
+                                    <field name="course_name"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <!-- Tab 3: Other Courses -->
+                        <page string="Other">
+                            <field name="other_training_ids">
+                                <tree>
+                                    <field name="course_name"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter" position="inside">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hmv_training_brochure" model="ir.actions.act_window">
+        <field name="name">Training Brochures</field>
+        <field name="res_model">hmv.training.brochure</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>
