@@ -3,37 +3,34 @@
 
     <menuitem id="menu_training_root" name="Training" sequence="10" />
 
-
+    <menuitem id="menu_training_brochure"
+        name="Training Brochure"
+        parent="menu_training_root"
+        sequence="1"
+        action="action_hmv_training_brochure" />
     <menuitem id="menu_training_plan"
         name="Training Plan"
         parent="menu_training_root"
-        sequence="1"
+        sequence="2"
         action="action_employee_list" />
 
     <menuitem id="menu_training_need"
         name="Training Need"
         parent="menu_training_root"
-        sequence="2"
-        action="action_training_need_view" />
+        sequence="3"
+        action="action_employee_list" />
 
     <menuitem id="menu_training_courses"
         name="Training Courses"
         parent="menu_training_root"
-        sequence="3"
+        sequence="4"
         action="action_employee_list" />
 
     <menuitem id="menu_training_application"
         name="Application for Attending Training Courses"
         parent="menu_training_root"
-        sequence="4"
-        action="action_employee_list" />
-
-
-    <!-- <menuitem id="menu_training_application"
-        name="TEST_BROCHURE"
-        parent="menu_training_root"
         sequence="5"
-        action="action_training_brochure" /> -->
+        action="action_employee_list" />
 
 
 </odoo>

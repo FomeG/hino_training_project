@@ -22,13 +22,24 @@ Long description of module's purpose
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         
         
         
         # 'views/hmv_test_brochure.xml',
         # 'data/mail_template.xml',
         'views/hmv_training_need_view.xml',
+        
+        
+        'data/sequence.xml',
+
+        'views/hmv_training_brochure.xml',
+
+        
+        
+        
+        
+        
         'views/test.xml',
         'views/menu.xml',
         
