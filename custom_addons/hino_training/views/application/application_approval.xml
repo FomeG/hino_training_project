@@ -1,0 +1,19 @@
+<odoo>
+    <record id="view_application_approval_tree" model="ir.ui.view">
+        <field name="name">application.tree.inherit</field>
+        <field name="model">application.approval</field>
+        <field name="inherit_id" ref="repair.view_repair_order_form"/>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="x_approval_employee_id"/>
+                <field name="x_approval_job_id"/>
+                <field name="x_approval_department_id"/>
+                <field name="x_approval_status" widget="badge"
+                       decoration_info="x_approval_status == 'wait'"
+                       decoration_success="x_approval_status == 'approved'"
+                       decoration_warning="x_approval_status == 'refused'"/>
+                <field name="x_approval_comment"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

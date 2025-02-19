@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_hino_training_hino_training,hino_training.hino_training,model_hino_training_hino_training,base.group_user,1,1,1,1
 
 access_application_4_atc,access_application_4_atc,model_application,,1,1,1,1
+access_application_approval,access_application_approval,model_application_approval,,1,1,1,1

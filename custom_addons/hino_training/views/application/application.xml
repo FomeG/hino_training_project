@@ -5,7 +5,11 @@
         <field name="model">application</field>
         <field name="arch" type="xml">
             <tree>
+                <field name="name"/>
+                <field name="x_request_date"/>
                 <field name="x_applicant_id"/>
+                <field name="x_department_id"/>
+                <field name="x_course_title"/>
             </tree>
         </field>
     </record>
@@ -15,37 +19,59 @@
         <field name="model">application</field>
         <field name="arch" type="xml">
             <form>
-                <div>
-                    <button name="action_button_edit" type="object" string="Edit"
-                            class="me-2 oe_stat_button border-2 border-primary bg-light text-primary"
-                            icon="fa-gear"
-                            invisible="0">
-                        <!--                        <field name="appointment_count" widget="statinfo" string=" Appointments"/>-->
-                    </button>
+                <!--                <div>-->
+                <!--                    <button name="action_button_edit" type="object" string="Edit"-->
+                <!--                            class="me-2 oe_stat_button border-2 border-primary bg-light text-primary"-->
+                <!--                            icon="fa-gear"-->
+                <!--                            invisible="0">-->
+                <!--                                                <field name="appointment_count" widget="statinfo" string=" Appointments"/>-->
+                <!--                    </button>-->
 
-                    <button name="action_button_save" type="object" string="Save"
-                            class="me-2 oe_stat_button border-2 border-success bg-light text-success"
-                            icon="fa-file-text-o"
-                            invisible="0">
-                        <!--                        <field name="repair_order_count" widget="statinfo" string=" Orders"/>-->
-                    </button>
-                </div>
+                <!--                    <button name="action_button_save" type="object" string="Save"-->
+                <!--                            class="me-2 oe_stat_button border-2 border-success bg-light text-success"-->
+                <!--                            icon="fa-file-text-o"-->
+                <!--                            invisible="0">-->
+                <!--                                                <field name="repair_order_count" widget="statinfo" string=" Orders"/>-->
+                <!--                    </button>-->
+                <!--                </div>-->
 
+                <title>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_button_edit" type="object" icon="fa-pencil"
+                                invisible="0"
+                                string="Edit"
+                                class="me-2 oe_stat_button border-2 border-info bg-light text-info"/>
+                        <button name="action_button_save" type="object" icon="fa-save"
+                                invisible="0"
+                                string="Save"
+                                class="me-2 oe_stat_button border-2 border-info bg-light text-info"/>
+                    </div>
+                </title>
 
                 <header>
-                    <button name="action_button_edit" invisible="0" type="object"
-                            string="Edit" class="oe_highlight"/>
-                    <button name="action_button_save" invisible="0" type="object"
-                            string="Save" class="oe_highlight"/>
+                    <field name="x_approval_status" widget="statusbar"/>
+
+                    <button name="action_button_approve" type="object"
+                            invisible="0"
+                            string="Approve"
+                            class="me-2 btn-success oe_highlight"/>
+                    <button name="action_button_refuse" type="object"
+                            invisible="0"
+                            string="Refuse"
+                            class="me-2 btn-danger oe_highlight"/>
+
+                    <button name="action_button_set_waiting" type="object"
+                            invisible="x_approval_status == 'wait'"
+                            string="Set to Waiting"
+                            class="me-2 btn-secondary oe_highlight"/>
                 </header>
 
                 <sheet>
-                    <group string="Application No.">
-                        <h1>
-                            <field name="name" readonly="1" placeholder=""/>
-                        </h1>
-                    </group>
-                    
+                    <h3>Application No.</h3>
+                    <h1>
+                        <field name="name" readonly="1" placeholder=""/>
+                    </h1>
+
                     <group>
                         <group>
                             <field name="x_applicant_id"/>
@@ -54,7 +80,7 @@
                         </group>
 
                         <group>
-                            <field name="x_date"/>
+                            <field name="x_request_date"/>
                         </group>
                     </group>
 
@@ -80,8 +106,24 @@
                         </group>
                     </group>
 
-                </sheet>
+                    <notebook>
+                        <page string="Approval History">
+                            <group>
+                                <group editable="bottom">
+                                    <field name="x_approval_employee_id"/>
+                                    <field name="x_approval_job_id"/>
+                                    <field name="x_approval_department_id"/>
+                                    <field name="x_approval_status" widget="badge"
+                                           decoration_info="x_approval_status == 'wait'"
+                                           decoration_success="x_approval_status == 'approved'"
+                                           decoration_warning="x_approval_status == 'refused'"/>
+                                    <field name="x_approval_comment"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
 
+                </sheet>
             </form>
         </field>
     </record>
