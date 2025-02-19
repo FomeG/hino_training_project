@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_hmv_training_brochure" model="ir.sequence">
+            <field name="name">Training Brochure Sequence</field>
+            <field name="code">hmv.training.brochure</field>
+            <field name="prefix">CP</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>
