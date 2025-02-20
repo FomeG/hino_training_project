@@ -19,3 +19,4 @@ class HMVTrainingBrochureLine(models.Model):
         ('factory', 'Factory Training'),
         ('other', 'Other')
     ], string='Tab Type', default='company', required=True)
+

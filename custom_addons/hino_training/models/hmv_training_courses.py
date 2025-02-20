@@ -14,8 +14,8 @@ class TrainingCourses(models.Model):
     vendor_id = fields.Many2one('res.partner', string='Vendor', required=True, tracking=True,
                                 domain=[('is_company', '=', True)])
     purchase_order_id = fields.Many2one('purchase.order', string='Link PO', tracking=True)
-    # employee_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', required=True,
-    #                                tracking=True, domain=[('department_id.name', '=', 'Human Resources')])
+    employee_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', required=True,
+                                   tracking=True)
     slot = fields.Integer(string='Slots', required=True, tracking=True)
     training_content = fields.Text(string='Training content', required=True, tracking=True)
     file_attach = fields.Binary(string='File Attach', attachment=True)
@@ -25,11 +25,34 @@ class TrainingCourses(models.Model):
     # training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method', required=True,
     #                                      tracking=True, domain=[('code', '=', 'TRAINING_METHOD')]) ???? lấy ở đâu
     year = fields.Date(string='Year', required=True, tracking=True)
-    # training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
-    #                                        required=True, tracking=True) // lấy từ traning brochure
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
+                                           required=True, tracking=True)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     location_id = fields.Many2one('res.country.state', string='Location', required=True, tracking=True)
-    # employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,
-    #                                  domain=[('department_id.name', '=', 'Human Resources')])
+    employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,)
     deptcombine = fields.Text(string='DeptCombine', tracking=True)
     description = fields.Text(string='Description', required=True, tracking=True)
     status = fields.Selection([
@@ -75,16 +98,16 @@ class TrainingCourses(models.Model):
         if self.vendor_id:
             return {'domain': {'purchase_order_id': [('partner_id', '=', self.vendor_id.id)]}}
 
-    # @api.onchange('year')
-    # def _onchange_year(self):
-    #     if self.year:
-    #         return {'domain': {'training_brochure_id': [('year', '=', self.year)]}}
+    @api.onchange('year')
+    def _onchange_year(self):
+        if self.year:
+            return {'domain': {'training_brochure_id': [('year', '=', self.year)]}}
 
-    # @api.onchange('training_brochure_id')
-    # def _onchange_training_brochure_id(self):
-    #     if self.training_brochure_id:
-    #         self.course_type = self.training_brochure_id.course_type
-    #         self.estimate_fee = self.training_brochure_id.estimate_fee
+    @api.onchange('training_brochure_id')
+    def _onchange_training_brochure_id(self):
+        if self.training_brochure_id:
+            self.course_type = self.training_brochure_id.course_type
+            self.estimate_fee = self.training_brochure_id.estimate_fee
 
     def action_edit(self):
         if self.status not in ['draft', 'refused']:
@@ -124,8 +147,8 @@ class TrainingCourses(models.Model):
     def action_create(self):
         return True
 
-    # def send_confirmation_email(self):
-    #     template = self.env.ref('hmv_training.email_template_training_confirmation')
-    #     for participant in self.participant_ids.filtered(lambda p: p.status == 'waiting'):
-    #         template.send_mail(participant.id, force_send=True)
-    #     return True
+    def send_confirmation_email(self):
+        template = self.env.ref('hmv_training.email_template_training_confirmation')
+        for participant in self.participant_ids.filtered(lambda p: p.status == 'waiting'):
+            template.send_mail(participant.id, force_send=True)
+        return True
