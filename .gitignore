@@ -10,18 +10,21 @@ _build/
 **/i18n/
 **/i18n/*
 
+
 /custom_addons/
 /custom_addons/*
 !/custom_addons/
 !/custom_addons/yeucau.md
 !/custom_addons/hino_training/
-!/custom_addons/test_module/
 
+
+# /custom_addons/hino_training/context.html
+/custom_addons/hino_training/static
 
 
 # /addons/*
 # !/addons/
-# !/addons/repair/
+# !/addons/hr/
 # !/addons/stock/
 # !/addons/product/
 # !/addons/sale/
@@ -30,8 +33,17 @@ _build/
 
 # /enterprise-17.0/*
 # !/enterprise-17.0/
-
 # !/enterprise-17.0/appointment/
+
+
+
+# /market_place_addons/*
+# !/market_place_addons/
+# !/market_place_addons/muk_web_appsbar/
+# !/market_place_addons/muk_web_chatter/
+# !/market_place_addons/muk_web_colors/
+# !/market_place_addons/muk_web_dialog/
+# !/market_place_addons/muk_web_enterprise_theme/
 
 
 # dotfiles

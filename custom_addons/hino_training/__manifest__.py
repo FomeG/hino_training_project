@@ -18,12 +18,18 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'mail', 'hr', 'purchase'],
+    'depends': ['base','hr','mail','purchase'],
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
-
+        'security/ir.model.access.csv',
+        'data/hmv_need_sequence.xml',
+        'data/sequence.xml',
+        
+        # 'views/hmv_test_brochure.xml',
+        # 'data/mail_template.xml',
+        'views/hmv_training_need_view.xml',
+        
 
         'views/hmv_training_brochure.xml',
         'views/hmv_training_courses_form_view.xml',
