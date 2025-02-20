@@ -28,6 +28,8 @@ Long description of module's purpose
         'views/hmv_training_brochure.xml',
         'views/hmv_training_courses_form_view.xml',
         'views/test.xml',
+
+        'templates/application_report_template.xml',
         'views/application/application.xml',
         # 'views/application/application_approval.xml',
 

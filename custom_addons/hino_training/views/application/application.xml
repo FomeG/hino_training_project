@@ -19,24 +19,15 @@
         <field name="model">application</field>
         <field name="arch" type="xml">
             <form>
-                <!--                <div>-->
-                <!--                    <button name="action_button_edit" type="object" string="Edit"-->
-                <!--                            class="me-2 oe_stat_button border-2 border-primary bg-light text-primary"-->
-                <!--                            icon="fa-gear"-->
-                <!--                            invisible="0">-->
-                <!--                                                <field name="appointment_count" widget="statinfo" string=" Appointments"/>-->
-                <!--                    </button>-->
-
-                <!--                    <button name="action_button_save" type="object" string="Save"-->
-                <!--                            class="me-2 oe_stat_button border-2 border-success bg-light text-success"-->
-                <!--                            icon="fa-file-text-o"-->
-                <!--                            invisible="0">-->
-                <!--                                                <field name="repair_order_count" widget="statinfo" string=" Orders"/>-->
-                <!--                    </button>-->
-                <!--                </div>-->
-
                 <title>
                     <div class="oe_button_box" name="button_box">
+                        <button name="action_button_open_training_course" type="object" icon="fa-document"
+                                invisible="x_course_count == 0"
+                                string="Training Course"
+                                class="me-2 oe_stat_button border-2 border-success bg-light text-success">
+                            <field name="x_course_count" widget="statinfo" string=" Courses"/>
+                        </button>
+
                         <button name="action_button_register" type="object" icon="fa-external-link"
                                 invisible="x_approval_status not in ('draft', 'refused')"
                                 string="Register"
@@ -49,6 +40,10 @@
                                 invisible="x_approval_status not in ('refused')"
                                 string="Save"
                                 class="me-2 oe_stat_button border-2 border-primary bg-light text-primary"/>
+                        <button name="action_button_print" type="object" icon="fa-print"
+                                invisible="x_approval_status not in ('approved')"
+                                string="Print"
+                                class="me-2 oe_stat_button border-2 border-secondary bg-light text-secondary"/>
                     </div>
                 </title>
 
@@ -76,7 +71,7 @@
                         <field name="name" readonly="1" placeholder=""/>
                     </h1>
 
-                    <group>
+                    <group readonly="x_approval_status in ('wait', 'approved')">
                         <group>
                             <field name="x_applicant_id"/>
                             <field name="x_department_id"/>
@@ -116,7 +111,8 @@
                                 <field name="x_approval_employee_id"/>
                                 <field name="x_approval_job_id"/>
                                 <field name="x_approval_department_id"/>
-                                <field name="x_approval_status" widget="badge" invisible="x_approval_status in ('draft')"/>
+                                <field name="x_approval_status" widget="badge"
+                                       invisible="x_approval_status in ('draft')"/>
                                 <field name="x_approval_comment"/>
                             </group>
 
@@ -128,11 +124,18 @@
         </field>
     </record>
 
+    <record id="report_application_for_atc" model="ir.actions.report">
+        <field name="name">Application Report</field>
+        <field name="model">application</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hino_training.application_report_template</field>
+        <field name="print_report_name">'Application_%s' % (object.name)</field>
+    </record>
+
     <record id="action_application_for_atc_list" model="ir.actions.act_window">
         <field name="name">Application for Attending Courses</field>
         <field name="res_model">application</field>
         <field name="view_mode">tree,form</field>
     </record>
-
 
 </odoo>
