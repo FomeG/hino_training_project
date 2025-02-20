@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_training_need_tree" model="ir.ui.view">
+        <field name="name">hmv.training.need.tree</field>
+        <field name="model">hmv.training.need</field>
+        <field name="arch" type="xml">
+            <tree string="Training Needs" decoration-info="state == 'draft'"
+                decoration-success="state == 'approved'" decoration-danger="state == 'rejected'"
+                sample="1">
+
+                <!-- Thêm button vào đây -->
+                <header>
+                    <button name="action_send_mass_email"
+                        string="Send Mass Email"
+                        type="object"
+                        class="btn-primary" />
+                </header>
+
+
+                <field name="name" />
+                <field name="employee_id" />
+                <field name="assignee_id" />
+                <field name="department_id" />
+                <field name="registration_date" />
+                <field name="training_brochure_id" />
+                <field name="company_id" optional="hide" />
+                <field name="state" widget="badge" decoration-success="state == 'approved'"
+                    decoration-info="state == 'draft'" decoration-danger="state == 'rejected'" />
+                <field name="description" optional="show" />
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- Thêm form view mới với chatter -->
+    <record id="view_training_need_form" model="ir.ui.view">
+        <field name="name">hmv.training.need.form</field>
+        <field name="model">hmv.training.need</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+
+                    <button name="action_submit"
+                        string="Submit"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'draft'" />
+
+                    <button name="action_approve"
+                        string="Approve"
+                        type="object"
+                        class="oe_highlight"
+                    />
+
+                    <button name="action_reject"
+                        string="Reject"
+                        type="object"
+                        class="btn-danger"
+                    />
+
+                    <button name="action_send_email"
+                        string="Send Email"
+                        type="object"
+                        class="btn-primary" />
+
+
+                    <field name="state" widget="statusbar"/>
+
+
+                </header>
+                <sheet>
+                    <h3>Training Need No.</h3>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="description" />
+                            <field name="employee_id" />
+                            <field name="assignee_id" />
+                            <field name="department_id" />
+                        </group>
+                        <group>
+                            <field name="company_id" />
+                            <field name="registration_date" />
+                            <field name="training_brochure_id" />
+                        </group>
+                    </group>
+                    <notebook>
+
+
+                        <!-- Tab Company Training -->
+                        <page string="Training courses provided by company" name="company_training">
+                            <field name="company_line_ids">
+                                <tree editable="bottom">
+                                    <field name="employee_id" />
+                                    <field name="email" />
+                                    <field name="training_brochure_line_id" />
+                                </tree>
+                            </field>
+                        </page>
+
+
+                        <!-- Tab Factory Training -->
+                        <page string="Factory Training" name="factory_training">
+                            <field name="factory_line_ids">
+                                <tree editable="bottom">
+                                    <field name="employee_id" />
+                                    <field name="email" />
+                                    <field name="training_plan_line_id" />
+                                </tree>
+                            </field>
+                        </page>
+
+
+                        <!-- Tab Other Training -->
+                        <page string="Other Training" name="other_training">
+                            <field name="other_line_ids">
+                                <tree editable="bottom">
+                                    <field name="employee_id" />
+                                    <field name="email" />
+                                    <field name="training_plan_line_id" />
+                                </tree>
+                            </field>
+                        </page>
+
+
+                        <!-- Tab Approval History -->
+                        <page string="Approval History" name="approval_history">
+                            <field name="approval_line_ids">
+                                <tree editable="bottom">
+                                    <field name="employee_id" />
+                                    <field name="job_id" />
+                                    <field name="department_id" />
+                                    <field name="status" widget="badge" />
+                                    <field name="comment" />
+                                </tree>
+                            </field>
+                        </page>
+
+
+                    </notebook>
+
+                </sheet>
+                <!-- Thêm chatter ở đây -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_training_need_view" model="ir.actions.act_window">
+        <field name="name">TEST</field>
+        <field name="res_model">hmv.training.need</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
