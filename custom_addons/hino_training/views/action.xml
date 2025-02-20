@@ -9,5 +9,24 @@
       <field name="view_mode">tree,form</field>
     </record>
     
+       <!-- Action -->
+    <record id="action_hmv_training_brochure" model="ir.actions.act_window">
+        <field name="name">Training Brochures</field>
+        <field name="res_model">hmv.training.brochure</field>
+        <field name="view_mode">tree,form</field>
+    </record>
   </data>
+
+
+   <!-- Actions -->
+    <record id="action_hmv_training_courses" model="ir.actions.act_window">
+        <field name="name">Training Courses</field>
+        <field name="res_model">hmv.training.courses</field>
+        <field name="view_mode">tree,form,calendar</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first training course!
+            </p>
+        </field>
+    </record>
 </odoo>

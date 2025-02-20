@@ -4,6 +4,8 @@ from odoo.exceptions import ValidationError
 class TrainingPlan(models.Model):
     _name = 'hmv.training.plan'
     _description = 'Training Plan'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
 
     # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
     name = fields.Char(
@@ -26,15 +28,15 @@ class TrainingPlan(models.Model):
     )
 
     # Khóa học dự kiến (Many2one tham chiếu đến model hmv.trainng.brochure)
-    # training_brochure_id = fields.Many2one(
-    #     'hmv.trainng.brochure',
-    #     string="Training Brochure",
-    #     required=True,
-    # )
-    training_brochure_id2 = fields.Char(
+    training_brochure_id = fields.Many2one(
+        'hmv.training.brochure',
         string="Training Brochure",
-        required=True
+        required=True,
     )
+    # training_brochure_id2 = fields.Char(
+    #     string="Training Brochure",
+    #     required=True
+    # )
     # Tổng chi phí các khóa học theo từng tab
     # (Có thể bạn sẽ tính toán bằng công thức SUM các trường fee từ một model con liên quan)
     total_training_fee = fields.Float(
@@ -69,7 +71,6 @@ class TrainingPlan(models.Model):
     # Diễn giải
     description = fields.Text(
         string="Description",
-        required=True,
     )
 
     # --- Các nút (button) hành động trên form view ---
@@ -130,4 +131,9 @@ class TrainingPlan(models.Model):
             # Logic từ chối
             self.state = 'hr_manager_processing'
             return True
-    training_course_ids = fields.One2many('hmv.training.course', 'training_id', string="Training Courses")
+    training_course_ids = fields.One2many('hmv.training.courses', 'training_id', string="Training Courses")
+    @api.model
+    def create(self, vals):
+        if vals.get('name', _('New')) == _('New'):
+            vals['name'] = self.env['ir.sequence'].next_by_code('hino.training.plan') or _('New')
+        return super(TrainingPlan, self).create(vals)

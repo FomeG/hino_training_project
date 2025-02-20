@@ -1,4 +1,15 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_hino_training_hino_training,hino_training.hino_training,model_hino_training_hino_training,base.group_user,1,1,1,1
 access_hmv_training_plan,hmv_training_plan,model_hmv_training_plan,base.group_user,1,1,1,1
-access_hmv_training_course,hmv_training_course,model_hmv_training_course,base.group_user,1,1,1,1
+access_hmv_training_courses,hmv_training_courses,model_hmv_training_courses,base.group_user,1,1,1,1
+access_hino_training_hino_training,hino_training_hino_training,model_hr_employee_custom,,1,1,1,1
+
+access_hmv_training_brochure,hmv.training.brochure,model_hmv_training_brochure,,1,1,1,1
+access_hmv_training_brochure_line,hmv.training.brochure.line,model_hmv_training_brochure_line,,1,1,1,1
+
+access_hmv_training_courses,hmv.training.courses,model_hmv_training_courses,,1,1,1,1
+access_hmv_training_participant,hmv.training.participant,model_hmv_training_participant,,1,1,1,1
+
+
+
+access_hmv_list_value_line,hmv.list.value.line,model_hmv_list_value_line,,1,1,1,1

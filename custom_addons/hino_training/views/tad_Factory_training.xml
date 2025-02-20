@@ -3,14 +3,14 @@
 <odoo>
     <data>
         <!-- Inherit view_training_plan_form -->
-        <record id="view_training_course_form_inherit2" model="ir.ui.view">
-            <field name="name">training.course.form.inherit</field>
+        <record id="view_tab_factory_training_inherit2" model="ir.ui.view">
+            <field name="name">training.course.form.inherit.tab.factory</field>
             <field name="model">hmv.training.plan</field>
             <field name="inherit_id" ref="hino_training.view_training_plan_form"/>
             <field name="arch" type="xml">
                 <!-- Chèn tab mới vào trong notebook -->
             <xpath expr="//form/sheet/notebook" position="inside">
-                    <page string="Training Courses Provided by Company" name="tab_training_course">
+                    <page string="Factory Training" name="tab_factory_training">
                         <group>
                             <field name="training_course_ids">
                                 <tree editable="bottom">

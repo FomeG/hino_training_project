@@ -1,0 +1,11 @@
+<odoo>
+    <data noupdate="1">
+        <record id="seq_training_plan" model="ir.sequence">
+            <field name="name">Training Plan Sequence</field>
+            <field name="code">hino.training.plan</field>
+            <field name="prefix">TP</field>
+            <field name="padding">4</field>
+            <field name="number_increment">1</field>
+        </record>
+    </data>
+</odoo>
