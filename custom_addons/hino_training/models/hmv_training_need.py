@@ -1,0 +1,189 @@
+# -*- coding: utf-8 -*-
+from odoo import models, fields, api, _
+from datetime import datetime
+
+from odoo.exceptions import UserError
+
+class TrainingNeed(models.Model):
+    _name = 'hmv.training.need'
+    _description = 'Training Need Management'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    
+    name = fields.Char(
+        string='Training Need No.',
+        required=True,
+        readonly=False,
+        default=lambda self: self._get_default_code(),
+        tracking=True,
+        copy=False,
+    )
+    
+    employee_id = fields.Many2one(
+        'hr.employee',
+        string='Created by',
+        required=True,
+        readonly=True,
+        default=lambda self: self.env.user.employee_id,
+        tracking=True,
+        help="Người tạo phiếu"
+    )
+    
+    assignee_id = fields.Many2one(
+        'hr.employee',
+        string='Assignee',
+        default=lambda self: self.env.user.employee_id,
+        tracking=True,
+        help="Người được giao việc hoàn thành thông tin"
+    )
+    
+    department_id = fields.Many2one(
+        'hr.department',
+        string='Department',
+        required=False,
+        readonly=True,
+        related='employee_id.department_id',
+        store=True,
+        tracking=True
+    )
+    
+    registration_date = fields.Date(
+        string='Registration Date',
+        required=True,
+        readonly=True,
+        default=fields.Date.context_today,
+        tracking=True,
+        help="Ngày tạo nhu cầu đào tạo"
+    )
+    
+    # TRAINING BROCHURE
+    training_brochure_id = fields.Many2one(
+        'hmv.training.brochure',
+        string='Training Course Plan',
+        required=True,
+        tracking=True,
+        help="Kế hoạch đào tạo gốc"
+    )
+    
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        required=True,
+        readonly=True,
+        default=lambda self: self.env.company,
+        tracking=True
+    )
+        
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted'),
+        ('manager_approved', 'Manager Approved'),
+        ('senior_manager_approved', 'Senior Manager Approved'),
+        ('dgm_approved', 'DGM Approved'),
+        ('gm_approved', 'GM Approved'),
+        ('officer_approved', 'Officer Approved'),
+        ('hr_approved', 'HR Approved'),
+        ('rejected', 'Rejected'),
+        ('completed', 'Completed')
+    ], string='State', default='draft', tracking=True)
+        
+        
+    description = fields.Text(
+        string='Description', 
+        tracking=True,
+        help="Diễn giải"
+    )
+    
+    
+    # One2many fields for tabs
+    company_line_ids = fields.One2many(
+        'hmv.training.need.company',
+        'training_need_id',
+        string='Company Training Lines'
+    )
+
+    factory_line_ids = fields.One2many(
+        'hmv.training.need.factory',
+        'training_need_id',
+        string='Factory Training Lines'
+    )
+
+    other_line_ids = fields.One2many(
+        'hmv.training.need.other',
+        'training_need_id',
+        string='Other Training Lines'
+    )
+
+    approval_line_ids = fields.One2many(
+        'hmv.training.need.approval',
+        'training_need_id',
+        string='Approval History'
+    )
+
+    def _get_default_code(self):
+        # Lấy giá trị mặc định từ ir.sequence
+        return self.env['ir.sequence'].next_by_code('hmv.training.need.code') or 'TN0001'
+
+    
+    # Sequence generation
+    @api.model
+    def create(self, vals):
+        if not vals.get('name'):
+            vals['name'] = self._get_default_code()
+        return super(TrainingNeed, self).create(vals)
+
+    # Button methods
+    def action_edit(self):
+        """Allow editing when in draft or rejected state"""
+        self.ensure_one()
+        if self.state in ['draft', 'rejected']:
+            return True
+        return False
+
+    def action_save(self):
+        """Save the record if in draft state"""
+        self.ensure_one()
+        if self.state == 'draft':
+            return True
+        return False
+
+    def action_send_email(self):
+        pass
+            
+    def action_send_mass_email(self):
+        """Send mass email to selected records"""
+        # Tạo thông báo sticky với message_type là warning 
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'TEST',
+                'message': 'gửi mail thành công (test)',
+                'type': 'success',  # warning sẽ hiển thị màu vàng
+                'sticky': True,     # thông báo sẽ không tự động biến mất
+            }
+        }
+
+        
+    @api.depends('employee_id')
+    def _compute_department_id(self):
+        for record in self:
+            record.department_id = record.employee_id.department_id or False
+            
+#region 1.3.2 Phê duyệt yêu cầu
+
+    def _get_next_approver(self):
+        pass
+
+
+    def action_submit(self):
+        pass
+    
+
+    def action_approve(self):
+        pass
+
+    def action_reject(self):
+        pass
+            
+            
+#endregion
