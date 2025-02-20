@@ -22,8 +22,8 @@ Long description of module's purpose
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
-
+        'security/ir.model.access.csv',
+        'data/sequence.xml',
 
         'views/hmv_training_brochure.xml',
         'views/hmv_training_courses_form_view.xml',
