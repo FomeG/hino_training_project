@@ -17,18 +17,6 @@
     -	Giới hạn mỗi học viên chỉ được đăng ký tối đa 2 khóa học, Nhân viên phòng HR có quyền đăng ký thêm khóa học cho học viên nếu có phát sinh.
     -	Mỗi phòng ban chỉ được tạo một nhu cầu học tập trong 1 năm.
 
-    3.1.	Tạo luồng phê duyệt cho Training Need
-        Hệ thống xác định luồng duyệt dựa vào Position và Division của applicant
-        STT	    Applicant	Luồng duyệt	Ghi chú
-        1	Staff	Manager -> Senior Manager -> DGM -> GM -> Officer -> HR manager	Sau khi staff duyệt, gửi thông báo tới Manager để duyệt bước tiếp theo
-        2	Manager	Senior Manager -> DGM -> GM -> Officer -> HR manager	Sau khi Manager duyệt, gửi thông báo tới Senior Manager để duyệt bước tiếp theo.
-        3	Senior Manager	DGM -> GM -> Officer -> HR manager	Sau khi Senior Manager duyệt, gửi thông báo tới DGM để duyệt bước tiếp theo
-        4	DGM	GM -> Officer -> HR manager	Sau khi DGM duyệt, gửi thông báo tới GM để duyệt bước tiếp theo.
-        5	GM	Officer -> HR Manager	Sau khi GM duyệt, gửi thông báo tới Officer để duyệt bước tiếp theo.
-        6	Officer	HR Manager	Sau khi Officer duyệt, gửi thông báo tới HR Manager để duyệt bước tiếp theo.
-        7	HR Manager		Sau khi HR Manager duyệt, thông báo phát hành Training Need
-
-	Thiết kế: Hiện tại đang fix cứng dưới code
 
     3.2.	Gửi email thông báo
     Giải pháp: Thêm button Send Email, sau khi manager lập và assign cho nhân viên, hệ thống gửi thông báo cho nhân viên được assign hoàn thành yêu cầu phiếu Training Need

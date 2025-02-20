@@ -23,6 +23,8 @@ Long description of module's purpose
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'data/hmv_need_sequence.xml',
+        'data/sequence.xml',
         
         
         
@@ -31,7 +33,6 @@ Long description of module's purpose
         'views/hmv_training_need_view.xml',
         
         
-        'data/sequence.xml',
 
         'views/hmv_training_brochure.xml',
 

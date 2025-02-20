@@ -2,7 +2,7 @@
 
 from . import models
 from . import hmv_training_need
-from . import hmv_training_need_tab
+from . import hmv_training_need_line
 
 from . import hmv_training_courses
 from . import hmv_training_participant

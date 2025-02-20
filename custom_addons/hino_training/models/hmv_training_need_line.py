@@ -25,11 +25,11 @@ class TrainingNeedCompanyTab(models.Model):
         readonly=True
     )
     
-    # Tạm thời đổi thành Char thay vì Many2many
-    training_brochure_line_id = fields.Char(
+    training_brochure_line_id = fields.Many2one(
+        'hmv.training.brochure.line',
         string='Courses',
         required=True,
-        help="Temporary field for courses"
+        domain="[('training_brochure_id', '=', parent.training_brochure_id), ('training_type', '=', 'company')]"
     )
 
 

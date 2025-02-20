@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from datetime import datetime
+
+from odoo.exceptions import UserError
 
 class TrainingNeed(models.Model):
     _name = 'hmv.training.need'
@@ -11,9 +13,9 @@ class TrainingNeed(models.Model):
         string='Training Need No.',
         required=True,
         readonly=False,
+        default=lambda self: self._get_default_code(),
         tracking=True,
         copy=False,
-        help="Số của nhu cầu đào tạo, prefix: TN, sequence: 4 digits"
     )
     
     employee_id = fields.Many2one(
@@ -37,7 +39,7 @@ class TrainingNeed(models.Model):
     department_id = fields.Many2one(
         'hr.department',
         string='Department',
-        required=True,
+        required=False,
         readonly=True,
         related='employee_id.department_id',
         store=True,
@@ -53,8 +55,9 @@ class TrainingNeed(models.Model):
         help="Ngày tạo nhu cầu đào tạo"
     )
     
-    # Tạm thời đổi thành Char thay vì Many2one
-    training_brochure_id = fields.Char(
+    # TRAINING BROCHURE
+    training_brochure_id = fields.Many2one(
+        'hmv.training.brochure',
         string='Training Course Plan',
         required=True,
         tracking=True,
@@ -69,20 +72,27 @@ class TrainingNeed(models.Model):
         default=lambda self: self.env.company,
         tracking=True
     )
-    
+        
     state = fields.Selection([
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
-        ('approved', 'Approved'),
+        ('manager_approved', 'Manager Approved'),
+        ('senior_manager_approved', 'Senior Manager Approved'),
+        ('dgm_approved', 'DGM Approved'),
+        ('gm_approved', 'GM Approved'),
+        ('officer_approved', 'Officer Approved'),
+        ('hr_approved', 'HR Approved'),
         ('rejected', 'Rejected'),
-        ('done', 'Done')
+        ('completed', 'Completed')
     ], string='State', default='draft', tracking=True)
-    
+        
+        
     description = fields.Text(
         string='Description', 
         tracking=True,
         help="Diễn giải"
     )
+    
     
     # One2many fields for tabs
     company_line_ids = fields.One2many(
@@ -109,11 +119,16 @@ class TrainingNeed(models.Model):
         string='Approval History'
     )
 
+    def _get_default_code(self):
+        # Lấy giá trị mặc định từ ir.sequence
+        return self.env['ir.sequence'].next_by_code('hmv.training.need.code') or 'TN0001'
+
+    
     # Sequence generation
     @api.model
     def create(self, vals):
         if not vals.get('name'):
-            vals['name'] = self.env['ir.sequence'].next_by_code('hmv.training.need') or 'TN0001'
+            vals['name'] = self._get_default_code()
         return super(TrainingNeed, self).create(vals)
 
     # Button methods
@@ -132,106 +147,43 @@ class TrainingNeed(models.Model):
         return False
 
     def action_send_email(self):
-        """Send notification email to assignee"""
-        self.ensure_one()
-        if self.assignee_id and self.assignee_id.work_email:
-            template = self.env.ref('hino_training.email_template_training_need_notification')
-            template.send_mail(self.id, force_send=True)
+        pass
             
-            
-            
+    def action_send_mass_email(self):
+        """Send mass email to selected records"""
+        # Tạo thông báo sticky với message_type là warning 
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'TEST',
+                'message': 'gửi mail thành công (test)',
+                'type': 'success',  # warning sẽ hiển thị màu vàng
+                'sticky': True,     # thông báo sẽ không tự động biến mất
+            }
+        }
+
+        
+    @api.depends('employee_id')
+    def _compute_department_id(self):
+        for record in self:
+            record.department_id = record.employee_id.department_id or False
             
 #region 1.3.2 Phê duyệt yêu cầu
 
     def _get_next_approver(self):
-        """Get next approver based on current state and employee position"""
-        # self.ensure_one()
-        # employee = self.employee_id
-        # job_position = employee.job_id.name if employee.job_id else False
-        
-        # approval_flow = {
-        #     'Staff': ['Manager', 'Senior Manager', 'DGM', 'GM', 'Officer', 'HR Manager'],
-        #     'Manager': ['Senior Manager', 'DGM', 'GM', 'Officer', 'HR Manager'],
-        #     'Senior Manager': ['DGM', 'GM', 'Officer', 'HR Manager'],
-        #     'DGM': ['GM', 'Officer', 'HR Manager'],
-        #     'GM': ['Officer', 'HR Manager'],
-        #     'Officer': ['HR Manager'],
-        #     'HR Manager': []
-        # }
-        
-        # current_flow = approval_flow.get(job_position, [])
-        # if not current_flow:
-        #     return False
-            
-        # return self.env['hr.employee'].search([
-        #     ('job_id.name', '=', current_flow[0])
-        # ], limit=1)
+        pass
+
 
     def action_submit(self):
-        """Submit for approval"""
-        # self.ensure_one()
-        # next_approver = self._get_next_approver()
-        # if next_approver:
-        #     self.write({
-        #         'state': 'submitted',
-        #     })
-        #     # Create approval history record
-        #     self.env['hmv.training.need.approval'].create({
-        #         'training_need_id': self.id,
-        #         'employee_id': next_approver.id,
-        #         'status': 'waiting'
-        #     })
-        #     # Send notification email
-        #     self._notify_next_approver(next_approver)
-        # return True
+        pass
+    
 
     def action_approve(self):
-        """Approve the training need"""
-        # self.ensure_one()
-        # current_user_employee = self.env.user.employee_id
-        # current_approval = self.approval_line_ids.filtered(
-        #     lambda r: r.employee_id == current_user_employee and r.status == 'waiting'
-        # )
-        
-        # if current_approval:
-        #     current_approval.write({
-        #         'status': 'approved',
-        #         'comment': 'Approved'
-        #     })
-            
-        #     next_approver = self._get_next_approver()
-        #     if next_approver:
-        #         self.env['hmv.training.need.approval'].create({
-        #             'training_need_id': self.id,
-        #             'employee_id': next_approver.id,
-        #             'status': 'waiting'
-        #         })
-        #         self._notify_next_approver(next_approver)
-        #     else:
-        #         self.write({'state': 'approved'})
-        # return True
+        pass
 
     def action_reject(self):
-        """Reject the training need"""
-        # self.ensure_one()
-        # current_user_employee = self.env.user.employee_id
-        # current_approval = self.approval_line_ids.filtered(
-        #     lambda r: r.employee_id == current_user_employee and r.status == 'waiting'
-        # )
-        
-        # if current_approval:
-        #     current_approval.write({
-        #         'status': 'refused',
-        #         'comment': 'Rejected'
-        #     })
-        #     self.write({'state': 'rejected'})
-        # return True
-
-    def _notify_next_approver(self, approver):
-        """Send notification to next approver"""
-        # if approver.work_email:
-        #     template = self.env.ref('hino_training.email_template_next_approver_notification')
-        #     template.send_mail(self.id, force_send=True)
+        pass
             
             
 #endregion
