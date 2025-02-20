@@ -16,12 +16,12 @@ class ApplicationForATC(models.Model):
                                      help='The Request Date CAN NOT be later than the Start Date')
 
     # Training course info
-    x_course_title = fields.Char(string='Course Title')
-    x_start_date = fields.Datetime(string='Start Date')
-    x_end_date = fields.Datetime(string='End Date')
-    x_vendor_id = fields.Char(string='Vendor')
+    x_course_title = fields.Many2one('hmv.training.courses', string='Course Title')
+    x_start_date = fields.Date(string='Start Date', related='x_course_title.start_date')
+    x_end_date = fields.Date(string='End Date', related='x_course_title.end_date')
+    x_vendor_id = fields.Many2one(string='Vendor', related='x_course_title.vendor_id')
     x_staff_id = fields.Char(string='P.I.C Staff/Dept')
-    x_slots = fields.Integer(string='Number of Slots')
+    x_slots = fields.Integer(string='Number of Slots', related='x_course_title.slot')
     x_remaining_slots = fields.Integer(string='Remaining Slots')
     x_training_content = fields.Text(string='Training Content')
 
@@ -37,11 +37,16 @@ class ApplicationForATC(models.Model):
     x_approval_job_id = fields.Many2one('hr.job', string='Position', related='x_approval_employee_id.job_id')
     x_approval_department_id = fields.Many2one('hr.department', string='Department', related='x_approval_employee_id.department_id')
     x_approval_status = fields.Selection([
+        ('draft', 'Draft'),
         ('wait', 'Waiting to approve'),
         ('approved', 'Approved'),
         ('refused', 'Refused')],
-        string='Status', default='wait', readonly=True)
+        string='Status', default='draft', readonly=True)
     x_approval_comment = fields.Text(string='Comment')
+
+    # Smart Button
+    def action_button_register(self):
+        self.x_approval_status = 'wait'
 
     def action_button_edit(self):
         return
@@ -49,17 +54,18 @@ class ApplicationForATC(models.Model):
     def action_button_save(self):
         return
 
+    # Button
     def action_button_approve(self):
         self.x_approval_status = 'approved'
 
     def action_button_refuse(self):
         self.x_approval_status = 'refused'
         # Send notify for applicant
-        self.x_applicant_id.message_post(body=f'Your application for attending training course has been refused.')
+        # self.x_applicant_id.message_post(body=f'Your application for attending training course has been refused.')
 
     # For TESTING
     def action_button_set_waiting(self):
-        self.x_approval_status = 'wait'
+        self.x_approval_status = 'draft'
 
     @api.model
     def create(self, vals):

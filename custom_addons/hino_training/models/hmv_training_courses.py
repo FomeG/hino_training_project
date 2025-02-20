@@ -7,6 +7,7 @@ class TrainingCourses(models.Model):
     _name = 'hmv.training.courses'
     _description = 'Training Courses'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _rec_name = 'course_title'
 
     course_title = fields.Char(string='Course Title', required=True, tracking=True)
     start_date = fields.Date(string='Start date', required=True, tracking=True)

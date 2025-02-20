@@ -1,6 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_hino_training_hino_training,hino_training_hino_training,model_hr_employee_custom,,1,1,1,1
 
+access_application_4_atc,access_application_4_atc,model_application,,1,1,1,1
+
 access_hmv_training_brochure,hmv.training.brochure,model_hmv_training_brochure,,1,1,1,1
 access_hmv_training_brochure_line,hmv.training.brochure.line,model_hmv_training_brochure_line,,1,1,1,1
 
