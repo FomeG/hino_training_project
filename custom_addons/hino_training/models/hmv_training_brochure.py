@@ -77,6 +77,8 @@ class HMVTrainingBrochure(models.Model):
     @api.onchange('start_date', 'end_date', 'created_on')
     def _check_dates(self):
         for record in self:
+
+    # training_brochure_id = fields.One2many('hmv.training.courses', 'training_id', string="Training Courses")
             if record.start_date and record.created_on:
                 if record.start_date < record.created_on:
                     raise ValidationError("The start date must be greater than or equal to the created on date.")

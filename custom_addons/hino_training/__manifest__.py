@@ -20,9 +20,16 @@ Long description of module's purpose
     # any module necessary for this one to work correctly
     'depends': ['base', 'mail', 'hr', 'purchase'],
 
+
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'data/sequence.xml',
+        'views/trainning_plan_view.xml',
+
+        'views/views.xml',
+
+        'views/action.xml',
         'data/hmv_need_sequence.xml',
         'data/sequence.xml',
 
@@ -35,13 +42,17 @@ Long description of module's purpose
         'views/hmv_training_courses_form_view.xml',
         'views/test.xml',
         'views/menu.xml',
-        
-        
-        
-        
-        
-        
+        'views/tad_Training_courses_provided_by_company.xml',
+
+        'views/tad_Factory_training.xml',
+        'views/tad_Other.xml',
+        'views/tad_Approval_history.xml',
+        'views/hmv_training_brochure.xml',
+        'views/hmv_training_courses_form_view.xml',
+
+
     ],
+    # only loaded in demonstration mode
     
     
 
