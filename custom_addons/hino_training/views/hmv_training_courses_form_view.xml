@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <data>
     <!-- Form View -->
     <record id="view_hmv_training_courses_form" model="ir.ui.view">
         <field name="name">hmv.training.courses.form</field>
@@ -34,6 +35,7 @@
                             <field name="year" required="1"/>
                             <field name="start_date" required="1"/>
                             <field name="end_date" required="1"/>
+                            <!-- <field name="training_brochure_id" required="0" domain="[('training_brochure_id.year', '=', year)]"/> -->
                             <field name="training_brochure_id" required="0" domain="[('training_brochure_id.year', '=', year)]"/>
                             <field name="purchase_order_id" domain="[('partner_id', '=', vendor_id)]"/>
                             <field name="vendor_id" required="1" domain="[('is_company', '=', True), ('active', '=', True)]"/>
@@ -51,6 +53,8 @@
                             <field name="location_id" required="1"/>
 <!--                            <field name="training_method_id" required="1" domain="[('code', '=', 'TRAINING_METHOD')]"/>-->
                             <field name="deptcombine"/>
+                            <field name="training_id"/>
+
                             <field name="currency_id" invisible="1"/>
 <!--                            <field name="audience_ids" required="1" domain="[('code', '=', 'TR_LEVEL')]"/>-->
                         </group>
@@ -203,16 +207,18 @@
 <!--        </field>-->
 <!--    </record>-->
 
+   
     <!-- Actions -->
     <record id="action_hmv_training_courses" model="ir.actions.act_window">
-        <field name="name">Training Courses</field>
-        <field name="res_model">hmv.training.courses</field>
-        <field name="view_mode">tree,form,calendar</field>
-        <field name="search_view_id" ref="view_hmv_training_courses_search"/>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Create your first training course!
-            </p>
-        </field>
-    </record>
+    <field name="name">Training Courses</field>
+    <field name="res_model">hmv.training.courses</field>
+    <field name="view_mode">tree,form,calendar</field>
+    <field name="search_view_id" ref="view_hmv_training_courses_search"/>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+            Create your first training course!
+        </p>
+    </field>
+</record>
+</data>
 </odoo>

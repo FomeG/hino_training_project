@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <menuitem id="menu_training_root" name="Training" sequence="10" web_icon="hino_training,static/description/icon.png"/>
 
     <menuitem id="menu_training_brochure"
@@ -13,7 +12,7 @@
         name="Training Plan"
         parent="menu_training_root"
         sequence="2"
-        action="action_employee_list" />
+        action="action_training_plan" />
 
     <menuitem id="menu_training_need"
         name="Training Need"
@@ -31,7 +30,5 @@
         name="Application for Attending Training Courses"
         parent="menu_training_root"
         sequence="5"
-        action="action_application_for_atc_list" />
-
-
+        action="action_employee_list" />
 </odoo>
