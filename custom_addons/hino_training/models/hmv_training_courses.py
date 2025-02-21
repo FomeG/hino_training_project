@@ -23,10 +23,12 @@ class TrainingCourses(models.Model):
     confirmation_start_date = fields.Date(string='Start date of confirmation', required=True, tracking=True)
     confirmation_end_date = fields.Date(string='End date of confirmation', required=True, tracking=True)
     department_id = fields.Many2one('hr.department', string='Apply for department', required=True, tracking=True)
-    # training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method', required=True,
-    #                                      tracking=True, domain=[('code', '=', 'TRAINING_METHOD')]) ???? lấy ở đâu
+    training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method', required=True,
+                                         tracking=True, domain=[('code', '=', 'TRAINING_METHOD')])
     year = fields.Date(string='Year', required=True, tracking=True)
-    training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure', tracking=True)
+    training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
+                                           required=True, tracking=True)
+
     location_id = fields.Many2one('res.country.state', string='Location', required=True, tracking=True)
     employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,)
     deptcombine = fields.Text(string='DeptCombine', tracking=True)
@@ -41,14 +43,86 @@ class TrainingCourses(models.Model):
     course_type = fields.Selection([
         ('public', 'Public'),
         ('in_house', 'In-house')
-    ], string='Course Type', required=True, tracking=True)
-    estimate_fee = fields.Monetary(string='Actual Fee', required=True, tracking=True)
+    ], string='Course Type', required=True, tracking=True) # lấy từ training need
+    estimate_fee = fields.Monetary(string='Actual Fee', required=True, tracking=True) # lấy từ training need
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
-    # audience_ids = fields.Many2one('hmv.list.value.line', string='Audience', required=True,
-    #                                tracking=True, domain=[('code', '=', 'TR_LEVEL')]) ???? lấy ở đâu
+    audience_ids = fields.Many2one('hmv.list.value.line', string='Audience', required=True,
+                                   tracking=True, domain=[('code', '=', 'TR_LEVEL')])
     participant_ids = fields.One2many('hmv.training.participant', 'course_id', string='Participants')
+    # New Approval Fields
+    approval_employee_id = fields.Many2one('hr.employee', string='Approver', tracking=True)
+    approval_job_id = fields.Many2one(related='approval_employee_id.job_id', string='Position',
+                                      store=True, readonly=True, tracking=True)
+    approval_department_id = fields.Many2one(related='approval_employee_id.department_id',
+                                             string='Department', store=True, readonly=True, tracking=True)
+    approval_status = fields.Selection([
+        ('waiting', 'Waiting to approve'),
+        ('approved', 'Approved'),
+        ('refused', 'Refused')
+    ], string='Approval Status', default='waiting', tracking=True)
+    approval_comment = fields.Text(string='Approval Comment', tracking=True)
+    remaining_slots = fields.Integer(
+        string='Remaining Slots',
+        compute='_compute_remaining_slots',
+        store=True,
+        help='Number of available slots remaining in the course'
+    )
 
+    @api.depends('slot', 'participant_ids')
+    def _compute_remaining_slots(self):
+        for record in self:
+            total_participants = len(record.participant_ids)
+            record.remaining_slots = record.slot - total_participants
+
+    def action_register_course(self):
+        """Register for a course based on course type and user permissions"""
+        # Check if course is in active state
+        if self.status != 'active':
+            raise ValidationError(_("Course registration is only available for active courses."))
+
+        # Check if approval is completed
+        if self.approval_status != 'approved':
+            raise ValidationError(_("Course must be approved before registration."))
+
+        # Check remaining slots
+        if self.remaining_slots <= 0:
+            raise ValidationError(_("No slots remaining in this course."))
+
+        # Get current user's employee record
+        current_employee = self.env['hr.employee'].search(
+            [('user_id', '=', self.env.user.id)], limit=1)
+        if not current_employee:
+            raise ValidationError(_("You must be an employee to register for courses."))
+
+        # Handle In-house courses
+        if self.course_type == 'in_house':
+            # Check if user is from HR department
+            if not self.env.user.has_group('hr.group_hr_user'):
+                raise ValidationError(
+                    _("Only HR department members can register participants for in-house courses."))
+
+        # Check if employee is already registered
+        if self.participant_ids.filtered(lambda p: p.employee_id.id == current_employee.id):
+            raise ValidationError(_("You are already registered for this course."))
+
+        # Create participant record
+        self.env['hmv.training.participant'].create({
+            'course_id': self.id,
+            'employee_id': current_employee.id,
+            'status': 'waiting'
+        })
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('Successfully registered for the course.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
     @api.constrains('start_date', 'end_date', 'confirmation_start_date', 'confirmation_end_date')
     def _check_dates(self):
         for record in self:

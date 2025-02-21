@@ -65,9 +65,9 @@
 
                     <notebook>
                             <!-- Tab 1: Company Courses -->
-                        <page string="Training courses provided by company">
-                            <field name="company_training_ids">
-                                <tree>
+                        <page string="Training courses provided by company" name="company_training">
+                            <field name="company_training_ids" context="{'active_tab': 'company_training'}">
+                                <tree editable="bottom">
                                     <field name="course_name"/>
                                     <field name="start_date"/>
                                     <field name="end_date"/>
@@ -76,9 +76,9 @@
                         </page>
 
                         <!-- Tab 2: Factory Training -->
-                        <page string="Factory Training">
-                            <field name="factory_training_ids">
-                                <tree>
+                        <page string="Factory Training" name="factory_training">
+                            <field name="factory_training_ids" context="{'active_tab': 'factory_training'}">
+                                <tree editable="bottom">
                                     <field name="course_name"/>
                                     <field name="start_date"/>
                                     <field name="end_date"/>
@@ -87,9 +87,9 @@
                         </page>
 
                         <!-- Tab 3: Other Courses -->
-                        <page string="Other">
-                            <field name="other_training_ids">
-                                <tree>
+                        <page string="Other" name="other_training" >
+                            <field name="other_training_ids" context="{'active_tab': 'other_training'}">
+                                <tree editable="bottom">
                                     <field name="course_name"/>
                                     <field name="start_date"/>
                                     <field name="end_date"/>
