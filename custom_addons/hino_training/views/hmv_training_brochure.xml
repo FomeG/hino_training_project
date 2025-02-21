@@ -107,6 +107,7 @@
         </field>
     </record>
 
+ 
     <!-- Action -->
     <record id="action_hmv_training_brochure" model="ir.actions.act_window">
         <field name="name">Training Brochures</field>

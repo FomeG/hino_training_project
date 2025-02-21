@@ -25,6 +25,8 @@ class TrainingCourses(models.Model):
     # training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method', required=True,
     #                                      tracking=True, domain=[('code', '=', 'TRAINING_METHOD')]) ???? lấy ở đâu
     year = fields.Date(string='Year', required=True, tracking=True)
+    # training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
+    #                                        required=True, tracking=True)
     
     
     
