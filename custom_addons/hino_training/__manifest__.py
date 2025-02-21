@@ -19,10 +19,7 @@ Long description of module's purpose
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'mail', 'hr', 'purchase'],
-<<<<<<< HEAD
 
-=======
->>>>>>> 0bfb4790bc3cbbb1f17a90f56912054518df52aa
 
     # always loaded
     'data': [
@@ -55,13 +52,10 @@ Long description of module's purpose
 
 
     ],
-<<<<<<< HEAD
     # only loaded in demonstration mode
-=======
     
     
 
->>>>>>> 0bfb4790bc3cbbb1f17a90f56912054518df52aa
     'demo': [
         'demo/demo.xml',
     ],
