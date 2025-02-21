@@ -29,11 +29,11 @@
                         </button>
 
                         <button name="action_button_register" type="object" icon="fa-external-link"
-                                invisible="x_approval_status not in ('draft', 'refused')"
+                                invisible="x_approval_status not in ('draft')"
                                 string="Register"
                                 class="me-2 oe_stat_button border-2 border-success bg-light text-success"/>
                         <button name="action_button_edit" type="object" icon="fa-pencil"
-                                invisible="x_approval_status not in ('refused')"
+                                invisible="x_is_editable == False"
                                 string="Edit"
                                 class="me-2 oe_stat_button border-2 border-info bg-light text-info"/>
                         <button name="action_button_save" type="object" icon="fa-save"
@@ -41,7 +41,7 @@
                                 string="Save"
                                 class="me-2 oe_stat_button border-2 border-primary bg-light text-primary"/>
                         <button name="action_button_print" type="object" icon="fa-print"
-                                invisible="x_is_all_approved"
+                                invisible="x_is_printable == False"
                                 string="Print"
                                 class="me-2 oe_stat_button border-2 border-secondary bg-light text-secondary"/>
                     </div>
@@ -105,6 +105,8 @@
                             <field name="x_training_method" readonly="x_is_form_readonly"/>
                             <field name="x_is_form_readonly" invisible="1" column_invisible="1"/>
                             <field name="x_is_all_approved" invisible="1" column_invisible="1"/>
+                            <field name="x_is_printable" invisible="1" column_invisible="1"/>
+                            <field name="x_is_editable" invisible="1" column_invisible="1"/>
                         </group>
                     </group>
 

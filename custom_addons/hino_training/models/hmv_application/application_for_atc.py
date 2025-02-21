@@ -31,8 +31,9 @@ class ApplicationForATC(models.Model):
     x_start_date_confirm = fields.Date(string='Start date of confirmation')
     x_end_date_confirm = fields.Date(string='End date of confirmation')
     x_department_apply_id = fields.Many2one('hr.department', string='Apply for department')
-    x_training_plan_id = fields.Char(string='Training Plan')
-    x_training_method = fields.Char(string='Training Method')  # ???
+    x_training_plan_id = fields.Char(string='Training Plan')  # WHERE???
+    x_training_method = fields.Many2one('hmv.list.value.line', string='Training Method',
+                                        related='x_course_title.training_method_id')
 
     x_approval_status = fields.Selection([
         ('draft', 'Draft'),
@@ -46,8 +47,9 @@ class ApplicationForATC(models.Model):
     x_course_count = fields.Integer(compute='_compute_course_count')
     x_is_form_readonly = fields.Boolean(string='Is Form Read Only?', compute='_compute_is_form_readonly')
     x_approval_history_ids = fields.One2many('approval.history', 'x_application_ids', string='Approval')
+    x_is_all_approved = fields.Boolean(string='Is All Approved?', compute='_compute_is_all_approved')
+    x_is_editable = fields.Boolean(string='Is Editable?', compute='_compute_is_editable')
     x_is_printable = fields.Boolean(string='Is Printable?', compute='_compute_is_printable')
-    x_is_all_approved = fields.Boolean(string='Is All Approved?', compute='_compute_is_all_approved', store=True)
 
     # Compute
     def _compute_course_count(self):
@@ -68,6 +70,22 @@ class ApplicationForATC(models.Model):
             self.x_is_form_readonly = True
         else:
             self.x_is_form_readonly = False
+
+    @api.depends('x_approval_history_ids.x_approval_status', 'x_approval_status')
+    def _compute_is_printable(self):
+        for record in self:
+            if record.x_approval_status == 'approved' and record.x_is_all_approved:
+                record.x_is_printable = True
+            else:
+                record.x_is_printable = False
+
+    @api.depends('x_approval_history_ids.x_approval_status', 'x_approval_status')
+    def _compute_is_editable(self):
+        for record in self:
+            if record.x_approval_status == 'refused' and record.x_is_all_approved == False:
+                record.x_is_editable = True
+            else:
+                record.x_is_editable = False
 
     @api.depends('x_approval_history_ids.x_approval_status')
     def _compute_is_all_approved(self):
