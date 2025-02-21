@@ -19,7 +19,10 @@ Long description of module's purpose
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'mail', 'hr', 'purchase'],
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0bfb4790bc3cbbb1f17a90f56912054518df52aa
 
     # always loaded
     'data': [
@@ -32,11 +35,11 @@ Long description of module's purpose
         'views/action.xml',
         'data/hmv_need_sequence.xml',
         'data/sequence.xml',
-        
+
         # 'views/hmv_test_brochure.xml',
         # 'data/mail_template.xml',
         'views/hmv_training_need_view.xml',
-        
+
 
         'views/hmv_training_brochure.xml',
         'views/hmv_training_courses_form_view.xml',
@@ -52,7 +55,13 @@ Long description of module's purpose
 
 
     ],
+<<<<<<< HEAD
     # only loaded in demonstration mode
+=======
+    
+    
+
+>>>>>>> 0bfb4790bc3cbbb1f17a90f56912054518df52aa
     'demo': [
         'demo/demo.xml',
     ],
