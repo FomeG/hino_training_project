@@ -1,0 +1,20 @@
+<odoo>
+    <template id="application_report_template">
+         <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+                    <h2 style="text-align: center;">Application for Attending Courses</h2>
+                    <p><strong>Applicant:</strong> <t t-esc="doc.x_applicant_id"/></p>
+                    <p><strong>Department:</strong> <t t-esc="doc.x_department_id"/></p>
+                    <p><strong>Position:</strong> <t t-esc="doc.x_position_id"/></p>
+                    <p><strong>Request Date:</strong> <t t-esc="doc.x_request_date"/></p>
+                    <p><strong>Course Title:</strong> <t t-esc="doc.x_course_title"/></p>
+                    <p><strong>Training Vendor:</strong> <t t-esc="doc.x_vendor_id"/></p>
+                    <p><strong>Start Date:</strong> <t t-esc="doc.x_start_date"/></p>
+                    <p><strong>End Date:</strong> <t t-esc="doc.x_end_date"/></p>
+                    <p><strong>Training Method:</strong> <t t-esc="doc.x_training_method"/></p>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
