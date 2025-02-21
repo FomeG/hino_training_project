@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_application_for_atc_tree" model="ir.ui.view">
+        <field name="name">application.tree</field>
+        <field name="model">application</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="x_request_date"/>
+                <field name="x_applicant_id"/>
+                <field name="x_department_id"/>
+                <field name="x_course_title"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_application_for_atc_form" model="ir.ui.view">
+        <field name="name">application.form</field>
+        <field name="model">application</field>
+        <field name="arch" type="xml">
+            <form>
+                <title>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_button_open_training_course" type="object" icon="fa-document"
+                                invisible="x_course_count == 0"
+                                string="Training Course"
+                                class="me-2 oe_stat_button border-2 border-success bg-light text-success">
+                            <field name="x_course_count" widget="statinfo" string=" Courses"/>
+                        </button>
+
+                        <button name="action_button_register" type="object" icon="fa-external-link"
+                                invisible="x_approval_status not in ('draft', 'refused')"
+                                string="Register"
+                                class="me-2 oe_stat_button border-2 border-success bg-light text-success"/>
+                        <button name="action_button_edit" type="object" icon="fa-pencil"
+                                invisible="x_approval_status not in ('refused')"
+                                string="Edit"
+                                class="me-2 oe_stat_button border-2 border-info bg-light text-info"/>
+                        <button name="action_button_save" type="object" icon="fa-save"
+                                invisible="x_approval_status not in ('refused')"
+                                string="Save"
+                                class="me-2 oe_stat_button border-2 border-primary bg-light text-primary"/>
+                        <button name="action_button_print" type="object" icon="fa-print"
+                                invisible="x_is_all_approved"
+                                string="Print"
+                                class="me-2 oe_stat_button border-2 border-secondary bg-light text-secondary"/>
+                    </div>
+                </title>
+
+                <header>
+                    <field name="x_approval_status" widget="statusbar" invisible="x_approval_status in ('draft')"
+                           statusbar_visible="wait, approved, refused"/>
+
+                    <button name="action_button_approve" type="object"
+                            invisible="x_approval_status in ('approved', 'refused', 'draft')"
+                            string="Approve"
+                            class="me-2 btn-success oe_highlight"/>
+                    <button name="action_button_refuse" type="object"
+                            invisible="x_approval_status in ('approved', 'refused', 'draft')"
+                            string="Refuse"
+                            class="me-2 btn-danger oe_highlight"/>
+
+                    <button name="action_button_set_waiting" type="object"
+                            invisible="x_approval_status in ('draft', 'wait')"
+                            string="Set to Draft"
+                            class="me-2 btn-secondary oe_highlight"/>
+                </header>
+
+                <sheet>
+                    <h3>Application No.</h3>
+                    <h1>
+                        <field name="name" readonly="1" placeholder=""/>
+                    </h1>
+
+                    <group>
+                        <group>
+                            <field name="x_applicant_id" readonly="x_is_form_readonly"/>
+                            <field name="x_department_id" readonly="x_is_form_readonly"/>
+                            <field name="x_position_id" readonly="x_is_form_readonly"/>
+                        </group>
+
+                        <group>
+                            <field name="x_request_date" readonly="x_is_form_readonly"/>
+                        </group>
+                    </group>
+
+                    <group string="Training course information">
+                        <group>
+                            <field name="x_course_title" readonly="x_is_form_readonly"/>
+                            <field name="x_start_date"/>
+                            <field name="x_end_date"/>
+                            <field name="x_vendor_id"/>
+                            <field name="x_staff_id" widget="many2many_tags"/>
+                            <field name="x_slots"/>
+                            <field name="x_remaining_slots"/>
+                            <field name="x_training_content"/>
+                        </group>
+
+                        <group>
+                            <field name="x_purpose_training" readonly="x_is_form_readonly"/>
+                            <field name="x_start_date_confirm" readonly="x_is_form_readonly"/>
+                            <field name="x_end_date_confirm" readonly="x_is_form_readonly"/>
+                            <field name="x_department_apply_id" readonly="x_is_form_readonly"/>
+                            <field name="x_training_plan_id"/>
+                            <field name="x_training_method" readonly="x_is_form_readonly"/>
+                            <field name="x_is_form_readonly" invisible="1" column_invisible="1"/>
+                            <field name="x_is_all_approved" invisible="1" column_invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Approval History">
+                            <field name="x_approval_history_ids" editable="bottom">
+                                <tree>
+                                    <field name="x_approval_employee_id" readonly="x_is_approval_readonly"/>
+                                    <field name="x_approval_job_id" readonly="x_is_approval_readonly"/>
+                                    <field name="x_approval_department_id" readonly="x_is_approval_readonly"/>
+                                    <field name="x_approval_status" widget="badge"
+                                           decoration-info="x_approval_status == 'wait'"
+                                           decoration-success="x_approval_status == 'approved'"
+                                           decoration-danger="x_approval_status == 'refused'"/>
+                                    <field name="x_approval_comment" readonly="x_is_approval_readonly"/>
+                                    <field name="x_is_approval_readonly" invisible="1" column_invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="report_application_for_atc" model="ir.actions.report">
+        <field name="name">Application Report</field>
+        <field name="model">application</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hino_training.application_report_template</field>
+        <field name="print_report_name">'Application_%s' % (object.name)</field>
+    </record>
+
+    <record id="action_application_for_atc_list" model="ir.actions.act_window">
+        <field name="name">Application for Attending Courses</field>
+        <field name="res_model">application</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

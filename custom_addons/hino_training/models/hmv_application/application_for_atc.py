@@ -1,0 +1,191 @@
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
+
+
+class ApplicationForATC(models.Model):
+    _name = 'application'
+    _description = 'Application for Attending Training Course'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    # remain_slots chua tinh, nut print hoi bug 1 ti
+
+    # Header
+    name = fields.Char(string='Application No.', required=True, readonly=True, default=lambda self: _('New'),
+                       help='Document number with format BS/YYYY/NNNN')
+    x_applicant_id = fields.Many2one('hr.employee', string='Name of Applicant')
+    x_department_id = fields.Many2one('hr.department', string='Department')
+    x_position_id = fields.Char(string='Position', help='Input your position')
+    x_request_date = fields.Date(string='Request Date',
+                                 help='The Request Date CAN NOT be later than the Start Date')
+
+    # Training course info
+    x_course_title = fields.Many2one('hmv.training.courses', string='Course Title')
+    x_start_date = fields.Date(string='Start Date', related='x_course_title.start_date', store=True)
+    x_end_date = fields.Date(string='End Date', related='x_course_title.end_date', store=True)
+    x_vendor_id = fields.Many2one('res.partner', string='Vendor', related='x_course_title.vendor_id')
+    x_staff_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', related='x_course_title.employee_id')
+    x_slots = fields.Integer(string='Number of Slots', related='x_course_title.slot', store=True)
+    x_remaining_slots = fields.Integer(string='Remaining Slots', compute='_compute_remaining_slots')
+    x_training_content = fields.Text(string='Training Content', related='x_course_title.training_content')
+
+    x_purpose_training = fields.Char(string='Purpose of attending training course')
+    x_start_date_confirm = fields.Date(string='Start date of confirmation')
+    x_end_date_confirm = fields.Date(string='End date of confirmation')
+    x_department_apply_id = fields.Many2one('hr.department', string='Apply for department')
+    x_training_plan_id = fields.Char(string='Training Plan')
+    x_training_method = fields.Char(string='Training Method')  # ???
+
+    x_approval_status = fields.Selection([
+        ('draft', 'Draft'),
+        # ('editing', 'Editing'),
+        # ('saved', 'Saved'),
+        ('wait', 'Waiting to approve'),
+        ('approved', 'Approved'),
+        ('refused', 'Refused')],
+        string='Status', default='draft', readonly=True, tracking=True)
+
+    x_course_count = fields.Integer(compute='_compute_course_count')
+    x_is_form_readonly = fields.Boolean(string='Is Form Read Only?', compute='_compute_is_form_readonly')
+    x_approval_history_ids = fields.One2many('approval.history', 'x_application_ids', string='Approval')
+    x_is_printable = fields.Boolean(string='Is Printable?', compute='_compute_is_printable')
+    x_is_all_approved = fields.Boolean(string='Is All Approved?', compute='_compute_is_all_approved', store=True)
+
+    # Compute
+    def _compute_course_count(self):
+        for record in self:
+            record.x_course_count = self.env['hmv.training.courses'].search_count(
+                [('participant_ids', 'in', record.x_applicant_id.id)])
+
+    def _compute_remaining_slots(self):
+        for record in self:
+            if record.x_course_title:
+                record.x_remaining_slots = record.x_slots - len(record.x_course_title.participant_ids)
+            else:
+                record.x_remaining_slots = 0
+
+    @api.depends('x_approval_status')
+    def _compute_is_form_readonly(self):
+        if self.x_approval_status in ('wait', 'approved', 'refused'):
+            self.x_is_form_readonly = True
+        else:
+            self.x_is_form_readonly = False
+
+    @api.depends('x_approval_history_ids.x_approval_status')
+    def _compute_is_all_approved(self):
+        for record in self:
+            if record.x_approval_history_ids:
+                record.x_is_all_approved = all(
+                    history.x_approval_status == 'approved' for history in record.x_approval_history_ids
+                )
+            else:
+                record.x_is_all_approved = False
+
+    # Smart Button
+    def action_button_open_training_course(self):
+        if not self.x_course_title:
+            raise ValidationError(_("No training course selected!"))
+        return {
+            'name': 'Open Training Course',
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.training.courses',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id': self.x_course_title.id,
+            'target': 'new',
+        }
+
+    def action_button_print(self):
+        return self.env.ref('hino_training.report_application_for_atc_preview').report_action(self)
+
+    def action_button_register(self):
+        self.x_approval_status = 'wait'
+
+    def action_button_edit(self):
+        self.x_approval_status = 'draft'
+
+    def action_button_save(self):
+        self.x_approval_status = 'draft'
+
+    # Button
+    def action_button_approve(self):
+        self.x_approval_status = 'approved'
+        self._create_approval_history('approved')
+        self._compute_is_all_approved()
+
+    def action_button_refuse(self):
+        self.x_approval_status = 'refused'
+        self._create_approval_history('refused')
+        # Send notify for applicant
+        # self.x_applicant_id.message_post(body=f'Your application for attending training course has been refused.')
+
+    # For TESTING
+    def action_button_set_waiting(self):
+        self.x_approval_status = 'draft'
+
+    # Create Override
+    @api.model
+    def create(self, vals):
+        if vals.get('name', _('New')) == _('New'):
+            seq = self.env['ir.sequence'].next_by_code('application.sequence') or '0001'
+            vals['name'] = f'BS{seq}'
+        return super(ApplicationForATC, self).create(vals)
+
+    # For VALIDATING
+    @api.constrains('x_request_date', 'x_start_date')
+    def _check_request_date(self):
+        for record in self:
+            if record.x_request_date and record.x_start_date:  # Ensure both are set
+                if record.x_request_date > record.x_start_date:
+                    raise ValidationError(_('The Request Date cannot be later than the Start Date.'))
+
+    @api.constrains('x_slots')
+    def _check_slots(self):
+        for record in self:
+            if record.x_slots < 1:
+                raise ValidationError(_('Number of slots must be at least 1.'))
+
+    @api.constrains('x_start_date', 'x_end_date')
+    def _check_dates(self):
+        for record in self:
+            if record.x_start_date and record.x_end_date:  # Ensure both are set
+                if record.x_start_date > record.x_end_date:
+                    raise ValidationError(_('The Start Date must be before the End Date.'))
+
+    # for Tab Approval History
+    def _create_approval_history(self, status):
+        """Creates an approval history record when an application is approved or refused."""
+        current_employee = self.env.user.employee_id
+        if not current_employee:
+            raise ValidationError(_("You need to be linked to an employee to approve or refuse this request."))
+
+        self.env['approval.history'].create({
+            'x_application_ids': self.id,
+            'x_approval_employee_id': current_employee.id,
+            'x_approval_status': status
+        })
+
+
+# Tab Approval History
+class ApplicationApprovalHistory(models.Model):
+    _name = 'approval.history'
+    _description = 'Application Approval History'
+
+    x_application_ids = fields.Many2one('application', string='Application ID')
+    x_approval_employee_id = fields.Many2one('hr.employee', string='Approved by')
+    x_approval_job_id = fields.Many2one('hr.job', string='Position', related='x_approval_employee_id.job_id')
+    x_approval_department_id = fields.Many2one('hr.department', string='Department',
+                                               related='x_approval_employee_id.department_id')
+    x_approval_status = fields.Selection([
+        ('wait', 'Waiting to approve'),
+        ('approved', 'Approved'),
+        ('refused', 'Refused')],
+        string='Status', default='wait', readonly=True, tracking=True)
+    x_approval_comment = fields.Text(string='Comment')
+    x_is_approval_readonly = fields.Boolean(string='Is Approval Read Only?', compute='_compute_is_approval_readonly')
+
+    @api.depends('x_approval_status')
+    def _compute_is_approval_readonly(self):
+        for record in self:
+            if record.x_approval_status in ('approved', 'refused'):
+                record.x_is_approval_readonly = True
+            else:
+                record.x_is_approval_readonly = False

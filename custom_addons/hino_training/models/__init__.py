@@ -13,4 +13,4 @@ from . import hmv_training_brochure_line
 from . import x_hmv_training_courses
 from . import hmv_list_value_line
 
-
+from . import hmv_application
