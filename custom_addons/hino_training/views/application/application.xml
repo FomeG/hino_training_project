@@ -41,14 +41,15 @@
                                 string="Save"
                                 class="me-2 oe_stat_button border-2 border-primary bg-light text-primary"/>
                         <button name="action_button_print" type="object" icon="fa-print"
-                                invisible="x_approval_status not in ('approved')"
+                                invisible="x_is_all_approved"
                                 string="Print"
                                 class="me-2 oe_stat_button border-2 border-secondary bg-light text-secondary"/>
                     </div>
                 </title>
 
                 <header>
-                    <field name="x_approval_status" widget="statusbar" invisible="x_approval_status in ('draft')"/>
+                    <field name="x_approval_status" widget="statusbar" invisible="x_approval_status in ('draft')"
+                           statusbar_visible="wait, approved, refused"/>
 
                     <button name="action_button_approve" type="object"
                             invisible="x_approval_status in ('approved', 'refused', 'draft')"
@@ -71,51 +72,57 @@
                         <field name="name" readonly="1" placeholder=""/>
                     </h1>
 
-                    <group readonly="x_approval_status in ('wait', 'approved')">
+                    <group>
                         <group>
-                            <field name="x_applicant_id"/>
-                            <field name="x_department_id"/>
-                            <field name="x_position_id"/>
+                            <field name="x_applicant_id" readonly="x_is_form_readonly"/>
+                            <field name="x_department_id" readonly="x_is_form_readonly"/>
+                            <field name="x_position_id" readonly="x_is_form_readonly"/>
                         </group>
 
                         <group>
-                            <field name="x_request_date"/>
+                            <field name="x_request_date" readonly="x_is_form_readonly"/>
                         </group>
                     </group>
 
                     <group string="Training course information">
                         <group>
-                            <field name="x_course_title"/>
+                            <field name="x_course_title" readonly="x_is_form_readonly"/>
                             <field name="x_start_date"/>
                             <field name="x_end_date"/>
                             <field name="x_vendor_id"/>
-                            <field name="x_staff_id"/>
+                            <field name="x_staff_id" widget="many2many_tags"/>
                             <field name="x_slots"/>
                             <field name="x_remaining_slots"/>
                             <field name="x_training_content"/>
                         </group>
 
                         <group>
-                            <field name="x_purpose_training"/>
-                            <field name="x_start_date_confirm"/>
-                            <field name="x_end_date_confirm"/>
-                            <field name="x_department_apply_id"/>
+                            <field name="x_purpose_training" readonly="x_is_form_readonly"/>
+                            <field name="x_start_date_confirm" readonly="x_is_form_readonly"/>
+                            <field name="x_end_date_confirm" readonly="x_is_form_readonly"/>
+                            <field name="x_department_apply_id" readonly="x_is_form_readonly"/>
                             <field name="x_training_plan_id"/>
-                            <field name="x_training_method"/>
+                            <field name="x_training_method" readonly="x_is_form_readonly"/>
+                            <field name="x_is_form_readonly" invisible="1" column_invisible="1"/>
+                            <field name="x_is_all_approved" invisible="1" column_invisible="1"/>
                         </group>
                     </group>
 
                     <notebook>
                         <page string="Approval History">
-                            <group editable="bottom">
-                                <field name="x_approval_employee_id"/>
-                                <field name="x_approval_job_id"/>
-                                <field name="x_approval_department_id"/>
-                                <field name="x_approval_status" widget="badge"
-                                       invisible="x_approval_status in ('draft')"/>
-                                <field name="x_approval_comment"/>
-                            </group>
-
+                            <field name="x_approval_history_ids" editable="bottom">
+                                <tree>
+                                    <field name="x_approval_employee_id" readonly="x_is_approval_readonly"/>
+                                    <field name="x_approval_job_id" readonly="x_is_approval_readonly"/>
+                                    <field name="x_approval_department_id" readonly="x_is_approval_readonly"/>
+                                    <field name="x_approval_status" widget="badge"
+                                           decoration-info="x_approval_status == 'wait'"
+                                           decoration-success="x_approval_status == 'approved'"
+                                           decoration-danger="x_approval_status == 'refused'"/>
+                                    <field name="x_approval_comment" readonly="x_is_approval_readonly"/>
+                                    <field name="x_is_approval_readonly" invisible="1" column_invisible="1"/>
+                                </tree>
+                            </field>
                         </page>
                     </notebook>
 
