@@ -40,6 +40,7 @@
                             <field name="year" required="1"/>
                             <field name="start_date" required="1"/>
                             <field name="end_date" required="1"/>
+
                             <field name="training_brochure_id" required="0" domain="[('training_brochure_id.year', '=', year)]"/>
                             <field name="purchase_order_id" domain="[('partner_id', '=', vendor_id)]"/>
                             <field name="vendor_id" required="1" domain="[('is_company', '=', True), ('active', '=', True)]"/>
