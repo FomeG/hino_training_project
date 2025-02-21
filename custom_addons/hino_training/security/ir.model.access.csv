@@ -13,3 +13,8 @@ access_hmv_training_participant,hmv.training.participant,model_hmv_training_part
 
 
 access_hmv_list_value_line,hmv.list.value.line,model_hmv_list_value_line,,1,1,1,1
+access_hmv_training_need,hmv.training.need,model_hmv_training_need,,1,1,1,1
+access_hmv_training_need_company,hmv.training.need.company,model_hmv_training_need_company,,1,1,1,1
+access_hmv_training_need_factory,hmv.training.need.factory,model_hmv_training_need_factory,,1,1,1,1
+access_hmv_training_need_other,hmv.training.need.other,model_hmv_training_need_other,,1,1,1,1
+access_hmv_training_need_approval,hmv.training.need.approval,model_hmv_training_need_approval,,1,1,1,1

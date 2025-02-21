@@ -28,6 +28,9 @@
                                     <field name="participant_ids"/>
                                     <field name="department_id"/>
                                     <field name="purchase_order_id"/>
+
+
+                                    
                                     <field name="department_id"/>
                                     <field name="location_id"/>
                                     <field name="department_id"/>

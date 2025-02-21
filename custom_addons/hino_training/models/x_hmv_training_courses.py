@@ -14,7 +14,7 @@ class TrainingCourses(models.Model):
         'hmv.list.value.line',
         'hmv_list_value_line_recommend_level_rel',  # Tên bảng trung gian
         'training_course_id',  # Khóa ngoại trỏ về model hiện tại (hmv.training.courses)
-        'list_value_line_id',  # Khóa ngoại trỏ về model hmv.list.value.line
+        'list_value_line_id', # Khóa ngoại trỏ về model hmv.list.value.line
         string="Recommend Levels",
         # domain=[('active', '!=', False)],  
         help="Select the recommended levels"

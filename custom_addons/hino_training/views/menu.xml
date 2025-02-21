@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_training_root" name="Training" sequence="10" />
+    <menuitem id="menu_training_root" name="Training" sequence="10" web_icon="hino_training,static/description/icon.png"/>
 
     <menuitem id="menu_training_brochure"
         name="Training Brochure"
@@ -14,11 +14,11 @@
         sequence="2"
         action="action_training_plan" />
 
-    <!-- <menuitem id="menu_training_need"
+    <menuitem id="menu_training_need"
         name="Training Need"
         parent="menu_training_root"
         sequence="3"
-        action="action_employee_list" /> -->
+        action="action_training_need_view" />
 
     <menuitem id="menu_training_courses"
         name="Training Courses"
@@ -26,9 +26,9 @@
         sequence="4"
         action="action_hmv_training_courses" />
 
-    <!-- <menuitem id="menu_training_application"
+    <menuitem id="menu_training_application"
         name="Application for Attending Training Courses"
         parent="menu_training_root"
         sequence="5"
-        action="action_employee_list" /> -->
+        action="action_employee_list" />
 </odoo>

@@ -27,6 +27,32 @@ class TrainingCourses(models.Model):
     year = fields.Date(string='Year', required=True, tracking=True)
     # training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
     #                                        required=True, tracking=True)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
+                                           required=True, tracking=True)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     location_id = fields.Many2one('res.country.state', string='Location', required=True, tracking=True)
     employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,)
     deptcombine = fields.Text(string='DeptCombine', tracking=True)

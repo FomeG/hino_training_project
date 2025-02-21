@@ -35,6 +35,7 @@
                             <field name="start_date" required="1"/>
                             <field name="end_date" required="1"/>
                             <!-- <field name="training_brochure_id" required="0" domain="[('training_brochure_id.year', '=', year)]"/> -->
+                            <field name="training_brochure_id" required="0" domain="[('training_brochure_id.year', '=', year)]"/>
                             <field name="purchase_order_id" domain="[('partner_id', '=', vendor_id)]"/>
                             <field name="vendor_id" required="1" domain="[('is_company', '=', True), ('active', '=', True)]"/>
                             <field name="confirmation_start_date" required="1"/>
@@ -206,4 +207,16 @@
 <!--    </record>-->
 
    
+    <!-- Actions -->
+    <record id="action_hmv_training_courses" model="ir.actions.act_window">
+        <field name="name">Training Courses</field>
+        <field name="res_model">hmv.training.courses</field>
+        <field name="view_mode">tree,form,calendar</field>
+        <field name="search_view_id" ref="view_hmv_training_courses_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first training course!
+            </p>
+        </field>
+    </record>
 </odoo>

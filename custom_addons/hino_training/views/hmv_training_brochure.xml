@@ -99,5 +99,11 @@
     </record>
 
  
+    <!-- Action -->
+    <record id="action_hmv_training_brochure" model="ir.actions.act_window">
+        <field name="name">Training Brochures</field>
+        <field name="res_model">hmv.training.brochure</field>
+        <field name="view_mode">tree,form</field>
+    </record>
 
 </odoo>
