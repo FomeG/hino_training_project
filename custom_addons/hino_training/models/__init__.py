@@ -15,3 +15,4 @@ from . import hmv_list_value_line
 
 from . import hmv_training_plan_line
 
+from . import hmv_application

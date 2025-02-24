@@ -29,7 +29,7 @@ class TrainingNeedCompanyTab(models.Model):
         'hmv.training.brochure.line',
         string='Courses',
         required=True,
-        domain="[('training_brochure_id', '=', parent.training_brochure_id), ('training_type', '=', 'company')]"
+        # domain="[('training_brochure_id', '=', parent.training_brochure_id), ('training_type', '=', 'company')]"
     )
 
 

@@ -4,7 +4,7 @@ class HMVTrainingBrochure(models.Model):
     _name = 'hmv.training.brochure'
     _description = 'Training Brochure'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-
+    _rec_name = 'name'
     # region Fields
     code = fields.Char(string=' Training Brochure No.', readonly=True,
                         copy=False, tracking=True)
@@ -27,17 +27,14 @@ class HMVTrainingBrochure(models.Model):
                                               store=False)
     # endregion
     # region Tabs
-    company_training_ids = fields.One2many('hmv.training.brochure.line', 'training_brochure_id',
-                                           string='Company Training Courses',
-                                           domain=[('training_type', '=', 'company')])
+    company_training_ids = fields.One2many('hmv.training.brochure.line', 'training_brochure_id_company',
+                                           string='Company Training Courses')
 
-    factory_training_ids = fields.One2many('hmv.training.brochure.line', 'training_brochure_id',
-                                           string='Factory Training',
-                                           domain=[('training_type', '=', 'factory')])
+    factory_training_ids = fields.One2many('hmv.training.brochure.line', 'training_brochure_id_factory',
+                                           string='Factory Training')
 
-    other_training_ids = fields.One2many('hmv.training.brochure.line', 'training_brochure_id',
-                                         string='Other Training',
-                                         domain=[('training_type', '=', 'other')])
+    other_training_ids = fields.One2many('hmv.training.brochure.line', 'training_brochure_id_other',
+                                         string='Other Training')
     # endregion
     # region Api Method
     @api.model
