@@ -25,6 +25,9 @@ Long description of module's purpose
         'security/ir.model.access.csv',
         'data/hmv_need_sequence.xml',
         'data/sequence.xml',
+        'data/department_data.xml',
+        'data/job_data.xml',
+        'data/user_data.xml',
 
         # 'views/hmv_test_brochure.xml',
         # 'data/mail_template.xml',

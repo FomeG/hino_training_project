@@ -1,0 +1,61 @@
+<odoo>
+    <record id="user_hr_staff" model="res.users">
+        <field name="name">Staff1</field>
+        <field name="login">staff1</field>
+        <field name="password">staff1</field>
+        <field name="email">staff1@example.com</field>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_user')])]"/>
+    </record>
+
+    <record id="employee_hr_staff" model="hr.employee">
+        <field name="name">Staff1</field>
+        <field name="user_id" ref="user_hr_staff"/>
+        <field name="department_id" ref="department_hr"/>
+        <field name="job_id" ref="job_hr_staff"/>
+    </record>
+
+    <record id="user_hr_manager" model="res.users">
+        <field name="name">Manager1</field>
+        <field name="login">manager1</field>
+        <field name="password">manager1</field>
+        <field name="email">manager1@example.com</field>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_user')])]"/>
+    </record>
+
+    <record id="employee_hr_manager" model="hr.employee">
+        <field name="name">Manager1</field>
+        <field name="user_id" ref="user_hr_manager"/>
+        <field name="department_id" ref="department_hr"/>
+        <field name="job_id" ref="job_hr_manager"/>
+    </record>
+
+    <record id="user_hr_hr_manager" model="res.users">
+        <field name="name">HR Manager</field>
+        <field name="login">hr_manager</field>
+        <field name="password">hr_manager</field>
+        <field name="email">hr_manager@example.com</field>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_user')])]"/>
+    </record>
+
+    <record id="employee_hr_hr_manager" model="hr.employee">
+        <field name="name">HR Manager</field>
+        <field name="user_id" ref="user_hr_hr_manager"/>
+        <field name="department_id" ref="department_hr"/>
+        <field name="job_id" ref="job_hr_hr_manager"/>
+    </record>
+
+    <record id="user_hr_dgm" model="res.users">
+        <field name="name">DGM1</field>
+        <field name="login">dgm1</field>
+        <field name="password">dgm1</field>
+        <field name="email">dgm1@example.com</field>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_user')])]"/>
+    </record>
+
+    <record id="employee_hr_dgm" model="hr.employee">
+        <field name="name">DGM1</field>
+        <field name="user_id" ref="user_hr_dgm"/>
+        <field name="department_id" ref="department_hr"/>
+        <field name="job_id" ref="job_hr_dgm"/>
+    </record>
+</odoo>

@@ -1,3 +1,4 @@
+from Tools.scripts.dutree import store
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
@@ -6,16 +7,15 @@ class ApplicationForATC(models.Model):
     _name = 'application'
     _description = 'Application for Attending Training Course'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    # remain_slots chua tinh, nut print hoi bug 1 ti
+    # remain_slots chua tinh, dynamic approval flow
 
     # Header
     name = fields.Char(string='Application No.', required=True, readonly=True, default=lambda self: _('New'),
                        help='Document number with format BS/YYYY/NNNN')
     x_applicant_id = fields.Many2one('hr.employee', string='Name of Applicant')
-    x_department_id = fields.Many2one('hr.department', string='Department')
-    x_position_id = fields.Char(string='Position', help='Input your position')
-    x_request_date = fields.Date(string='Request Date',
-                                 help='The Request Date CAN NOT be later than the Start Date')
+    x_department_id = fields.Many2one('hr.department', string='Department', related='x_applicant_id.department_id', store=True)
+    x_position_id = fields.Many2one('hr.job', string='Position', related='x_applicant_id.job_id', store=True)
+    x_request_date = fields.Date(string='Request Date', default=fields.Date.today, store=True)
 
     # Training course info
     x_course_title = fields.Many2one('hmv.training.courses', string='Course Title')
@@ -116,28 +116,38 @@ class ApplicationForATC(models.Model):
 
     def action_button_register(self):
         self.x_approval_status = 'wait'
+        self._create_approval_history('wait')
+        return True
 
     def action_button_edit(self):
+        self.x_approval_history_ids.unlink()
         self.x_approval_status = 'draft'
+        return True
 
     def action_button_save(self):
         self.x_approval_status = 'draft'
+        return True
 
     # Button
     def action_button_approve(self):
         self.x_approval_status = 'approved'
-        self._create_approval_history('approved')
+        # self._create_approval_history('approved')
+        self._update_current_employee_approval_status('approved')
         self._compute_is_all_approved()
+        return True
 
     def action_button_refuse(self):
         self.x_approval_status = 'refused'
-        self._create_approval_history('refused')
+        self._update_current_employee_approval_status('refused')
+        # self._create_approval_history('refused')
         # Send notify for applicant
         # self.x_applicant_id.message_post(body=f'Your application for attending training course has been refused.')
+        return True
 
     # For TESTING
     def action_button_set_waiting(self):
         self.x_approval_status = 'draft'
+        return True
 
     # Create Override
     @api.model
@@ -169,17 +179,55 @@ class ApplicationForATC(models.Model):
                     raise ValidationError(_('The Start Date must be before the End Date.'))
 
     # for Tab Approval History
+    # def _create_approval_history(self, status):
+    #     """Creates an approval history record when an application is approved or refused."""
+    #     current_employee = self.env.user.employee_id
+    #     if not current_employee:
+    #         raise ValidationError(_("You need to be linked to an employee to approve or refuse this request."))
+    #
+    #     self.env['approval.history'].create({
+    #         'x_application_ids': self.id,
+    #         'x_approval_employee_id': current_employee.id,
+    #         'x_approval_status': status
+    #     })
+
     def _create_approval_history(self, status):
-        """Creates an approval history record when an application is approved or refused."""
+        """Create approval history records based on position."""
+        approval_flow = {
+            'Staff': ['Manager', 'Senior Manager', 'DGM', 'GM', 'Officer', 'HR Manager'],
+            'Manager': ['Senior Manager', 'DGM', 'GM', 'Officer', 'HR Manager'],
+            'Senior Manager': ['DGM', 'GM', 'Officer', 'HR Manager'],
+            'DGM': ['GM', 'Officer', 'HR Manager'],
+            'GM': ['Officer', 'HR Manager'],
+            'Officer': ['HR Manager']
+        }
+
+        applicant_position = self.x_position_id.name
+        approver_positions = approval_flow.get(applicant_position, [])
+
+        for position in approver_positions:
+            approver = self.env['hr.employee'].search([('job_id', '=', position)], limit=1)
+            if approver:
+                self.env['approval.history'].create({
+                    'x_application_ids': self.id,
+                    'x_approval_employee_id': approver.id,
+                    'x_approval_status': status
+                })
+
+    def _update_current_employee_approval_status(self, new_status):
+        """ Update x_approval_status (approved/refused) for approval history lines. """
         current_employee = self.env.user.employee_id
         if not current_employee:
-            raise ValidationError(_("You need to be linked to an employee to approve or refuse this request."))
+            raise ValidationError(_("No Employee found for the current user."))
 
-        self.env['approval.history'].create({
-            'x_application_ids': self.id,
-            'x_approval_employee_id': current_employee.id,
-            'x_approval_status': status
-        })
+        # Lọc ra dòng approval history tương ứng với nhân viên hiện tại
+        approval_line = self.x_approval_history_ids.filtered(
+            lambda line: line.x_approval_employee_id == current_employee
+        )
+        if not approval_line:
+            raise ValidationError(_("You are not authorized to approve this application."))
+
+        approval_line.write({'x_approval_status': new_status})
 
 
 # Tab Approval History

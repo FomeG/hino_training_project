@@ -1,0 +1,36 @@
+<odoo>
+    <record id="job_hr_staff" model="hr.job">
+        <field name="name">Staff</field>
+        <field name="department_id" ref="department_hr"/>
+    </record>
+
+    <record id="job_hr_manager" model="hr.job">
+        <field name="name">Manager</field>
+        <field name="department_id" ref="department_hr"/>
+    </record>
+
+    <record id="job_hr_senior_manager" model="hr.job">
+        <field name="name">Senior Manager</field>
+        <field name="department_id" ref="department_hr"/>
+    </record>
+
+    <record id="job_hr_dgm" model="hr.job">
+        <field name="name">DGM</field>
+        <field name="department_id" ref="department_hr"/>
+    </record>
+
+    <record id="job_hr_gm" model="hr.job">
+        <field name="name">GM</field>
+        <field name="department_id" ref="department_hr"/>
+    </record>
+
+    <record id="job_hr_officer" model="hr.job">
+        <field name="name">Officer</field>
+        <field name="department_id" ref="department_hr"/>
+    </record>
+
+    <record id="job_hr_hr_manager" model="hr.job">
+        <field name="name">HR Manager</field>
+        <field name="department_id" ref="department_hr"/>
+    </record>
+</odoo>
