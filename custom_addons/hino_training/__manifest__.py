@@ -37,7 +37,7 @@ Long description of module's purpose
         # 'data/mail_template.xml',
         'views/hmv_training_need_view.xml',
 
-
+        'views/hmv_training_brochure_wizard.xml',
         'views/hmv_training_brochure.xml',
         'views/hmv_training_courses_form_view.xml',
         'views/test.xml',

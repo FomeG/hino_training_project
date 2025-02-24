@@ -153,11 +153,11 @@ class TrainingCourses(models.Model):
         if self.year:
             return {'domain': {'training_brochure_id': [('year', '=', self.year)]}}
 
-    @api.onchange('training_brochure_id')
-    def _onchange_training_brochure_id(self):
-        if self.training_brochure_id:
-            self.course_type = self.training_brochure_id.course_type
-            self.estimate_fee = self.training_brochure_id.estimate_fee
+    # @api.onchange('training_brochure_id')
+    # def _onchange_training_brochure_id(self):
+    #     if self.training_brochure_id:
+    #         self.course_type = self.training_brochure_id.course_type
+    #         self.estimate_fee = self.training_brochure_id.estimate_fee
 
     def action_edit(self):
         if self.status not in ['draft', 'refused']:

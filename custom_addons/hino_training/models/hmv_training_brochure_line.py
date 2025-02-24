@@ -5,6 +5,7 @@ from odoo import models, fields, api
 class HMVTrainingBrochureLine(models.Model):
     _name = 'hmv.training.brochure.line'
     _description = 'Training Brochure Line'
+    _rec_name = 'course_name'
 
     training_brochure_id_company = fields.Many2one('hmv.training.brochure', string='Training Brochure 1', ondelete='cascade')
     training_brochure_id_factory = fields.Many2one('hmv.training.brochure', string='Training Brochure 2', ondelete='cascade')
