@@ -8,6 +8,11 @@ class TrainingCourses(models.Model):
     _description = 'Training Courses'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    training_plan_id = fields.Many2one(
+            'hmv.training.plan',
+            string='Training Plan'
+        )
+
     course_title = fields.Char(string='Course Title', required=True, tracking=True)
     start_date = fields.Date(string='Start date', required=True, tracking=True)
     end_date = fields.Date(string='End date', required=True, tracking=True)
@@ -45,14 +50,7 @@ class TrainingCourses(models.Model):
                                            required=True, tracking=True)
     
     
-    
-    
-    
-    
-    
-    
-    
-    
+
     location_id = fields.Many2one('res.country.state', string='Location', required=True, tracking=True)
     employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,)
     deptcombine = fields.Text(string='DeptCombine', tracking=True)
