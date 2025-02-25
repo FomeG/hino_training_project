@@ -233,10 +233,13 @@ class ApplicationForATC(models.Model):
     def _create_approval_history(self, managers):
         """Creates an approval history record when an application is registered."""
         approval_history_model = self.env['approval.history']
+        print('create')
+        print(managers)
+        print(approval_history_model)
         for manager in managers:
             approval_history_model.create({
                 'x_application_ids': self.id,
-                'x_approval_employee_id': manager.user_id.id,
+                'x_approval_employee_id': manager.id,
                 'x_approval_status': 'wait',
             })
 
