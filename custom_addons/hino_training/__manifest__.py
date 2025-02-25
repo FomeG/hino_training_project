@@ -23,10 +23,6 @@ Long description of module's purpose
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/application/application.xml',
-
-        'data/sequence.xml',
-        'views/trainning_plan_view.xml',
 
         'views/views.xml',
 
@@ -38,17 +34,18 @@ Long description of module's purpose
 
         'views/hmv_training_need_view.xml',
 
+        'views/hmv_training_brochure_wizard.xml',
         'views/hmv_training_brochure.xml',
+      
         'views/hmv_training_courses_form_view.xml',
         'views/test.xml',
-        'views/menu.xml',
 
-        'views/hmv_training_brochure.xml',
-        'views/hmv_training_courses_form_view.xml',
+        'views/action.xml',
+        'views/trainning_plan_view.xml',
 
         'templates/application_report_template.xml',
-        # 'views/application/application_approval.xml',
-
+        'views/application/application.xml',
+      
         'views/menu.xml',
     ],
     # only loaded in demonstration mode
