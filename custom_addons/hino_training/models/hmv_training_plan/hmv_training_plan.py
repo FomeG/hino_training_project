@@ -10,6 +10,21 @@ class TrainingPlan(models.Model):
         'training_plan_id',        # Khóa ngoại trong model con
         string='Training Plan Lines'
     )
+    tab_training_courses_id = fields.One2many(
+        'hmv.tab.training.courses.provided.by.company',  # Tên model con
+        'training_plan_id',        # Khóa ngoại trong model con
+        string='Training Plan Lines'
+    )
+    tab_others_id = fields.One2many(
+        'hmv.tab.others',  # Tên model con
+        'training_plan_id',        # Khóa ngoại trong model con
+        string='Training Plan Lines'
+    )
+    tab_factory_id = fields.One2many(
+        'hmv.tab.factory.training',  # Tên model con
+        'training_plan_id',        # Khóa ngoại trong model con
+        string='Training Plan Lines'
+    )
     # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
    
     name = fields.Char(
@@ -155,3 +170,9 @@ class TrainingPlan(models.Model):
             # Logic từ chối
             self.state = 'hr_manager_processing'
             return True
+    # action report
+    def action_print_training_courses(self):
+        return self.env.ref('hino_training.action_report_training_plan').report_action(self)
+
+    # def action_print_training_courses_detail(self):
+    #     return self.env.ref('hino_training.action_report_training_courses').report_action(self)

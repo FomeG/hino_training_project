@@ -2,18 +2,20 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from datetime import date
 
-class TrainingPlanLine(models.Model):
-    _name = 'hmv.training.plan.line'
-    _description = 'Training Plan Line'
+class tabOther(models.Model):
+    _name = 'hmv.tab.others'
+    _description = 'Training courses provided by company'
 
     training_plan_id = fields.Many2one(
         'hmv.training.plan',
         string='Training Plan',
         ondelete='cascade'
     )
+    course_title = fields.Char(string='Course Title', required=False, tracking=True)
+
     recommend_level_ids = fields.Many2many(
         comodel_name='hmv.list.value.line',  # Model được liên kết
-        relation='training_plan_recommend_level_rel',  # Tên bảng trung gian
+        relation='others_recommend_level_rel',  # Tên bảng trung gian
         column1='training_plan_line_id',  # Khóa chính của bảng hiện tại
         column2='list_value_line_id',  # Khóa chính của bảng liên kết
         string="Recommend Levels",
@@ -23,7 +25,6 @@ class TrainingPlanLine(models.Model):
     fee = fields.Float(string='Fee')
 
 
-    course_title = fields.Char(string='Course Title', required=False, tracking=True)
     start_date = fields.Date(string='Start date', required=False, tracking=True)
     end_date = fields.Date(string='End date', required=False, tracking=True)
     vendor_id = fields.Many2one('res.partner', string='Vendor', required=False, tracking=True,
