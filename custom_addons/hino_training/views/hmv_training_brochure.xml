@@ -16,7 +16,9 @@
                 <field name="end_date"/>
                 <field name="company_id"/>
                 <field name="name"/>
-                <field name="state"/>
+                <field name="state" widget="badge" decoration-muted="state == 'draft'" decoration-info="state == 'submitted'"
+                  decoration-success="state == 'approved'" decoration-warning="state =='rejected'"
+                  decoration-danger="state == 'cancelled'"/>
             </tree>
         </field>
     </record>
@@ -107,6 +109,25 @@
         </field>
     </record>
 
+    <!-- Search View -->
+    <record id="view_hmv_training_brochure_search" model="ir.ui.view">
+        <field name="name">hmv.training.brochure.search</field>
+        <field name="model">hmv.training.brochure</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/>
+                <field name="year"/>
+                <field name="employee_id"/>
+                <field name="company_id"/>
+                <field name="name"/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="filter_approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="filter_rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                <filter name="filter_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+            </search>
+        </field>
+    </record>
 
     <!-- Action -->
     <record id="action_hmv_training_brochure" model="ir.actions.act_window">

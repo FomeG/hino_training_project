@@ -32,9 +32,9 @@
                                 invisible="status not in ('active', 'in_progress')"/>
                         <button name="action_create" string="Create" type="object"
                                 class="oe_highlight" invisible="id != False"/>
+
                         <field name="status" widget="statusbar"
                                statusbar_visible="draft,active,in_progress,done,cancel"/>
-<!--                        <field name="approval_status" invisible="1"/>-->
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -56,7 +56,7 @@
                                 <field name="confirmation_start_date" required="1"/>
                                 <field name="confirmation_end_date" required="1"/>
                                 <field name="slot" required="1"/>
-                                <!--<field name="file_attach" widget="many2many_binary"/>-->
+                                <field name="file_attach" widget="many2many_binary"/>
                             </group>
                             <group>
                                 <field name="course_type" required="1"/>
@@ -65,11 +65,12 @@
                                 <field name="employee_id" widget="many2many_tags" required="1"/>
                                 <field name="employee_hr_id"/>
                                 <field name="deptcombine"/>
-                                <field name="training_method_id" required="0"
+                                <field name="training_method_id" required="1"
                                        domain="[('code', '=', 'TRAINING_METHOD')]"/>
                                 <field name="location_id" required="1"/>
+<!--                                <field name="training_id"/>-->
                                 <field name="currency_id" invisible="1"/>
-                                <field name="audience_ids" required="0" domain="[('code', '=', 'TR_LEVEL')]"/>
+                                <field name="audience_ids" required="1" domain="[('code', '=', 'TR_LEVEL')]"/>
                             </group>
                         </group>
                         <group>
@@ -103,7 +104,6 @@
                                         <field name="job_id"/>
                                         <field name="department_id"/>
                                         <field name="status"/>
-<!--                                        <field name="approval_status" invisible="1"/>-->
                                         <field name="comment"/>
                                         <field name="date"/>
                                         <button name="action_approve"
@@ -131,29 +131,29 @@
         </record>
      <!-- Wizard View -->
  <record id="view_training_approval_wizard_form" model="ir.ui.view">
-        <field name="name">hmv.training.approval.wizard.form</field>
-        <field name="model">hmv.training.approval.wizard</field>
-        <field name="arch" type="xml">
-            <form>
-                <sheet>
-                    <group>
-                        <field name="comment" placeholder="Enter your comment here (optional)"/>
-                        <field name="approval_id" invisible="1"/>
-                        <field name="action_type" invisible="1"/>
-                    </group>
-                </sheet>
-                <footer>
-                    <button name="action_confirm"
-                            string="Confirm"
-                            type="object"
-                            class="btn-primary"/>
-                    <button string="Cancel"
-                            class="btn-secondary"
-                            special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
+    <field name="name">hmv.training.approval.wizard.form</field>
+    <field name="model">hmv.training.approval.wizard</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <field name="comment" placeholder="Enter your comment here (optional)"/>
+                    <field name="approval_id" invisible="1"/>
+                    <field name="action_type" invisible="1"/>
+                </group>
+            </sheet>
+            <footer>
+                <button name="action_confirm"
+                        string="Confirm"
+                        type="object"
+                        class="btn-primary"/>
+                <button string="Cancel"
+                        class="btn-secondary"
+                        special="cancel"/>
+            </footer>
+        </form>
+    </field>
+</record>
         <!-- Tree View -->
         <record id="view_hmv_training_courses_tree" model="ir.ui.view">
             <field name="name">hmv.training.courses.tree</field>
@@ -173,7 +173,6 @@
                     <field name="slot"/>
                     <field name="remaining_slots"/>
                     <field name="status"/>
-<!--                    <field name="approval_status" invisible="1"/>-->
                     <button name="action_register_course"
                             string="Register Course"
                             type="object"
