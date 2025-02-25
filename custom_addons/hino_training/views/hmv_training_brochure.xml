@@ -5,8 +5,8 @@
         <field name="name">hmv.training.brochure.tree</field>
         <field name="model">hmv.training.brochure</field>
         <field name="arch" type="xml">
-            <tree decoration-muted="state == 'draft'" decoration-warning="state == 'submitted'"
-                  decoration-success="state == 'approved'" decoration-info="state =='rejected'"
+            <tree decoration-muted="state == 'draft'" decoration-info="state == 'submitted'"
+                  decoration-success="state == 'approved'" decoration-warning="state =='rejected'"
                   decoration-danger="state == 'cancelled'">
                 <field name="code"/>
                 <field name="year"/>
@@ -16,7 +16,9 @@
                 <field name="end_date"/>
                 <field name="company_id"/>
                 <field name="name"/>
-                <field name="state"/>
+                <field name="state" widget="badge" decoration-muted="state == 'draft'" decoration-info="state == 'submitted'"
+                  decoration-success="state == 'approved'" decoration-warning="state =='rejected'"
+                  decoration-danger="state == 'cancelled'"/>
             </tree>
         </field>
     </record>
@@ -34,12 +36,12 @@
                         invisible="state != 'submitted'" class="btn-success"/>
                     <button name="action_reject" string="Reject" type="object"
                         invisible="state != 'submitted'" class="btn-danger"/>
-                    <button name="action_draff" string="Draff" type="object"
+                    <button name="action_draft" string="Draft" type="object"
                         invisible="state != 'rejected'" class="btn-secondary"/>
-                    <button name="action_update_courses" string="Update Course" type="object" class="btn-success"
-                            invisible="not (is_update_button_visible and state == 'approved')"/>
+                    <button name="action_update_courses" string="Update Course" type="object" class="btn-info"
+                            invisible="not (is_update_button_visible and state == 'draft')"/>
                     <button name="action_cancel" string="Cancel" type="object"
-                        invisible="state != 'approved'" class="btn-danger"/>
+                            invisible="state not in ('approved', 'rejected')" class="btn-danger"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
@@ -107,7 +109,26 @@
         </field>
     </record>
 
- 
+    <!-- Search View -->
+    <record id="view_hmv_training_brochure_search" model="ir.ui.view">
+        <field name="name">hmv.training.brochure.search</field>
+        <field name="model">hmv.training.brochure</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/>
+                <field name="year"/>
+                <field name="employee_id"/>
+                <field name="company_id"/>
+                <field name="name"/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="filter_approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="filter_rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                <filter name="filter_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+            </search>
+        </field>
+    </record>
+
     <!-- Action -->
     <record id="action_hmv_training_brochure" model="ir.actions.act_window">
         <field name="name">Training Brochures</field>

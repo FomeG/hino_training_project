@@ -20,18 +20,15 @@ class TrainingCourses(models.Model):
                                    tracking=True)
     slot = fields.Integer(string='Slots', required=True, tracking=True)
     training_content = fields.Text(string='Training content', required=True, tracking=True)
-    file_attach = fields.Binary(string='File Attach', attachment=True)
+    file_attach = fields.Many2many('ir.attachment', string='File Attach', attachment=True)
     confirmation_start_date = fields.Date(string='Start date of confirmation', required=True, tracking=True)
     confirmation_end_date = fields.Date(string='End date of confirmation', required=True, tracking=True)
     department_id = fields.Many2one('hr.department', string='Apply for department', required=True, tracking=True)
     training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method', required=True,
                                          tracking=True, domain=[('code', '=', 'TRAINING_METHOD')])
-    year = fields.Date(string='Year', required=True, tracking=True)
+    year = fields.Char(string='Year',compute='_compute_year', store=True)
     training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
                                            required=True, tracking=True)
-    
-    
-
     location_id = fields.Many2one('res.country.state', string='Location', required=True, tracking=True)
     employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,)
     deptcombine = fields.Text(string='DeptCombine', tracking=True)
@@ -54,17 +51,10 @@ class TrainingCourses(models.Model):
                                    tracking=True, domain=[('code', '=', 'TR_LEVEL')])
     participant_ids = fields.One2many('hmv.training.participant', 'course_id', string='Participants')
     # New Approval Fields
-    approval_employee_id = fields.Many2one('hr.employee', string='Approver', tracking=True)
-    approval_job_id = fields.Many2one(related='approval_employee_id.job_id', string='Position',
-                                      store=True, readonly=True, tracking=True)
-    approval_department_id = fields.Many2one(related='approval_employee_id.department_id',
-                                             string='Department', store=True, readonly=True, tracking=True)
-    approval_status = fields.Selection([
-        ('waiting', 'Waiting to approve'),
-        ('approved', 'Approved'),
-        ('refused', 'Refused')
-    ], string='Approval Status', default='waiting', tracking=True)
-    approval_comment = fields.Text(string='Approval Comment', tracking=True)
+    approval_ids = fields.One2many('hmv.training.course.approval', 'training_course_id',
+                                   string='Approval History', tracking=True)
+    current_approval_id = fields.Many2one('hmv.training.course.approval',
+                                          string='Current Approval', compute='_compute_current_approval')
     remaining_slots = fields.Integer(
         string='Remaining Slots',
         compute='_compute_remaining_slots',
@@ -72,6 +62,13 @@ class TrainingCourses(models.Model):
         help='Number of available slots remaining in the course'
     )
 
+    @api.depends('start_date')
+    def _compute_year(self):
+        for record in self:
+            if record.start_date:
+                record.year = fields.Datetime.from_string(record.start_date).strftime('%Y')
+            else:
+                record.year = 0
     @api.depends('slot', 'participant_ids')
     def _compute_remaining_slots(self):
         for record in self:
@@ -83,10 +80,6 @@ class TrainingCourses(models.Model):
         # Check if course is in active state
         if self.status != 'active':
             raise ValidationError(_("Course registration is only available for active courses."))
-
-        # Check if approval is completed
-        if self.approval_status != 'approved':
-            raise ValidationError(_("Course must be approved before registration."))
 
         # Check remaining slots
         if self.remaining_slots <= 0:
@@ -156,11 +149,11 @@ class TrainingCourses(models.Model):
         if self.year:
             return {'domain': {'training_brochure_id': [('year', '=', self.year)]}}
 
-    @api.onchange('training_brochure_id')
-    def _onchange_training_brochure_id(self):
-        if self.training_brochure_id:
-            self.course_type = self.training_brochure_id.course_type
-            self.estimate_fee = self.training_brochure_id.estimate_fee
+    # @api.onchange('training_brochure_id')
+    # def _onchange_training_brochure_id(self):
+    #     if self.training_brochure_id:
+    #         self.course_type = self.training_brochure_id.course_type
+
 
     def action_edit(self):
         if self.status not in ['draft', 'refused']:
@@ -205,3 +198,173 @@ class TrainingCourses(models.Model):
         for participant in self.participant_ids.filtered(lambda p: p.status == 'waiting'):
             template.send_mail(participant.id, force_send=True)
         return True
+
+    @api.depends('approval_ids')
+    def _compute_current_approval(self):
+        for record in self:
+            pending_approvals = record.approval_ids.filtered(lambda a: a.status == 'waiting')
+            record.current_approval_id = pending_approvals[0] if pending_approvals else False
+
+    def action_submit(self):
+        """Submit the training course for approval"""
+        if self.status != 'draft':
+            raise ValidationError(_("Only courses in 'Draft' state can be submitted for approval."))
+
+        # Get approvers (department manager and HR manager)
+        approvers = self._get_approvers()
+        if not approvers:
+            raise ValidationError(_("No approvers found for this training course."))
+
+        # Create approval records in sequence
+        sequence = 10
+        for approver in approvers:
+            self.env['hmv.training.course.approval'].create({
+                'training_course_id': self.id,
+                'sequence': sequence,
+                'employee_id': approver.id,
+                'status': 'waiting'
+            })
+            sequence += 10
+
+        # Update status
+        self.write({
+            'status': 'draft'
+        })
+
+        return True
+    def _get_approvers(self):
+        # Implement your approval flow logic here
+        department_manager = self.department_id.manager_id
+        hr_manager = self.env['hr.employee'].search([
+            ('department_id.name', 'ilike', 'HR'),
+            ('job_id.name', 'ilike', 'Manager')
+        ], limit=1)
+        return department_manager + hr_manager
+
+class TrainingCourseApproval(models.Model):
+    _name = 'hmv.training.course.approval'
+    _description = 'Training Course Approval History'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _rec_name = 'employee_id'
+    _order = 'sequence'
+
+    training_course_id = fields.Many2one('hmv.training.courses', string='Training Course', required=True)
+    sequence = fields.Integer(string='Sequence', default=10)
+    employee_id = fields.Many2one('hr.employee', string='Approver', required=True, tracking=True)
+    job_id = fields.Many2one(related='employee_id.job_id', string='Position', store=True, readonly=True, tracking=True)
+    department_id = fields.Many2one(related='employee_id.department_id', string='Department', store=True, readonly=True, tracking=True)
+    status = fields.Selection([
+        ('waiting', 'Waiting to approve'),
+        ('approved', 'Approved'),
+        ('refused', 'Refused')
+    ], string='Status', default='waiting', tracking=True)
+    comment = fields.Text(string='Comment', tracking=True)
+    date = fields.Datetime(string='Action Date', tracking=True)
+    @api.model
+    def create(self, vals):
+        vals['date'] = fields.Datetime.now()
+        return super().create(vals)
+
+    def write(self, vals):
+        if 'status' in vals:
+            vals['date'] = fields.Datetime.now()
+        return super().write(vals)
+
+    def action_approve(self):
+        return self._show_approval_wizard('approved')
+
+    def action_refuse(self):
+        return self._show_approval_wizard('refused')
+
+    def _show_approval_wizard(self, action_type):
+        return {
+            'name': 'Approval Comment',
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.training.approval.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_approval_id': self.id,
+                'default_action_type': action_type,
+                'default_res_model': 'hmv.training.course.approval',
+                'safe_res_model': 'hmv.training.course.approval'
+            }
+        }
+
+    def _process_approval(self, status, comment):
+        """Process the approval or refusal"""
+        self.ensure_one()
+        training_course = self.training_course_id
+
+        self.write({
+            'status': status,
+            'comment': comment,
+            'date': fields.Datetime.now()
+        })
+
+        if status == 'refused':
+            # If refused, set course back to draft for editing
+            training_course.write({
+                'status': 'draft'
+            })
+            return
+
+        # Check if this was the last approval needed
+        pending_approvals = training_course.approval_ids.filtered(lambda a: a.status == 'waiting')
+        if not pending_approvals:
+            # If no more pending approvals, mark as approved
+            training_course.write({
+                'status': 'active'
+            })
+
+
+class TrainingApprovalWizard(models.TransientModel):
+    _name = 'hmv.training.approval.wizard'
+    _description = 'Training Approval Comment Wizard'
+
+    approval_id = fields.Many2one('hmv.training.course.approval', string='Approval')
+    action_type = fields.Selection([
+        ('approved', 'Approve'),
+        ('refused', 'Refuse')
+    ], string='Action')
+    comment = fields.Text(string='Comment')
+    res_model = fields.Char(string='Resource Model', required=False)
+    def action_confirm(self):
+        approval = self.approval_id
+        approval.write({
+            'status': self.action_type,
+            'comment': self.comment,
+            'date': fields.Datetime.now()
+        })
+
+        training_course = approval.training_course_id
+        if self.action_type == 'refused':
+            # Set course back to draft for editing
+            training_course.write({'status': 'draft'})
+
+            # Notify the applicant
+            applicant = training_course.create_uid  # The user who created the training course
+            training_course.message_post(
+                body=f"Your training course has been refused by {approval.employee_id.name}. Comment: {self.comment or 'No comment'}",
+                message_type='notification',
+                subtype_xmlid='mail.mt_comment',
+                partner_ids=[applicant.partner_id.id] if applicant.partner_id else []
+            )
+
+        elif self.action_type == 'approved':
+            # Check if this was the last approval needed
+            pending_approvals = training_course.approval_ids.filtered(lambda a: a.status == 'waiting')
+            if not pending_approvals:
+                # If no more pending approvals, mark as active
+                training_course.write({'status': 'active'})
+
+                # Notify the applicant that the course has been fully approved
+                applicant = training_course.create_uid
+                training_course.message_post(
+                    body=f"Your training course '{training_course.course_title}' has been fully approved and is now active.",
+                    message_type='notification',
+                    subtype_xmlid='mail.mt_comment',
+                    partner_ids=[applicant.partner_id.id] if applicant.partner_id else []
+                )
+
+        return {'type': 'ir.actions.act_window_close'}

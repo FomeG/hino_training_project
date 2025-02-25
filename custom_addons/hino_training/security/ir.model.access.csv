@@ -9,6 +9,7 @@ access_approval_history,access_approval_history,model_approval_history,,1,1,1,1
 
 access_hmv_training_brochure,hmv.training.brochure,model_hmv_training_brochure,,1,1,1,1
 access_hmv_training_brochure_line,hmv.training.brochure.line,model_hmv_training_brochure_line,,1,1,1,1
+access_hmv_update_courses_wizard,hmv.update.courses.wizard,model_hmv_update_courses_wizard,,1,1,1,1
 
 access_hmv_training_courses,hmv.training.courses,model_hmv_training_courses,,1,1,1,1
 access_hmv_training_participant,hmv.training.participant,model_hmv_training_participant,,1,1,1,1
@@ -22,8 +23,7 @@ access_hmv_training_need_factory,hmv.training.need.factory,model_hmv_training_ne
 access_hmv_training_need_other,hmv.training.need.other,model_hmv_training_need_other,,1,1,1,1
 access_hmv_training_need_approval,hmv.training.need.approval,model_hmv_training_need_approval,,1,1,1,1
 
-
-
+access_hmv_training_course_approval,hmv.training.course.approval,model_hmv_training_course_approval,,1,1,1,1
 access_hmv_training_plan_line,hmv.training.plan.line,model_hmv_training_plan_line,,1,1,1,1
 
 
