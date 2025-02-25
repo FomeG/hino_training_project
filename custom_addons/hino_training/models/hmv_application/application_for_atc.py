@@ -97,6 +97,10 @@ class ApplicationForATC(models.Model):
                 )
             else:
                 record.x_is_all_approved = False
+        if self.x_is_all_approved:
+            self.x_approval_status = 'approved'
+            # Send notify for applicant
+            '''......................'''
 
     # Smart Button
     def action_button_open_training_course(self):
@@ -133,14 +137,10 @@ class ApplicationForATC(models.Model):
     def action_button_approve(self):
         self._update_current_employee_approval_status('approved')
         self._compute_is_all_approved()
-        # self.x_approval_status = 'approved'
-        # self._create_approval_history('approved')
         return True
 
     def action_button_refuse(self):
         self._update_current_employee_approval_status('refused')
-        # self.x_approval_status = 'refused'
-        # self._create_approval_history('refused')
         # Send notify for applicant
         # self.x_applicant_id.message_post(body=f'Your application for attending training course has been refused.')
         return True
@@ -179,19 +179,6 @@ class ApplicationForATC(models.Model):
                 if record.x_start_date > record.x_end_date:
                     raise ValidationError(_('The Start Date must be before the End Date.'))
 
-    # for Tab Approval History
-    # def _create_approval_history(self, status):
-    #     """Creates an approval history record when an application is approved or refused."""
-    #     current_employee = self.env.user.employee_id
-    #     if not current_employee:
-    #         raise ValidationError(_("You need to be linked to an employee to approve or refuse this request."))
-    #
-    #     self.env['approval.history'].create({
-    #         'x_application_ids': self.id,
-    #         'x_approval_employee_id': current_employee.id,
-    #         'x_approval_status': status
-    #     })
-
     def _get_applicant_position(self):
         if not self.x_applicant_id or not self.x_position_id:
             raise ValidationError(_("Applicant position is not available."))
@@ -205,12 +192,13 @@ class ApplicationForATC(models.Model):
         approval_flow = self._get_approval_flow()
         managers = []
 
-        # Tìm nhân viên ứng với vị trí
+        # Find the employee with the specified position
         employee = self.env['hr.employee'].search([('job_id', '=', position.id)], limit=1)
         if not employee:
             raise ValidationError(_("No employee matches this position."))
 
         current_manager = employee.parent_id
+        # Find the next matching manager in the approval flow
         while current_manager:
             job_name = current_manager.job_id.name
             if job_name in approval_flow:
@@ -233,9 +221,7 @@ class ApplicationForATC(models.Model):
     def _create_approval_history(self, managers):
         """Creates an approval history record when an application is registered."""
         approval_history_model = self.env['approval.history']
-        print('create')
-        print(managers)
-        print(approval_history_model)
+
         for manager in managers:
             approval_history_model.create({
                 'x_application_ids': self.id,
