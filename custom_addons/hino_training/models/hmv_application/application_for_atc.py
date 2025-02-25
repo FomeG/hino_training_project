@@ -112,7 +112,7 @@ class ApplicationForATC(models.Model):
         }
 
     def action_button_print(self):
-        return self.env.ref('hino_training.report_application_for_atc_preview').report_action(self)
+        return self.env.ref('hino_training.report_application_for_atc').report_action(self)
 
     def action_button_register(self):
         self.x_approval_status = 'wait'
@@ -154,7 +154,7 @@ class ApplicationForATC(models.Model):
     def create(self, vals):
         if vals.get('name', _('New')) == _('New'):
             seq = self.env['ir.sequence'].next_by_code('application.sequence') or '0001'
-            vals['name'] = f'BS{seq}'
+            vals['name'] = f'{seq}'
         return super(ApplicationForATC, self).create(vals)
 
     # For VALIDATING

@@ -133,6 +133,14 @@
         </field>
     </record>
 
+    <record id="seq_application" model="ir.sequence">
+        <field name="name">Application Sequence</field>
+        <field name="code">application.sequence</field>
+        <field name="prefix">BS/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+    </record>
+
     <record id="report_application_for_atc" model="ir.actions.report">
         <field name="name">Application Report</field>
         <field name="model">application</field>
