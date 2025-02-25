@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_hmv_training_brochure_update_wizard_form" model="ir.ui.view">
+            <field name="name">hmv.training.brochure.update.wizard.form</field>
+            <field name="model">hmv.update.courses.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Update Course Wizard">
+                    <group>
+                        <field name="course_ids" widget="many2many_checkboxes"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" string="Add" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_hmv_training_brochure_update_wizard" model="ir.actions.act_window">
+            <field name="name">Update Course Wizard</field>
+            <field name="res_model">hmv.update.courses.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

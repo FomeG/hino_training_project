@@ -43,6 +43,7 @@
                             </h1>
                         </div>
                         <group>
+                          
                             <group>
                                 <field name="year"/>
                                 <field name="start_date" required="1"/>
@@ -75,6 +76,7 @@
                         <group>
                             <field name="training_content" required="1"/>
                             <field name="description" required="1"/>
+
                         </group>
                         <notebook>
                             <page string="List of participant">

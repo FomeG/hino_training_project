@@ -74,6 +74,11 @@ class HMVTrainingBrochure(models.Model):
     @api.onchange('start_date', 'end_date', 'created_on')
     def _check_dates(self):
         for record in self:
+            if record.start_date and record.created_on and record.start_date < record.created_on:
+                raise ValidationError("The start date must be greater than or equal to the created on date.")
+            if record.end_date and record.start_date and record.end_date < record.start_date:
+                raise ValidationError("The end date must be greater than or equal to the start date.")
+            
 
     # training_brochure_id = fields.One2many('hmv.training.courses', 'training_id', string="Training Courses")
             if record.start_date and record.created_on:
@@ -98,7 +103,7 @@ class HMVTrainingBrochure(models.Model):
                 record.end_date and record.name and record.start_date and record.employee_id)
     #endregion
     #region Action Methods
-    def action_draff(self):
+    def action_draft(self):
         self.write({'state': 'draft'})
 
     def action_submit(self):
@@ -114,7 +119,18 @@ class HMVTrainingBrochure(models.Model):
         self.write({'state': 'cancelled'})
 
     def action_update_courses(self):
-        raise ValidationError("Update Courses is not implemented.")
+        """Opens a wizard to select active courses to add to the brochure"""
+        return {
+            'name': 'Update Courses',
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.update.courses.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'active_id': self.id,
+                'active_model': 'hmv.training.brochure'
+            }
+        }
 
     #endregion
 

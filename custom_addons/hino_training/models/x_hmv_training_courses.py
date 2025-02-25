@@ -6,7 +6,7 @@ class TrainingCourses(models.Model):
     _inherit = 'hmv.training.courses'
 
     # Fields
-    training_id = fields.Many2one('hmv.training.plan', string="Training Plan")
+    # training_id = fields.Many2one('hmv.training.plan', string="Training Plan")
 
 
     # recommend_level_ids = fields.Many2many('hmv.list.value.line', string="Recommend level", domain=[('code', '=', 'LEVEL'), ('active', '=', True)], help="Chọn vị trí dự kiến trong List of Value")
