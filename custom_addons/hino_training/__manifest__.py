@@ -18,12 +18,16 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'hr', 'mail', 'purchase'],
+    'depends': ['base', 'hr', 'mail', 'purchase','web'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'views/trainning_plan_view.xml',
 
+        'templates/training_plan_report_template.xml',   
+
+        'data/sequence.xml',
         'views/views.xml',
 
         'data/hmv_need_sequence.xml',
@@ -41,12 +45,12 @@ Long description of module's purpose
         'views/training_course_report.xml',
         'views/test.xml',
 
-        'views/trainning_plan_view.xml',
 
         'templates/application_report_template.xml',
         'views/application/application.xml',
       
         'views/menu.xml',
+
     ],
     # only loaded in demonstration mode
     'demo': [

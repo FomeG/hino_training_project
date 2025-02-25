@@ -1,0 +1,64 @@
+<odoo>
+    <data>
+<template id="training_plan_report_template">
+    <t t-call="web.html_container">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h1>Training Plan Report</h1>
+                <p>List of Training Courses:</p>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Course Title</th>
+                            <th>Vendor</th>
+                            <th>Location</th>
+                            <th>Slot</th>
+                            <th>Recommendation Levels</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Course Type</th>
+                            <th>Fee</th>
+                            <th>Other Fee</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="docs" t-as="doc">
+                            <t t-foreach="doc.tab_training_courses_id" t-as="course">
+                                <tr>
+                                    <td><t t-esc="course.course_title"/></td>
+                                    <td><t t-esc="course.vendor_id.name"/></td>
+                                    <td><t t-esc="course.location_id.name"/></td>
+                                    <td><t t-esc="course.slot"/></td>
+                                    <td>
+                                        <t t-foreach="course.recommend_level_ids" t-as="level">
+                                            <span><t t-esc="level.name"/> </span>
+                                        </t>
+                                    </td>
+                                    <td><t t-esc="course.start_date"/></td>
+                                    <td><t t-esc="course.end_date"/></td>
+                                    <td><t t-esc="course.course_type"/></td>
+                                    <td><t t-esc="course.fee"/></td>
+                                    <td><t t-esc="course.other_fee"/></td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </t>
+    </t>
+</template>
+
+
+
+        <record id="action_report_training_plan" model="ir.actions.report">
+            <field name="name">Training Plan Report</field>
+            <field name="model">hmv.training.plan</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hino_training.training_plan_report_template</field>
+            <field name="report_file">hino_training.training_plan_report_template</field>
+            <field name="binding_model_id" ref="model_hmv_training_plan"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>
