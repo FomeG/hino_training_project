@@ -29,7 +29,7 @@
                         </button>
 
                         <button name="action_button_register" type="object" icon="fa-external-link"
-                                invisible="x_approval_status not in ('draft')"
+                                invisible="0"
                                 string="Register"
                                 class="me-2 oe_stat_button border-2 border-success bg-light text-success"/>
                         <button name="action_button_edit" type="object" icon="fa-pencil"

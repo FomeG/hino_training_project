@@ -13,7 +13,8 @@ class ApplicationForATC(models.Model):
     name = fields.Char(string='Application No.', required=True, readonly=True, default=lambda self: _('New'),
                        help='Document number with format BS/YYYY/NNNN')
     x_applicant_id = fields.Many2one('hr.employee', string='Name of Applicant')
-    x_department_id = fields.Many2one('hr.department', string='Department', related='x_applicant_id.department_id', store=True)
+    x_department_id = fields.Many2one('hr.department', string='Department', related='x_applicant_id.department_id',
+                                      store=True)
     x_position_id = fields.Many2one('hr.job', string='Position', related='x_applicant_id.job_id', store=True)
     x_request_date = fields.Date(string='Request Date', default=fields.Date.today, store=True)
 
@@ -116,7 +117,7 @@ class ApplicationForATC(models.Model):
 
     def action_button_register(self):
         self.x_approval_status = 'wait'
-        self._create_approval_history('wait')
+        self._prepare_data_for_approval_history()
         return True
 
     def action_button_edit(self):
@@ -130,15 +131,15 @@ class ApplicationForATC(models.Model):
 
     # Button
     def action_button_approve(self):
-        self.x_approval_status = 'approved'
-        # self._create_approval_history('approved')
         self._update_current_employee_approval_status('approved')
         self._compute_is_all_approved()
+        # self.x_approval_status = 'approved'
+        # self._create_approval_history('approved')
         return True
 
     def action_button_refuse(self):
-        self.x_approval_status = 'refused'
         self._update_current_employee_approval_status('refused')
+        # self.x_approval_status = 'refused'
         # self._create_approval_history('refused')
         # Send notify for applicant
         # self.x_applicant_id.message_post(body=f'Your application for attending training course has been refused.')
@@ -191,41 +192,66 @@ class ApplicationForATC(models.Model):
     #         'x_approval_status': status
     #     })
 
-    def _create_approval_history(self, status):
-        """Create approval history records based on position."""
-        approval_flow = {
-            'Staff': ['Manager', 'Senior Manager', 'DGM', 'GM', 'Officer', 'HR Manager'],
-            'Manager': ['Senior Manager', 'DGM', 'GM', 'Officer', 'HR Manager'],
-            'Senior Manager': ['DGM', 'GM', 'Officer', 'HR Manager'],
-            'DGM': ['GM', 'Officer', 'HR Manager'],
-            'GM': ['Officer', 'HR Manager'],
-            'Officer': ['HR Manager']
-        }
+    def _get_applicant_position(self):
+        if not self.x_applicant_id or not self.x_position_id:
+            raise ValidationError(_("Applicant position is not available."))
+        return self.x_position_id  # Chỉ trả về position_id nếu hợp lệ
 
-        applicant_position = self.x_position_id.name
-        approver_positions = approval_flow.get(applicant_position, [])
+    @staticmethod
+    def _get_approval_flow():
+        return ["Manager", "Senior Manager", "DGM", "GM", "Officer", "HR Manager"]
 
-        for position in approver_positions:
-            approver = self.env['hr.employee'].search([('job_id', '=', position)], limit=1)
-            if approver:
-                self.env['approval.history'].create({
-                    'x_application_ids': self.id,
-                    'x_approval_employee_id': approver.id,
-                    'x_approval_status': status
-                })
+    def _get_manager(self, position):
+        approval_flow = self._get_approval_flow()
+        managers = []
+
+        # Tìm nhân viên ứng với vị trí
+        employee = self.env['hr.employee'].search([('job_id', '=', position.id)], limit=1)
+        if not employee:
+            raise ValidationError(_("No employee matches this position."))
+
+        current_manager = employee.parent_id
+        while current_manager:
+            job_name = current_manager.job_id.name
+            if job_name in approval_flow:
+                managers.append(current_manager)
+
+            current_manager = current_manager.parent_id
+
+        return managers
+
+    def _prepare_data_for_approval_history(self):
+        for record in self:
+            position = record._get_applicant_position()
+            managers = record._get_manager(position)
+
+            if not managers:
+                raise ValidationError(_("No approval managers found for this position."))
+
+            record._create_approval_history(managers)
+
+    def _create_approval_history(self, managers):
+        """Creates an approval history record when an application is registered."""
+        approval_history_model = self.env['approval.history']
+        for manager in managers:
+            approval_history_model.create({
+                'x_application_ids': self.id,
+                'x_approval_employee_id': manager.user_id.id,
+                'x_approval_status': 'wait',
+            })
 
     def _update_current_employee_approval_status(self, new_status):
-        """ Update x_approval_status (approved/refused) for approval history lines. """
+        """Update the approval status for the current employee"""
         current_employee = self.env.user.employee_id
         if not current_employee:
             raise ValidationError(_("No Employee found for the current user."))
 
-        # Lọc ra dòng approval history tương ứng với nhân viên hiện tại
+        # Find the correct line in the approval history
         approval_line = self.x_approval_history_ids.filtered(
-            lambda line: line.x_approval_employee_id == current_employee
+            lambda line: line.x_approval_employee_id.id == current_employee.id
         )
         if not approval_line:
-            raise ValidationError(_("You are not authorized to approve this application."))
+            raise ValidationError(_("You are not authorized to approve/refuse this application."))
 
         approval_line.write({'x_approval_status': new_status})
 

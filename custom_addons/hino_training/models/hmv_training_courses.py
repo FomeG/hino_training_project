@@ -24,11 +24,11 @@ class TrainingCourses(models.Model):
     confirmation_start_date = fields.Date(string='Start date of confirmation', required=True, tracking=True)
     confirmation_end_date = fields.Date(string='End date of confirmation', required=True, tracking=True)
     department_id = fields.Many2one('hr.department', string='Apply for department', required=True, tracking=True)
-    training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method', required=True,
+    training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method',
                                          tracking=True, domain=[('code', '=', 'TRAINING_METHOD')])
     year = fields.Char(string='Year',compute='_compute_year', store=True)
     training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
-                                           required=True, tracking=True)
+                                           tracking=True)
     
     
 
@@ -50,7 +50,7 @@ class TrainingCourses(models.Model):
     estimate_fee = fields.Monetary(string='Actual Fee', required=True, tracking=True) # lấy từ training need
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
-    audience_ids = fields.Many2one('hmv.list.value.line', string='Audience', required=True,
+    audience_ids = fields.Many2one('hmv.list.value.line', string='Audience',
                                    tracking=True, domain=[('code', '=', 'TR_LEVEL')])
     participant_ids = fields.One2many('hmv.training.participant', 'course_id', string='Participants')
     # New Approval Fields
