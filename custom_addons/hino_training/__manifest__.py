@@ -38,7 +38,6 @@ Long description of module's purpose
         'views/training_course_report.xml',
         'views/test.xml',
 
-        # 'views/action.xml',
         'views/trainning_plan_view.xml',
 
         'templates/application_report_template.xml',
