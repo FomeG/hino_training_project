@@ -103,7 +103,7 @@ class HMVTrainingBrochure(models.Model):
                 record.end_date and record.name and record.start_date and record.employee_id)
     #endregion
     #region Action Methods
-    def action_draff(self):
+    def action_draft(self):
         self.write({'state': 'draft'})
 
     def action_submit(self):
@@ -119,7 +119,18 @@ class HMVTrainingBrochure(models.Model):
         self.write({'state': 'cancelled'})
 
     def action_update_courses(self):
-        raise ValidationError("Update Courses is not implemented.")
+        """Opens a wizard to select active courses to add to the brochure"""
+        return {
+            'name': 'Update Courses',
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.update.courses.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'active_id': self.id,
+                'active_model': 'hmv.training.brochure'
+            }
+        }
 
     #endregion
 
