@@ -35,6 +35,7 @@ Long description of module's purpose
         'views/hmv_training_brochure.xml',
       
         'views/hmv_training_courses_form_view.xml',
+        'views/training_course_report.xml',
         'views/test.xml',
 
         'views/trainning_plan_view.xml',
