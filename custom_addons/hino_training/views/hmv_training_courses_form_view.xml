@@ -41,7 +41,7 @@
                             <field name="start_date" required="1"/>
                             <field name="end_date" required="1"/>
 
-                            <field name="training_brochure_id" required="0" domain="[('training_brochure_id.year', '=', year)]"/>
+                            <field name="training_brochure_id" required="0"/>
                             <field name="purchase_order_id" domain="[('partner_id', '=', vendor_id)]"/>
                             <field name="vendor_id" required="1" domain="[('is_company', '=', True), ('active', '=', True)]"/>
                             <field name="confirmation_start_date" required="1"/>
@@ -58,7 +58,7 @@
                             <field name="location_id" required="1"/>
                             <field name="training_method_id" required="1" domain="[('code', '=', 'TRAINING_METHOD')]"/>
                             <field name="deptcombine"/>
-                            <field name="training_id"/>
+                            <!-- <field name="training_id"/> -->
 
                             <field name="currency_id" invisible="1"/>
                             <field name="audience_ids" required="1" domain="[('code', '=', 'TR_LEVEL')]"/>

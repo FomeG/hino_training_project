@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <record id="seq_training_plan" model="ir.sequence">
-            <field name="name">Training Plan Sequence</field>
-            <field name="code">hino.training.plan</field>
-            <field name="prefix">TP</field>
-            <field name="padding">4</field>
-            <field name="number_increment">1</field>
-        </record>
+     <record id="seq_training_plan" model="ir.sequence">
+        <field name="name">Training Plan Sequence</field>
+        <field name="code">hmv.training.plan</field>
+        <field name="prefix">TP</field>
+        <field name="padding">4</field>
+        <field name="number_next">1</field>
+    </record>
+
 
         <record id="seq_hmv_training_brochure_code" model="ir.sequence">
             <field name="name">Training Brochure Code</field>
@@ -17,5 +18,14 @@
             <field name="number_next_actual">1</field>
             <field name="implementation">standard</field>
         </record>
+
+          <record id="seq_training_plan_line" model="ir.sequence">
+        <field name="name">Training Plan Line Sequence</field>
+        <field name="code">hmv.training.plan.line</field>
+        <field name="prefix">TPL-</field>  <!-- Tiền tố như TPL-001 -->
+        <field name="padding">4</field>  <!-- Số chữ số sau prefix -->
+        <field name="number_next">1</field>  <!-- Bắt đầu từ số 1 -->
+        <field name="number_increment">1</field>  <!-- Tăng dần 1 -->
+    </record>
     </data>
 </odoo>

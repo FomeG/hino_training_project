@@ -5,15 +5,40 @@ class TrainingPlan(models.Model):
     _name = 'hmv.training.plan'
     _description = 'Training Plan'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-
-
+    training_plan_line = fields.One2many(
+        'hmv.training.plan.line',  # Tên model con
+        'training_plan_id',        # Khóa ngoại trong model con
+        string='Training Plan Lines'
+    )
     # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
+   
     name = fields.Char(
         string="Training Plan No.",
         required=True,
         readonly=True,
         default=lambda self: _('New')
     )
+
+    @api.model
+    def create(self, vals):
+        if not vals.get('name') or vals.get('name') == 'New':
+            # Lấy mã tiếp theo từ sequence đúng cách
+            sequence = self.env['ir.sequence'].next_by_code('hmv.training.plan') or 'TP0001'
+            vals['name'] = sequence
+
+        # Kiểm tra mã đã tồn tại và tự động tăng nếu bị trùng
+        while self.search([('name', '=', vals['name'])], limit=1):
+            # Tăng số cuối cùng thêm 1 nếu mã bị trùng
+            prefix = ''.join(filter(str.isalpha, vals['name']))  # Lấy phần prefix chữ (VD: TP)
+            number = ''.join(filter(str.isdigit, vals['name']))  # Lấy phần số
+
+            # Nếu số không tồn tại, bắt đầu từ 1, ngược lại +1
+            next_number = int(number) + 1 if number else 1
+            # Tạo mã mới với padding 4 số
+            vals['name'] = f"{prefix}{str(next_number).zfill(4)}"
+
+        return super().create(vals)
+
 
     # Năm kế hoạch đào tạo
     year = fields.Char(
@@ -88,8 +113,7 @@ class TrainingPlan(models.Model):
         for rec in self:
             if rec.state != 'draft':
                 raise ValidationError(_("Training Plan chỉ được phép lưu lại khi ở trạng thái chưa submit."))
-        # Ở đây lưu ý: thao tác save (write) thường được Odoo xử lý tự động khi nhấn nút Lưu.
-        # Nếu cần logic bổ sung thì thực hiện ở đây.
+    
         return True
 
     def action_create_record(self):
@@ -131,9 +155,3 @@ class TrainingPlan(models.Model):
             # Logic từ chối
             self.state = 'hr_manager_processing'
             return True
-    training_course_ids = fields.One2many('hmv.training.courses', 'training_id', string="Training Courses")
-    @api.model
-    def create(self, vals):
-        if vals.get('name', _('New')) == _('New'):
-            vals['name'] = self.env['ir.sequence'].next_by_code('hino.training.plan') or _('New')
-        return super(TrainingPlan, self).create(vals)
