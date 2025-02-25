@@ -58,7 +58,7 @@
                             <field name="location_id" required="1"/>
                             <field name="training_method_id" required="1" domain="[('code', '=', 'TRAINING_METHOD')]"/>
                             <field name="deptcombine"/>
-                            <field name="training_id"/>
+                            <!-- <field name="training_id"/> -->
 
                             <field name="currency_id" invisible="1"/>
                             <field name="audience_ids" required="1" domain="[('code', '=', 'TR_LEVEL')]"/>

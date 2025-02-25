@@ -22,3 +22,7 @@ access_hmv_training_need_company,hmv.training.need.company,model_hmv_training_ne
 access_hmv_training_need_factory,hmv.training.need.factory,model_hmv_training_need_factory,,1,1,1,1
 access_hmv_training_need_other,hmv.training.need.other,model_hmv_training_need_other,,1,1,1,1
 access_hmv_training_need_approval,hmv.training.need.approval,model_hmv_training_need_approval,,1,1,1,1
+
+
+
+access_hmv_training_plan_line,hmv.training.plan.line,model_hmv_training_plan_line,,1,1,1,1
