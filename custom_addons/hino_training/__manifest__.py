@@ -32,6 +32,12 @@ Long description of module's purpose
 
         'data/hmv_need_sequence.xml',
         'data/sequence.xml',
+        
+        
+    
+        
+        
+        
 
         'views/hmv_training_need_view.xml',
 
@@ -47,7 +53,31 @@ Long description of module's purpose
         'views/application/application.xml',
       
         'views/menu.xml',
-
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        # Chỗ import wizard
+        'wizard/training_need_comment_wizard_view.xml',
+        
+        
+        
+        
     ],
     # only loaded in demonstration mode
     'demo': [
