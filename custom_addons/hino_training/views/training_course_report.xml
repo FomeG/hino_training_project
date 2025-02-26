@@ -243,7 +243,6 @@
                             </td>
                         </tr>
                     </table>
-
                     <!-- Participants List Table -->
                     <table class="table table-bordered mt-4">
                         <tr class="header-row">
@@ -278,7 +277,6 @@
                             <t t-set="counter" t-value="counter + 1"/>
                         </t>
                     </table>
-
                     <!-- Signature Table -->
                     <table class="table table-bordered mt-4">
                         <tr class="header-row">
