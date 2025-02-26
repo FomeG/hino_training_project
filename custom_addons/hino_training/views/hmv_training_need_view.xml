@@ -8,7 +8,6 @@
                 decoration-success="state == 'approved'" decoration-danger="state == 'rejected'"
                 sample="1">
 
-                <!-- Thêm button vào đây -->
                 <header>
                     <button name="action_send_mass_email"
                         string="Send Mass Email"
@@ -26,13 +25,13 @@
                 <field name="company_id" optional="hide" />
                 <field name="state" widget="badge" decoration-success="state == 'approved'"
                     decoration-info="state == 'draft'" decoration-danger="state == 'rejected'" />
-                <field name="description" optional="show" />
+                <!-- <field name="description" optional="show" /> -->
             </tree>
         </field>
     </record>
 
 
-    <!-- Thêm form view mới với chatter -->
+    <!-- form view mới với chatter -->
     <record id="view_training_need_form" model="ir.ui.view">
         <field name="name">hmv.training.need.form</field>
         <field name="model">hmv.training.need</field>
@@ -44,19 +43,55 @@
                         string="Submit"
                         type="object"
                         class="oe_highlight"
-                        invisible="state != 'draft'" />
+                        invisible="state not in ('draft', 'rejected')" />
 
-                    <button name="action_approve"
-                        string="Approve"
+
+                    <!-- Manager -> Senior Manager -> DGM -> GM -> Officer -> HR manager -->
+
+                    <button name="action_manager_approve"
+                        string="Manager Approve"
                         type="object"
                         class="oe_highlight"
-                    />
+                        invisible="state != 'submitted'" />
+
+                    <button name="action_senior_manager_approve"
+                        string="Senior Manager Approve"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'manager_approved'" />
+
+                    <button name="action_dgm_approve"
+                        string="DGM Approve"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'senior_manager_approved'" />
+
+                    <button name="action_gm_approve"
+                        string="GM Approve"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'dgm_approved'" />
+
+                    <button name="action_officer_approve"
+                        string="Officer Approve"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'gm_approved'" />
+
+                    <button name="action_hr_manager_approve"
+                        string="HR Manager Approve"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'officer_approved'" />
+
+                    <!-- =========================================================== -->
+
 
                     <button name="action_reject"
                         string="Reject"
                         type="object"
                         class="btn-danger"
-                    />
+                        invisible="state in ['draft','completed','rejected']" />
 
                     <button name="action_send_email"
                         string="Send Email"
@@ -64,7 +99,7 @@
                         class="btn-primary" />
 
 
-                    <field name="state" widget="statusbar"/>
+                    <field name="state" widget="statusbar" />
 
 
                 </header>
@@ -72,7 +107,7 @@
                     <h3>Training Need No.</h3>
                     <div class="oe_title">
                         <h1>
-                            <field name="name"/>
+                            <field name="name" />
                         </h1>
                     </div>
                     <group>
@@ -144,7 +179,6 @@
                     </notebook>
 
                 </sheet>
-                <!-- Thêm chatter ở đây -->
                 <div class="oe_chatter">
                     <field name="message_follower_ids" groups="base.group_user" />
                     <field name="activity_ids" />

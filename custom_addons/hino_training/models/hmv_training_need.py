@@ -81,7 +81,7 @@ class TrainingNeed(models.Model):
         ('dgm_approved', 'DGM Approved'),
         ('gm_approved', 'GM Approved'),
         ('officer_approved', 'Officer Approved'),
-        ('hr_approved', 'HR Approved'),
+        # ('hr_approved', 'HR Approved'),
         ('rejected', 'Rejected'),
         ('completed', 'Completed')
     ], string='State', default='draft', tracking=True)
@@ -159,7 +159,7 @@ class TrainingNeed(models.Model):
                 'title': 'TEST',
                 'message': 'gửi mail thành công (test)',
                 'type': 'success',  # warning sẽ hiển thị màu vàng
-                'sticky': True,     # thông báo sẽ không tự động biến mất
+                'sticky': False,     # thông báo sẽ không tự động biến mất
             }
         }
 
@@ -169,6 +169,9 @@ class TrainingNeed(models.Model):
         for record in self:
             record.department_id = record.employee_id.department_id or False
             
+            
+            
+            
 #region 1.3.2 Phê duyệt yêu cầu
 
     def _get_next_approver(self):
@@ -176,14 +179,156 @@ class TrainingNeed(models.Model):
 
 
     def action_submit(self):
-        pass
+        """Submit the training need for approval"""
+        for record in self:
+            if record.state == 'draft' or record.state == 'rejected':
+                record.write({
+                    'state': 'submitted'
+                })
+                # Add to approval history
+                self.env['hmv.training.need.approval'].create({
+                    'training_need_id': record.id,
+                    'employee_id': self.env.user.employee_id.id,
+                    'status': 'approved',
+                    'comment': 'Submitted for approval'
+                })
+                
+        return True
+    
+    
     
 
-    def action_approve(self):
-        pass
+    def action_manager_approve(self):
+        """Manager approval"""
+        for record in self:
+            if record.state == 'submitted':
+                return {
+                    'name': _('Manager Approval'),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'hmv.training.need.comment.wizard',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'context': {
+                        'default_action_type': 'approve',
+                        'default_training_need_ids': [(6, 0, record.ids)],
+                        'approval_type': 'manager',
+                        'next_state': 'manager_approved'
+                    }
+                }
+        return True
+
+    def action_senior_manager_approve(self):
+        """Senior Manager approval"""
+        for record in self:
+            if record.state == 'manager_approved':
+                return {
+                    'name': _('Senior Manager Approval'),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'hmv.training.need.comment.wizard',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'context': {
+                        'default_action_type': 'approve',
+                        'default_training_need_ids': [(6, 0, record.ids)],
+                        'approval_type': 'senior_manager',
+                        'next_state': 'senior_manager_approved'
+                    }
+                }
+        return True
+
+    def action_dgm_approve(self):
+        """DGM approval"""
+        for record in self:
+            if record.state == 'senior_manager_approved':
+                return {
+                    'name': _('DGM Approval'),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'hmv.training.need.comment.wizard',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'context': {
+                        'default_action_type': 'approve',
+                        'default_training_need_ids': [(6, 0, record.ids)],
+                        'approval_type': 'dgm',
+                        'next_state': 'dgm_approved'
+                    }
+                }
+        return True
+
+    def action_gm_approve(self):
+        """GM approval"""
+        for record in self:
+            if record.state == 'dgm_approved':
+                return {
+                    'name': _('GM Approval'),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'hmv.training.need.comment.wizard',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'context': {
+                        'default_action_type': 'approve',
+                        'default_training_need_ids': [(6, 0, record.ids)],
+                        'approval_type': 'gm',
+                        'next_state': 'gm_approved'
+                    }
+                }
+        return True
+
+    def action_officer_approve(self):
+        """Officer approval"""
+        for record in self:
+            if record.state == 'gm_approved':
+                return {
+                    'name': _('Officer Approval'),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'hmv.training.need.comment.wizard',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'context': {
+                        'default_action_type': 'approve',
+                        'default_training_need_ids': [(6, 0, record.ids)],
+                        'approval_type': 'officer',
+                        'next_state': 'officer_approved'
+                    }
+                }
+        return True
+
+    def action_hr_manager_approve(self):
+        """HR Manager approval"""
+        for record in self:
+            if record.state == 'officer_approved':
+                return {
+                    'name': _('HR Manager Approval'),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'hmv.training.need.comment.wizard',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'context': {
+                        'default_action_type': 'approve',
+                        'default_training_need_ids': [(6, 0, record.ids)],
+                        'approval_type': 'hr_manager',
+                        'next_state': 'completed'
+                    }
+                }
+        return True
+    
+
 
     def action_reject(self):
-        pass
+        self.ensure_one()
+        if self.state in ['completed','draft']:
+            raise UserError(_("You cannot reject a completed/draft training need."))
             
+        return {
+            'name': _('Reject Training Need'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.training.need.comment.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_action_type': 'refuse',
+                'default_training_need_ids': [(6, 0, self.ids)],
+            }
+        }
             
 #endregion
