@@ -121,7 +121,7 @@ class ApplicationForATC(models.Model):
 
     def action_button_register(self):
         self.x_approval_status = 'wait'
-        self._prepare_data_for_approval_history()
+        self._create_approval_history()
         return True
 
     def action_button_edit(self):
@@ -179,25 +179,16 @@ class ApplicationForATC(models.Model):
                 if record.x_start_date > record.x_end_date:
                     raise ValidationError(_('The Start Date must be before the End Date.'))
 
-    def _get_applicant_position(self):
-        if not self.x_applicant_id or not self.x_position_id:
-            raise ValidationError(_("Applicant position is not available."))
-        return self.x_position_id  # Chỉ trả về position_id nếu hợp lệ
-
+    # Approval Workflow
     @staticmethod
     def _get_approval_flow():
         return ["Manager", "Senior Manager", "DGM", "GM", "Officer", "HR Manager"]
 
-    def _get_manager(self, position):
+    def _get_manager(self):
         approval_flow = self._get_approval_flow()
         managers = []
 
-        # Find the employee with the specified position
-        employee = self.env['hr.employee'].search([('job_id', '=', position.id)], limit=1)
-        if not employee:
-            raise ValidationError(_("No employee matches this position."))
-
-        current_manager = employee.parent_id
+        current_manager = self.x_applicant_id.parent_id
         # Find the next matching manager in the approval flow
         while current_manager:
             job_name = current_manager.job_id.name
@@ -208,20 +199,15 @@ class ApplicationForATC(models.Model):
 
         return managers
 
-    def _prepare_data_for_approval_history(self):
-        for record in self:
-            position = record._get_applicant_position()
-            managers = record._get_manager(position)
-
-            if not managers:
-                raise ValidationError(_("No approval managers found for this position."))
-
-            record._create_approval_history(managers)
-
-    def _create_approval_history(self, managers):
+    def _create_approval_history(self):
         """Creates an approval history record when an application is registered."""
         approval_history_model = self.env['approval.history']
 
+        managers = self._get_manager()
+        if not managers:
+            raise ValidationError(_("No approval managers found for this position."))
+
+        # Create an approval history record for each manager
         for manager in managers:
             approval_history_model.create({
                 'x_application_ids': self.id,
@@ -229,11 +215,16 @@ class ApplicationForATC(models.Model):
                 'x_approval_status': 'wait',
             })
 
-    def _update_current_employee_approval_status(self, new_status):
-        """Update the approval status for the current employee"""
+    def _get_current_employee(self):
+        """Get the current employee based on the user's employee_id"""
         current_employee = self.env.user.employee_id
         if not current_employee:
             raise ValidationError(_("No Employee found for the current user."))
+        return current_employee
+
+    def _update_current_employee_approval_status(self, new_status):
+        """Update the approval status for the current employee"""
+        current_employee = self._get_current_employee()
 
         # Find the correct line in the approval history
         approval_line = self.x_approval_history_ids.filtered(

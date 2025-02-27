@@ -4,13 +4,13 @@
          <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
                 <div class="page">
-                <!-- PHẦN HEADER: LOGO + TIÊU ĐỀ -->
+
                 <div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <p style="text-align:right; font-size:12px;">
                         <strong>Mã biểu mẫu/No.:</strong> HIN-123/PO/A<br/>
                         <strong>Ngày ban hành/Issue date:</strong> 01/01/2018
                     </p>
-                    <!-- Logo, thay đường dẫn src bằng đường dẫn thật đến logo của bạn -->
+
                     <img src="/hino_training/static/img/hino_logo.jpg"
                          alt="Hino Logo"
                          style="max-height:100px; margin-bottom: 100px;" />
@@ -19,9 +19,9 @@
                     <h2 style="text-align:center; margin:5px 0;">PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO</h2>
                     <h3 style="text-align:center; margin:0 0 10px 0;">APPLICATION FOR ATTENDING TRAINING COURSE</h3>
 
-                <!-- PHẦN BẢNG CHÍNH -->
+<!--Main-->
                 <table style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
-                    <!-- Dòng 1 -->
+
                     <tr>
                         <td style="width: 30%; border:1px solid #000; padding:5px;">
                             Ngày đề xuất<br/>Proposal date
@@ -30,7 +30,7 @@
                             <t t-esc="doc.x_request_date"/>
                         </td>
                     </tr>
-                    <!-- Dòng 2 -->
+
                     <tr>
                         <td style="border:1px solid #000; padding:5px;">
                             Phòng ban<br/>Department
@@ -39,7 +39,7 @@
                             <t t-esc="doc.x_department_id.name"/>
                         </td>
                     </tr>
-                    <!-- Dòng 3 -->
+
                     <tr>
                         <td style="border:1px solid #000; padding:5px;">
                             Tên khóa học<br/>Name of training course
@@ -48,7 +48,7 @@
                             <t t-esc="doc.x_course_title.course_title"/>
                         </td>
                     </tr>
-                    <!-- Dòng 4 -->
+
                     <tr>
                         <td style="border:1px solid #000; padding:5px;">
                             Thời gian đào tạo<br/>Training time
@@ -59,7 +59,7 @@
                             <strong>End:</strong> <t t-esc="doc.x_end_date"/>
                         </td>
                     </tr>
-                    <!-- Dòng 5 -->
+
                     <tr>
                         <td style="border:1px solid #000; padding:5px;">
                             Đơn vị/nhà tổ chức<br/>Vendor/Partner
@@ -68,7 +68,7 @@
                             <t t-esc="doc.x_vendor_id.name"/>
                         </td>
                     </tr>
-                    <!-- Dòng 6 -->
+
                     <tr>
                         <td style="border:1px solid #000; padding:5px;">
                             Mục đích tham gia đào tạo<br/>Purpose of attending training course
@@ -77,7 +77,7 @@
                             <t t-esc="doc.x_purpose_training"/>
                         </td>
                     </tr>
-                    <!-- Dòng 7 -->
+
                     <tr>
                         <td style="border:1px solid #000; padding:5px;">
                             Thông tin về khóa đào tạo<br/>Training course information
@@ -88,7 +88,7 @@
                     </tr>
                 </table>
 
-                <!-- PHẦN KÝ TÊN (nếu cần) -->
+
                 <div style="margin-top: 30px;">
                     <table style="width:100%;">
                         <tr>

@@ -1,4 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
 access_hino_training_hino_training,hino_training.hino_training,model_hino_training_hino_training,base.group_user,1,1,1,1
 access_hmv_training_plan,hmv_training_plan,model_hmv_training_plan,base.group_user,1,1,1,1
 access_hmv_training_courses,hmv_training_courses,model_hmv_training_courses,base.group_user,1,1,1,1
