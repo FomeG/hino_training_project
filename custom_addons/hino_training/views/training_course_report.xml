@@ -243,7 +243,6 @@
                             </td>
                         </tr>
                     </table>
-
                     <!-- Participants List Table -->
                     <table class="table table-bordered mt-4">
                         <tr class="header-row">
@@ -259,17 +258,17 @@
                             <td style="width: 25%;">Vị trí<br/>Position</td>
                         </tr>
                         <t t-set="counter" t-value="1"/>
-                        <t t-foreach="o.participant_ids" t-as="participant">
-                            <tr>
-                                <td><span t-esc="counter"/></td>
-                                <td><span t-field="participant.employee_id.name"/></td>
-                                <td><span t-field="participant.department"/></td>
-                                <td><span t-field="participant.position"/></td>
-                            </tr>
-                            <t t-set="counter" t-value="counter + 1"/>
-                        </t>
-                        <t t-foreach="range(1, 6 - len(o.participant_ids.filtered(lambda p: p.status == 'confirmed')))" t-as="i">
-                            <tr t-if="i &lt;= (5 - len(o.participant_ids.filtered(lambda p: p.status == 'confirmed')))">
+                   <t t-foreach="o.participant_ids.filtered(lambda p: p.status == 'agreed')" t-as="participant">
+                        <tr>
+                            <td><span t-esc="counter"/></td>
+                            <td><span t-field="participant.employee_id.name"/></td>
+                            <td><span t-field="participant.department"/></td>
+                            <td><span t-field="participant.position"/></td>
+                        </tr>
+                        <t t-set="counter" t-value="counter + 1"/>
+                   </t>
+                        <t t-foreach="range(1, 6 - len(o.participant_ids.filtered(lambda p: p.status == 'agreed')))" t-as="i">
+                            <tr t-if="i &lt;= (5 - len(o.participant_ids.filtered(lambda p: p.status == 'agreed')))">
                                 <td><span t-esc="counter"/></td>
                                 <td></td>
                                 <td></td>
@@ -278,7 +277,6 @@
                             <t t-set="counter" t-value="counter + 1"/>
                         </t>
                     </table>
-
                     <!-- Signature Table -->
                     <table class="table table-bordered mt-4">
                         <tr class="header-row">
