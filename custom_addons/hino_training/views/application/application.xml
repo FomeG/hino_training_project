@@ -29,11 +29,11 @@
                         </button>
 
                         <button name="action_button_register" type="object" icon="fa-external-link"
-                                invisible="x_approval_status not in ('draft', 'refused')"
+                                invisible="x_approval_status not in ('draft')"
                                 string="Register"
                                 class="me-2 oe_stat_button border-2 border-success bg-light text-success"/>
                         <button name="action_button_edit" type="object" icon="fa-pencil"
-                                invisible="x_approval_status not in ('refused')"
+                                invisible="x_is_editable == False"
                                 string="Edit"
                                 class="me-2 oe_stat_button border-2 border-info bg-light text-info"/>
                         <button name="action_button_save" type="object" icon="fa-save"
@@ -41,7 +41,7 @@
                                 string="Save"
                                 class="me-2 oe_stat_button border-2 border-primary bg-light text-primary"/>
                         <button name="action_button_print" type="object" icon="fa-print"
-                                invisible="x_is_all_approved"
+                                invisible="x_is_printable == False"
                                 string="Print"
                                 class="me-2 oe_stat_button border-2 border-secondary bg-light text-secondary"/>
                     </div>
@@ -75,12 +75,12 @@
                     <group>
                         <group>
                             <field name="x_applicant_id" readonly="x_is_form_readonly"/>
-                            <field name="x_department_id" readonly="x_is_form_readonly"/>
-                            <field name="x_position_id" readonly="x_is_form_readonly"/>
+                            <field name="x_department_id"/>
+                            <field name="x_position_id"/>
                         </group>
 
                         <group>
-                            <field name="x_request_date" readonly="x_is_form_readonly"/>
+                            <field name="x_request_date" readonly="0"/>
                         </group>
                     </group>
 
@@ -102,15 +102,17 @@
                             <field name="x_end_date_confirm" readonly="x_is_form_readonly"/>
                             <field name="x_department_apply_id" readonly="x_is_form_readonly"/>
                             <field name="x_training_plan_id"/>
-                            <field name="x_training_method" readonly="x_is_form_readonly"/>
+                            <field name="x_training_method"/>
                             <field name="x_is_form_readonly" invisible="1" column_invisible="1"/>
                             <field name="x_is_all_approved" invisible="1" column_invisible="1"/>
+                            <field name="x_is_printable" invisible="1" column_invisible="1"/>
+                            <field name="x_is_editable" invisible="1" column_invisible="1"/>
                         </group>
                     </group>
 
                     <notebook>
                         <page string="Approval History">
-                            <field name="x_approval_history_ids" editable="bottom">
+                            <field name="x_approval_history_ids">
                                 <tree>
                                     <field name="x_approval_employee_id" readonly="x_is_approval_readonly"/>
                                     <field name="x_approval_job_id" readonly="x_is_approval_readonly"/>
@@ -118,7 +120,7 @@
                                     <field name="x_approval_status" widget="badge"
                                            decoration-info="x_approval_status == 'wait'"
                                            decoration-success="x_approval_status == 'approved'"
-                                           decoration-danger="x_approval_status == 'refused'"/>
+                                           decoration-warning="x_approval_status == 'refused'"/>
                                     <field name="x_approval_comment" readonly="x_is_approval_readonly"/>
                                     <field name="x_is_approval_readonly" invisible="1" column_invisible="1"/>
                                 </tree>
@@ -131,10 +133,43 @@
         </field>
     </record>
 
+    <record id="view_approval_comment_wizard" model="ir.ui.view">
+        <field name="name">approval.history.wizard.form</field>
+        <field name="model">approval.history</field>
+        <field name="arch" type="xml">
+            <form string="Approval Comment">
+                <sheet>
+                    <group>
+                        <field name="x_approval_comment"/>
+                    </group>
+                    <footer>
+                        <button name="action_submit_comment" string="Submit" type="object" class="oe_highlight"/>
+                        <button string="Cancel" class="oe_secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_approval_comment_wizard" model="ir.actions.act_window">
+        <field name="name">Approval Comment</field>
+        <field name="res_model">approval.history</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="seq_application" model="ir.sequence">
+        <field name="name">Application Sequence</field>
+        <field name="code">application.sequence</field>
+        <field name="prefix">BS/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+    </record>
+
     <record id="report_application_for_atc" model="ir.actions.report">
         <field name="name">Application Report</field>
         <field name="model">application</field>
-        <field name="report_type">qweb-pdf</field>
+        <field name="report_type">qweb-html</field>
         <field name="report_name">hino_training.application_report_template</field>
         <field name="print_report_name">'Application_%s' % (object.name)</field>
     </record>
