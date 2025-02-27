@@ -237,7 +237,7 @@ class TrainingPlan(models.Model):
             store=True
         )
     total_other_fee_tab_factory = fields.Float(
-            string="Total Other Fee", 
+            string="Total Others Fee ", 
             compute="_compute_total_fees_tab_factory", 
             store=True
         )
