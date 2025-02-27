@@ -5,6 +5,7 @@ from datetime import date
 class tabTrainingCourses(models.Model):
     _name = 'hmv.tab.training.courses.provided.by.company'
     _description = 'Training courses provided by company'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     training_plan_id = fields.Many2one(
         'hmv.training.plan',
@@ -15,15 +16,12 @@ class tabTrainingCourses(models.Model):
 
     recommend_level_ids = fields.Many2many(
         comodel_name='hmv.list.value.line',  # Model được liên kết
-        relation='training_courses_recommend_level_rel',  # Tên bảng trung gian
-        column1='training_plan_line_id',  # Khóa chính của bảng hiện tại
+        relation='training_course_recommend_level_rel',  # Tên bảng trung gian
+        column1='hmv_tab_training_courses_provided_by_company_id',  # Khóa chính của bảng hiện tại
         column2='list_value_line_id',  # Khóa chính của bảng liên kết
         string="Recommend Levels",
         help="Select the recommended levels"
     )
-
-    fee = fields.Float(string='Fee')
-
 
     start_date = fields.Date(string='Start date', required=False, tracking=True)
     end_date = fields.Date(string='End date', required=False, tracking=True)
@@ -61,16 +59,15 @@ class tabTrainingCourses(models.Model):
         ('public', 'Public'),
         ('in_house', 'In-house')
     ], string='Course Type', required=False, tracking=True)
-    estimate_fee = fields.Monetary(string='Actual Fee', required=False, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
     # audience_ids = fields.Many2one('hmv.list.value.line', string='Audience', required=False,
     #                                tracking=True, domain=[('code', '=', 'TR_LEVEL')]) ???? lấy ở đâu
-    participant_ids = fields.One2many('hmv.training.participant', 'course_id', string='Participants')
+    participant_ids = fields.One2many('hmv.training.participant', 'tab_training_courses', string='Participants')
 
 
-    fee = fields.Float(string="Fee/per", help="Chi phí một người", compute="_compute_fee", store=True)
-    estimated_fee = fields.Float(string="Estimated fee", compute="_compute_estimated_fee", store=True)
+    fee = fields.Float(string="Fee/per", help="Chi phí một người")
+    estimated_fee = fields.Float(string="Estimated fee")
     other_fee = fields.Float(string="Other fee", help="Chi phí khác")
     purpose=fields.Text(string='Purpose')
     # List of participants (related field, not editable directly)
@@ -83,12 +80,19 @@ class tabTrainingCourses(models.Model):
             else:
                 record.estimated_fee = 0.0
 
-    @api.depends('course_type')
+    @api.onchange('course_type')
     def _compute_fee(self):
         for record in self:
             if record.course_type == 'in_house':
                 record.fee = 0.0
             # You could add additional logic if fee is determined from another source
+    @api.onchange('course_type', 'fee', 'participant_ids')
+    def _onchange_estimated_fee(self):
+        if self.course_type == 'public':
+            # Tự động tính dựa trên fee * số lượng học viên đăng ký
+            self.estimated_fee = (self.fee or 0.0) * len(self.participant_ids)
+        # Nếu course_type là in_house, estimated_fee sẽ không tự động tính,
+        # cho phép người dùng nhập giá trị thủ công.
 
     @api.constrains('start_date', 'end_date')
     def _check_dates(self):

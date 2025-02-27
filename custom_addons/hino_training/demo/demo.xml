@@ -1,30 +1,135 @@
 <odoo>
     <data>
-<!--
-          <record id="object0" model="hino_training.hino_training">
-            <field name="name">Object 0</field>
-            <field name="value">0</field>
-          </record>
+<!--region Hino company-->
+        <record id="hmv_company" model="res.company">
+            <field name="name">Hino Motors Vietnam</field>
+            <field name="street">Xuân Thủy, Cầu Giấy</field>
+            <field name="city">Hà Nội</field>
+            <field name="country_id" ref="base.vn"/>
+            <field name="vat">022032003</field>
+            <field name="phone">0968031143</field>
+            <field name="email">hinovietnam@hinomotors.com.vn</field>
+            <field name="website">www.hinomotors.com.vn</field>
+        </record>
+<!--        endregion-->
+<!--region User -->
+        <record id="hmv_user_1" model="res.users">
+            <field name="name">Nguyễn Văn A</field>
+            <field name="login">nguyenvana</field>
+            <field name="password">123456</field>
+            <field name="company_id" ref="hmv_company"/>
+            <field name="company_ids" eval="[(4, ref('hmv_company'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
+        </record>
 
-          <record id="object1" model="hino_training.hino_training">
-            <field name="name">Object 1</field>
-            <field name="value">10</field>
-          </record>
+        <record id="hmv_user_2" model="res.users">
+            <field name="name">Trần Thị B</field>
+            <field name="login">tranthib</field>
+            <field name="password">123456</field>
+            <field name="company_id" ref="hmv_company"/>
+            <field name="company_ids" eval="[(4, ref('hmv_company'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
+        </record>
 
-          <record id="object2" model="hino_training.hino_training">
-            <field name="name">Object 2</field>
-            <field name="value">20</field>
-          </record>
+        <record id="hmv_user_3" model="res.users">
+            <field name="name">Phạm Văn C</field>
+            <field name="login">phamvanc</field>
+            <field name="password">123456</field>
+            <field name="company_id" ref="hmv_company"/>
+            <field name="company_ids" eval="[(4, ref('hmv_company'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
+        </record>
 
-          <record id="object3" model="hino_training.hino_training">
-            <field name="name">Object 3</field>
-            <field name="value">30</field>
-          </record>
+        <record id="hmv_user_4" model="res.users">
+            <field name="name">Lê Thị D</field>
+            <field name="login">lethid</field>
+            <field name="password">123456</field>
+            <field name="company_id" ref="hmv_company"/>
+            <field name="company_ids" eval="[(4, ref('hmv_company'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+<!--endregion-->
+<!--region Hino employee-->
+        <record id="hmv_employee_1" model="hr.employee">
+            <field name="name">HR - Staff - Template</field>
+            <field name="user_id" ref="hmv_user_1"/>
+            <field name="company_id" ref="hmv_company"/>
+        </record>
 
-          <record id="object4" model="hino_training.hino_training">
-            <field name="name">Object 4</field>
-            <field name="value">40</field>
-          </record>
--->
+        <record id="hmv_employee_2" model="hr.employee">
+            <field name="name">Staff - Template (CS Planning)</field>
+            <field name="user_id" ref="hmv_user_2"/>
+            <field name="company_id" ref="hmv_company"/>
+        </record>
+
+        <record id="hmv_employee_3" model="hr.employee">
+            <field name="name">staff HR test</field>
+            <field name="user_id" ref="hmv_user_3"/>
+            <field name="company_id" ref="hmv_company"/>
+        </record>
+
+        <record id="hmv_employee_4" model="hr.employee">
+            <field name="name">Admin</field>
+            <field name="user_id" ref="hmv_user_4"/>
+            <field name="company_id" ref="hmv_company"/>
+        </record>
+<!--endregion-->
+<!--region Training Brochure  -->
+        <record id="hmv_training_brochure_1" model="hmv.training.brochure">
+            <field name="code">CP0010</field>
+            <field name="name">Course Plan</field>
+            <field name="year">2029</field>
+            <field name="start_date">2029-01-01 09:30:51</field>
+            <field name="end_date">2029-02-25 09:30:51</field>
+            <field name="created_on">2024-06-06 09:30:51</field>
+            <field name="employee_id" ref="hmv_employee_1"/>
+            <field name="state">rejected</field>
+        </record>
+
+        <record id="hmv_training_brochure_2" model="hmv.training.brochure">
+            <field name="code">CP0009</field>
+            <field name="name">Staff tes</field>
+            <field name="year">2030</field>
+            <field name="start_date">2022-11-16 19:47:36</field>
+            <field name="end_date">2022-11-23 19:47:36</field>
+            <field name="created_on">2024-05-06 19:47:36</field>
+            <field name="employee_id" ref="hmv_employee_2"/>
+            <field name="state">draft</field>
+        </record>
+
+        <record id="hmv_training_brochure_3" model="hmv.training.brochure">
+            <field name="code">CP0006</field>
+            <field name="name">Khóa học dự kiến 2026</field>
+            <field name="year">2026</field>
+            <field name="start_date">2024-06-01 10:09:00</field>
+            <field name="end_date">2024-08-31 10:09:00</field>
+            <field name="created_on">2024-05-06 10:09:00</field>
+            <field name="employee_id" ref="hmv_employee_1"/>
+            <field name="state">submitted</field>
+        </record>
+
+        <record id="hmv_training_brochure_4" model="hmv.training.brochure">
+            <field name="code">CP0005</field>
+            <field name="name">The annual plan must be unique!</field>
+            <field name="year">2025</field>
+            <field name="start_date">2025-06-01 17:25:44</field>
+            <field name="end_date">2025-10-31 17:25:44</field>
+            <field name="created_on">2024-03-06 17:25:44</field>
+            <field name="employee_id" ref="hmv_employee_3"/>
+            <field name="state">approved</field>
+        </record>
+
+        <record id="hmv_training_brochure_5" model="hmv.training.brochure">
+            <field name="code">CP0001</field>
+            <field name="name">test</field>
+            <field name="year">2024</field>
+            <field name="start_date">2024-05-03 13:54:01</field>
+            <field name="end_date">2024-05-31 13:54:01</field>
+            <field name="created_on">2024-05-31 13:54:01</field>
+            <field name="employee_id" ref="hmv_employee_4"/>
+            <field name="state">cancelled</field>
+        </record>
+<!--endregion-->
+
     </data>
 </odoo>
