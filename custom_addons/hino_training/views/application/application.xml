@@ -102,7 +102,7 @@
                             <field name="x_end_date_confirm" readonly="x_is_form_readonly"/>
                             <field name="x_department_apply_id" readonly="x_is_form_readonly"/>
                             <field name="x_training_plan_id"/>
-                            <field name="x_training_method" readonly="x_is_form_readonly"/>
+                            <field name="x_training_method"/>
                             <field name="x_is_form_readonly" invisible="1" column_invisible="1"/>
                             <field name="x_is_all_approved" invisible="1" column_invisible="1"/>
                             <field name="x_is_printable" invisible="1" column_invisible="1"/>
@@ -112,7 +112,7 @@
 
                     <notebook>
                         <page string="Approval History">
-                            <field name="x_approval_history_ids" editable="bottom">
+                            <field name="x_approval_history_ids">
                                 <tree>
                                     <field name="x_approval_employee_id" readonly="x_is_approval_readonly"/>
                                     <field name="x_approval_job_id" readonly="x_is_approval_readonly"/>
@@ -120,7 +120,7 @@
                                     <field name="x_approval_status" widget="badge"
                                            decoration-info="x_approval_status == 'wait'"
                                            decoration-success="x_approval_status == 'approved'"
-                                           decoration-danger="x_approval_status == 'refused'"/>
+                                           decoration-warning="x_approval_status == 'refused'"/>
                                     <field name="x_approval_comment" readonly="x_is_approval_readonly"/>
                                     <field name="x_is_approval_readonly" invisible="1" column_invisible="1"/>
                                 </tree>
@@ -131,6 +131,31 @@
                 </sheet>
             </form>
         </field>
+    </record>
+
+    <record id="view_approval_comment_wizard" model="ir.ui.view">
+        <field name="name">approval.history.wizard.form</field>
+        <field name="model">approval.history</field>
+        <field name="arch" type="xml">
+            <form string="Approval Comment">
+                <sheet>
+                    <group>
+                        <field name="x_approval_comment"/>
+                    </group>
+                    <footer>
+                        <button name="action_submit_comment" string="Submit" type="object" class="oe_highlight"/>
+                        <button string="Cancel" class="oe_secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_approval_comment_wizard" model="ir.actions.act_window">
+        <field name="name">Approval Comment</field>
+        <field name="res_model">approval.history</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
     </record>
 
     <record id="seq_application" model="ir.sequence">
@@ -144,7 +169,7 @@
     <record id="report_application_for_atc" model="ir.actions.report">
         <field name="name">Application Report</field>
         <field name="model">application</field>
-        <field name="report_type">qweb-pdf</field>
+        <field name="report_type">qweb-html</field>
         <field name="report_name">hino_training.application_report_template</field>
         <field name="print_report_name">'Application_%s' % (object.name)</field>
     </record>

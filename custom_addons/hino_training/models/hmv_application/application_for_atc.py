@@ -137,13 +137,25 @@ class ApplicationForATC(models.Model):
     def action_button_approve(self):
         self._update_current_employee_approval_status('approved')
         self._compute_is_all_approved()
-        return True
+        return {
+            'name': 'Approval Comment',
+            'type': 'ir.actions.act_window',
+            'res_model': 'approval.history',
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
     def action_button_refuse(self):
         self._update_current_employee_approval_status('refused')
         # Send notify for applicant
         # self.x_applicant_id.message_post(body=f'Your application for attending training course has been refused.')
-        return True
+        return {
+            'name': 'Rejection Comment',
+            'type': 'ir.actions.act_window',
+            'res_model': 'approval.history',
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
     # For TESTING
     def action_button_set_waiting(self):
@@ -251,8 +263,15 @@ class ApplicationApprovalHistory(models.Model):
         ('approved', 'Approved'),
         ('refused', 'Refused')],
         string='Status', default='wait', readonly=True, tracking=True)
-    x_approval_comment = fields.Text(string='Comment')
+    x_approval_comment = fields.Text(string='Comment', default='')
     x_is_approval_readonly = fields.Boolean(string='Is Approval Read Only?', compute='_compute_is_approval_readonly')
+
+    def action_submit_comment(self):
+        active_id = self.env.context.get('active_id')
+        application = self.env['application'].browse(active_id)
+        if application:
+            application.approval_comment = self.comment
+        return {'type': 'ir.actions.act_window_close'}
 
     @api.depends('x_approval_status')
     def _compute_is_approval_readonly(self):
