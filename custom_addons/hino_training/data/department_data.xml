@@ -1,0 +1,6 @@
+<odoo>
+    <!--    Create HR Department-->
+    <record id="department_hr" model="hr.department">
+        <field name="name">HR</field>
+    </record>
+</odoo>
