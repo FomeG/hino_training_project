@@ -25,15 +25,20 @@ class TrainingPlan(models.Model):
         'training_plan_id',        # Khóa ngoại trong model con
         string='Training Plan Lines'
     )
-    # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
-   
-    name = fields.Char(
-        string="Training Plan No.",
+    # Khóa học dự kiến (Many2one tham chiếu đến model hmv.trainng.brochure)
+    training_brochure_id = fields.Many2one(
+        'hmv.training.brochure',
+        string="Training Brochure",
         required=True,
-        readonly=True,
-        default=lambda self: _('New')
     )
+    # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
+    name = fields.Char(string='Training plan No.', required=True, readonly=True, default='New')
 
+
+    @api.depends('training_brochure_id.name')
+    def _compute_name(self):
+        for record in self:
+            record.name = record.training_brochure_id.code if record.training_brochure_id else _('New')
     @api.model
     def create(self, vals):
         if not vals.get('name') or vals.get('name') == 'New':
@@ -67,12 +72,7 @@ class TrainingPlan(models.Model):
         required=True,
     )
 
-    # Khóa học dự kiến (Many2one tham chiếu đến model hmv.trainng.brochure)
-    training_brochure_id = fields.Many2one(
-        'hmv.training.brochure',
-        string="Training Brochure",
-        required=True,
-    )
+
     # training_brochure_id2 = fields.Char(
     #     string="Training Brochure",
     #     required=True
@@ -176,3 +176,82 @@ class TrainingPlan(models.Model):
 
     # def action_print_training_courses_detail(self):
     #     return self.env.ref('hino_training.action_report_training_courses').report_action(self)
+
+    # Compute total money in training courses provided company
+    total_estimated_fee = fields.Float(
+            string="Total Estimated Fee", 
+            compute="_compute_total_fees", 
+            store=True
+        )
+    total_other_fee = fields.Float(
+            string="Total Other Fee", 
+            compute="_compute_total_fees", 
+            store=True
+        )
+    total_fee = fields.Float(
+            string="Grand Total", 
+            compute="_compute_total_fees", 
+            store=True
+        )
+
+    @api.depends('tab_training_courses_id.estimated_fee', 'tab_training_courses_id.other_fee')
+    def _compute_total_fees(self):
+            for record in self:
+                total_estimated = sum(line.estimated_fee for line in record.tab_training_courses_id)
+                total_other = sum(line.other_fee for line in record.tab_training_courses_id)
+                record.total_estimated_fee = total_estimated
+                record.total_other_fee = total_other
+                record.total_fee = total_estimated + total_other
+
+    # Compute total money in tab other
+    total_estimated_fee_tab_other = fields.Float(
+            string="Total Estimated Fee", 
+            compute="_compute_total_fees_tab_other", 
+            store=True
+        )
+    total_other_fee_tab_other = fields.Float(
+            string="Total Other Fee", 
+            compute="_compute_total_fees_tab_other", 
+            store=True
+        )
+    total_fee_tab_other = fields.Float(
+            string="Grand Total", 
+            compute="_compute_total_fees_tab_other", 
+            store=True
+        )
+
+    @api.depends('tab_others_id.estimated_fee', 'tab_others_id.other_fee')
+    def _compute_total_fees_tab_other(self):
+            for record in self:
+                total_estimated = sum(line.estimated_fee for line in record.tab_others_id)
+                total_other_fee= sum(line.other_fee for line in record.tab_others_id)
+                record.total_estimated_fee_tab_other = total_estimated
+                record.total_other_fee_tab_other = total_other_fee
+                record.total_fee_tab_other = total_estimated + total_other_fee
+
+
+   # Compute total money in tab factory
+    total_estimated_fee_tab_factory = fields.Float(
+            string="Total Estimated Fee", 
+            compute="_compute_total_fees_tab_factory", 
+            store=True
+        )
+    total_other_fee_tab_factory = fields.Float(
+            string="Total Other Fee", 
+            compute="_compute_total_fees_tab_factory", 
+            store=True
+        )
+    total_fee_tab_factory  = fields.Float(
+            string="Grand Total", 
+            compute="_compute_total_fees_tab_factory", 
+            store=True
+        )
+
+    @api.depends('tab_factory_id.estimated_fee', 'tab_factory_id.other_fee')
+    def _compute_total_fees_tab_factory(self):
+            for record in self:
+                total_estimated = sum(line.estimated_fee for line in record.tab_factory_id)
+                total_other_fee= sum(line.other_fee for line in record.tab_factory_id)
+                record.total_estimated_fee_tab_factory = total_estimated
+                record.total_other_fee_tab_factory = total_other_fee
+                record.total_fee_tab_factory = total_estimated + total_other_fee

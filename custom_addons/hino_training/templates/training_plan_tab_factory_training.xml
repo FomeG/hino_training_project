@@ -1,0 +1,248 @@
+<odoo>
+    <data>
+         <template id="factory_training_report_template">
+         <!-- header  -->
+         <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                <h1>ok</h1>
+            </t>
+        </t>
+        <t t-call="web.html_container">
+
+          <t t-call="web.external_layout">
+                <div class="page">
+                    <table style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr>
+                            <td style="width: 15%; text-align: left;">
+                                <img src="/hino_training/static/description/logo.png" style="max-width: 100px;"/>
+                            </td>
+                            <td style="width: 70%; text-align: center; font-size: 18px; font-weight: bold;">
+                                SUMMARY OF TRAINING PLAN FY2023
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <table style="width:100%; border-collapse: collapse; border: 1px solid #000;" border="1">
+                        <tr style="background-color: #ddd; text-align: center; font-weight: bold;">
+                            <td rowspan="2">TT<br/>No.</td>
+                            <td rowspan="2">Họ và tên<br/><i>Full name</i></td>
+                            <td rowspan="2">Phòng ban<br/><i>Dept.</i></td>
+                            <td rowspan="2">Chức vụ<br/><i>Position</i></td>
+                            <td colspan="6">Khóa học đăng ký (vui lòng đánh dấu "x" để lựa chọn)<br/>Training course to be taken (please mark "x" to register)</td>
+                        </tr>
+                        <tr style="background-color: #ddd; text-align: center; font-weight: bold;">
+                            <td>Name of training course</td>
+                            <td>Name of training course</td>
+                            <td>Name of training course</td>
+                            <td>Name of training course</td>
+                            <td>Name of training course</td>
+                            <td>Name of training course</td>
+                        </tr>
+                        <!-- <tr t-foreach="doc.training_plan_ids" t-as="line">
+                            <td style="text-align:center;"><t t-esc="line.sequence"/></td>
+                            <td><t t-esc="line.full_name"/></td>
+                            <td><t t-esc="line.department"/></td>
+                            <td><t t-esc="line.position"/></td>
+                            <td><t t-esc="line.course1"/></td>
+                            <td><t t-esc="line.course2"/></td>
+                            <td><t t-esc="line.course3"/></td>
+                            <td><t t-esc="line.course4"/></td>
+                            <td><t t-esc="line.course5"/></td>
+                            <td><t t-esc="line.course6"/></td>
+                        </tr> -->
+                    </table>
+                </div>
+            </t>
+        </t>
+
+
+
+
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header with logo and title -->
+                        <div class="row mb-4">
+                            <div class="col-3">
+                                <!-- <img src="/hmv_training/static/description/hino_logo.png" style="max-height: 80px;"/> -->
+                            </div>
+                            <div class="col-6 text-center">
+                                <h3>Factory Training Courses</h3>
+                            </div>
+                            <t t-foreach="docs" t-as="doc">
+                                <div class="col-3 text-right">
+                                    <p>Mã số/No: <t t-esc="doc.name"/></p>
+                                    <p>Ngày ban hành/Issue date: </p>
+                                </div>
+                            </t>
+                        </div>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr style="background-color: #d9d9d9; text-align: center; font-weight: bold; border: 1px solid black;">
+                                    <th style="width:5%;">TT<br/><span>No</span></th>
+                                    <th style="width:35%;">Khóa học<br/><span>Training course</span></th>
+                                    <th style="width:20%;">Đơn vị đào tạo<br/><span><i>Supplier</i></span></th>
+                                    <th style="width:20%;">Thời gian đào tạo<br/><span><i>Training time</i></span></th>
+                                    <th style="width:20%;">Chi phí dự kiến<br/><span><i>Estimated fee</i></span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="docs" t-as="doc">
+                                    <t t-foreach="doc.tab_factory_id" t-as="course" t-foreach-index="index">
+                                        <tr>
+                             <td style="text-align:center;"><t t-esc="index if index is not None else 0 + 1"/></td>                                            <td><t t-esc="course.course_title"/></td>
+                                            <td><t t-esc="course.vendor_id.name"/></td>
+                                            <td style="text-align:center;"><t t-esc="course.start_date"/></td>
+                                            <td style="text-align:right;"><t t-esc="course.estimated_fee"/></td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                        <table style="width:100%; margin-top:10px; background-color: #c7d7eb;" border="1">
+                            <tr>
+                                <td style="text-align:left; font-weight:bold; padding:5px;">
+                                    Estimated Training Fee for Factory (2)
+                                </td>
+                                 <t t-foreach="docs" t-as="doc">
+                                    <t t-foreach="doc.tab_factory_id" t-as="course" t-foreach-index="index">
+                                       <td style="text-align:right; font-weight:bold; padding:5px;">
+                                            <t t-set="total_fee" t-value="sum(course.estimated_fee for course in doc.tab_factory_id)"/>
+                                            <t t-esc="total_fee"/>
+                                        </td>
+                                    </t>
+                                </t>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+
+            <!-- training_plan_tab_others_training.xml -->
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header with logo and title -->
+                        <div class="row mb-4">
+                            <div class="col-3">
+                                <!-- <img src="/hmv_training/static/description/hino_logo.png" style="max-height: 80px;"/> -->
+                            </div>
+                            <div class="col-6 text-center">
+                                <h3>Others Training Courses</h3>
+                            </div>
+                            <t t-foreach="docs" t-as="doc">
+                                <div class="col-3 text-right">
+                                    <p>Mã số/No: <t t-esc="doc.name"/></p>
+                                    <p>Ngày ban hành/Issue date: </p>
+                                </div>
+                            </t>
+                        </div>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr style="background-color: #d9d9d9; text-align: center; font-weight: bold; border: 1px solid black;">
+                                    <th style="width:5%;">TT<br/><span>No</span></th>
+                                    <th style="width:15%;">Phòng ban<br/><span>Dept</span></th>
+                                    <th style="width:20%;">Khóa học<br/><span>Training course</span></th>
+                                    <th style="width:15%;">Đơn vị đào tạo<br/><span><i>Supplier</i></span></th>
+                                    <th style="width:15%;">Mục đích đào tạo<br/><span><i>Purpose</i></span></th>
+                                    <th style="width:15%;">Thời gian đào tạo<br/><span><i>Training time</i></span></th>
+                                    <th style="width:15%;">Chi phí dự kiến<br/><span><i>Estimated fee</i></span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="docs" t-as="doc">
+                                    <t t-foreach="doc.tab_others_id" t-as="course" t-foreach-index="index">
+                                        <tr>
+                                            <td style="text-align:center;"><t t-esc="index if index is not None else 0 + 1"/></td>  
+                                            <td style="text-align:center;"><t t-esc="course.department_id.name"/></td>
+                                            <td><t t-esc="course.course_title"/></td>
+                                            <td><t t-esc="course.vendor_id.name"/></td>
+                                            <td style="text-align:center;"><t t-esc="course.purpose"/></td>
+                                            <td style="text-align:center;"><t t-esc="course.start_date"/></td>
+                                            <td style="text-align:right;"><t t-esc="course.estimated_fee"/></td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                        <table style="width:100%; margin-top:10px; background-color: #c7d7eb;" border="1">
+                            <tr>
+                                <td style="text-align:left; font-weight:bold; padding:5px;">
+                                   Others Estimated Training Fee (3)
+                                </td>
+                                 <t t-foreach="docs" t-as="doc">
+                                    <t t-foreach="doc.tab_factory_id" t-as="course" t-foreach-index="index">
+                                       <td style="text-align:right; font-weight:bold; padding:5px;">
+                                            <t t-set="total_fee" t-value="sum(course.estimated_fee for course in doc.tab_factory_id)"/>
+                                            <t t-esc="total_fee"/>
+                                        </td>
+                                    </t>
+                                </t>
+                            </tr>
+                        </table>
+                        <!-- other test -->
+                         <table style="width:100%; margin-top:10px; background-color: #c7d7eb;" border="1">
+                            <tr>
+                                <td style="text-align:left; font-weight:bold; padding:5px;">
+                                    Others test (4)
+                                </td>
+                                 <t t-foreach="docs" t-as="doc">
+                                    <t t-foreach="doc.tab_factory_id" t-as="course" t-foreach-index="index">
+                                       <td style="text-align:right; font-weight:bold; padding:5px;">
+                                            <t t-set="total_fee" t-value="sum(course.estimated_fee for course in doc.tab_factory_id)"/>
+                                            <t t-esc="total_fee"/>
+                                        </td>
+                                    </t>
+                                </t>
+                            </tr>
+                        </table>
+                        <!-- Other training -->
+                         <table style="width:100%; margin-top:10px; background-color: #c7d7eb;" border="1">
+                            <tr>
+                                <td style="text-align:left; font-weight:bold; padding:5px;">
+                                    Others Training  (5)
+                                </td>
+                                 <t t-foreach="docs" t-as="doc">
+                                    <t t-foreach="doc.tab_factory_id" t-as="course" t-foreach-index="index">
+                                       <td style="text-align:right; font-weight:bold; padding:5px;">
+                                            <t t-set="total_fee" t-value="sum(course.estimated_fee for course in doc.tab_factory_id)"/>
+                                            <t t-esc="total_fee"/>
+                                        </td>
+                                    </t>
+                                </t>
+                            </tr>
+                        </table>
+                              <!-- Total training fee for office -->
+                         <table style="width:100%; margin-top:10px; background-color: #c7d7eb;" border="1">
+                            <tr>
+                                <td style="text-align:left; font-weight:bold; padding:5px;">
+                                    TOTAL TRAINING FEE FOR OFFICE (1)+(2)+(3)+(4)+(5)
+                                </td>
+                                 <t t-foreach="docs" t-as="doc">
+                                    <t t-foreach="doc.tab_factory_id" t-as="course" t-foreach-index="index">
+                                       <td style="text-align:right; font-weight:bold; padding:5px;">
+                                            <t t-set="total_fee" t-value="sum(course.estimated_fee for course in doc.tab_factory_id)"/>
+                                            <t t-esc="total_fee"/>
+                                        </td>
+                                    </t>
+                                </t>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+     <record id="action_report_training_factory" model="ir.actions.report">
+            <field name="name">Factory training report</field>
+            <field name="model">hmv.training.plan</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hino_training.factory_training_report_template</field>
+            <field name="report_file">hino_training.factory_training_report_template</field>
+            <field name="binding_model_id" ref="model_hmv_training_plan"/>
+            <field name="binding_type">report</field>
+            <field name="attachment_use">True</field>
+            <field name="attachment">('Factory_Training_Report1_' + object.name + '.pdf')</field>
+        </record>
+    </data>
+</odoo>

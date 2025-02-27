@@ -6,6 +6,8 @@ class TrainingParticipant(models.Model):
     _description = 'Training Participant'
 
     course_id = fields.Many2one('hmv.training.courses', string='Training Course', ondelete='cascade')
+    tab_training_courses = fields.Many2one('hmv.tab.trianing.courses.provided.by.company', string='tab_training_courses', ondelete='cascade')
+
     # # lấy từ training need
     employee_id = fields.Many2one('hr.employee', string='Employee', required=True)
     full_name = fields.Char(related='employee_id.name', string='Full Name', readonly=True, store=True)
