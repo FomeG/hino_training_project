@@ -48,9 +48,6 @@
         </t>
     </t>
 </template>
-
-
-
         <record id="action_report_training_plan" model="ir.actions.report">
             <field name="name">Training Plan Report</field>
             <field name="model">hmv.training.plan</field>
