@@ -65,12 +65,12 @@
                                 <field name="employee_id" widget="many2many_tags" required="1"/>
                                 <field name="employee_hr_id"/>
                                 <field name="deptcombine"/>
-                                <field name="training_method_id" required="1"
+                                <field name="training_method_id" required="0"
                                        domain="[('code', '=', 'TRAINING_METHOD')]"/>
                                 <field name="location_id" required="1"/>
 <!--                                <field name="training_id"/>-->
                                 <field name="currency_id" invisible="1"/>
-                                <field name="audience_ids" required="1" domain="[('code', '=', 'TR_LEVEL')]"/>
+                                <field name="audience_ids" required="0" domain="[('code', '=', 'TR_LEVEL')]"/>
                             </group>
                         </group>
                         <group>
