@@ -15,7 +15,6 @@ class TrainingNeedCompanyTab(models.Model):
         'hr.employee',
         string='Full Name',
         required=True,
-        domain="[('department_id', '=', parent.department_id), ('active', '=', False)]"
     )
     
     email = fields.Char(
@@ -25,11 +24,17 @@ class TrainingNeedCompanyTab(models.Model):
         readonly=True
     )
     
-    training_brochure_line_id = fields.Many2one(
+    
+    
+    # Cái này là để lấy ra danh sách company course tương ứng với training brochure
+    training_brochure_line_id = fields.Many2many(
         'hmv.training.brochure.line',
+        'training_need_company_brochure_rel',  # Tên bảng trung gian
+        'training_need_company_id',  # Khóa ngoại trỏ về model này
+        'brochure_line_id',  # Khóa ngoại trỏ về model hmv.training.brochure.line 
         string='Courses',
         required=True,
-        # domain="[('training_brochure_id', '=', parent.training_brochure_id), ('training_type', '=', 'company')]"
+        domain="[('training_brochure_id_company', '=', parent.training_brochure_id)]"
     )
 
 
@@ -53,7 +58,6 @@ class TrainingNeedFactoryTab(models.Model):
         'hr.employee',
         string='Full Name',
         required=True,
-        domain="[('department_id', '=', parent.department_id), ('active', '=', False)]"
     )
     
     email = fields.Char(
@@ -90,7 +94,6 @@ class TrainingNeedOtherTab(models.Model):
         'hr.employee',
         string='Full Name',
         required=True,
-        domain="[('department_id', '=', parent.department_id), ('active', '=', False)]"
     )
     
     email = fields.Char(

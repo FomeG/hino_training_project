@@ -227,5 +227,48 @@
              <field name="end_date">2024-03-18</field>
         </record>
 <!--        endregion-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- region Training Need -->
+
+    <record id="hmv_training_need_1" model="hmv.training.need">
+        <field name="name">TN0001</field>
+        <field name="description">TEST TEST</field>
+        <field name="employee_id">8</field>
+        <field name="assignee_id">1</field>
+        <field name="registration_date">2030-01-01 09:30:51</field>
+        <field name="training_brochure_id">3</field>
+    </record>
+
+    <record id="hmv_training_need_2" model="hmv.training.need">
+        <field name="name">TN0002</field>
+        <field name="description">TEST TEST</field>
+        <field name="employee_id">8</field>
+        <field name="assignee_id">1</field>
+        <field name="registration_date">2030-01-01 09:30:51</field>
+        <field name="training_brochure_id">4</field>
+    </record>
+
+<!-- #endregion -->
+
+
+
     </data>
 </odoo>

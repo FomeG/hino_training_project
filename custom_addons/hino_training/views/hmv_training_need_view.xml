@@ -132,7 +132,7 @@
                                 <tree editable="bottom">
                                     <field name="employee_id" />
                                     <field name="email" />
-                                    <field name="training_brochure_line_id" />
+                                    <field name="training_brochure_line_id" widget="many2many_tags" />
                                 </tree>
                             </field>
                         </page>
@@ -189,7 +189,7 @@
     </record>
 
     <record id="action_training_need_view" model="ir.actions.act_window">
-        <field name="name">TEST</field>
+        <field name="name">Training Need</field>
         <field name="res_model">hmv.training.need</field>
         <field name="view_mode">tree,form</field>
     </record>
