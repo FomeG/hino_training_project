@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 {
     'name': "hino_training",
 
@@ -25,61 +24,65 @@ Long description of module's purpose
         'security/ir.model.access.csv',
         'views/trainning_plan_view.xml',
 
-        'templates/training_plan_report_template.xml', 
-        'templates/training_plan_tab_factory_training.xml', 
-
+        'templates/training_plan_report_template.xml',
+        'templates/training_plan_tab_factory_training.xml',
+        'templates/hmv_training_courses_report.xml',
         'views/hmv_training_courses_form_view.xml',
-  
+
 
         'data/sequence.xml',
         'views/views.xml',
 
         'data/hmv_need_sequence.xml',
         'data/sequence.xml',
-        
-        
-    
-        
-        
-        
+        'data/department_data.xml',
+        'data/job_data.xml',
+        'data/user_data.xml',
+
+
+
+
+
+
+
 
         'views/hmv_training_need_view.xml',
 
         'views/hmv_training_brochure_wizard.xml',
         'views/hmv_training_brochure.xml',
-      
+
         'views/test.xml',
 
 
         'templates/application_report_template.xml',
         'views/application/application.xml',
-      
+
         'views/menu.xml',
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         # Chỗ import wizard
         'wizard/training_need_comment_wizard_view.xml',
-        
-        
-        
-        
+        'wizard/training_courses_approval_wizard_view.xml',
+
+
+
     ],
     # only loaded in demonstration mode
     'demo': [
@@ -91,3 +94,4 @@ Long description of module's purpose
     'auto_install': False,
     'sequence': 1,
 }
+# -*- coding: utf-8 -*-
