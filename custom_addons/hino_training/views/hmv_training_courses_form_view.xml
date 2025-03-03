@@ -13,28 +13,53 @@
                                 type="object"
                                 class="oe_highlight"
                                 invisible="status != 'draft'"/>
+                          <!-- Staff Approval Button -->
+                        <button name="action_staff_approve"
+                                string="Staff Approve"
+                                type="object"
+                                class="oe_highlight"
+                                groups="base.group_user"
+                                invisible="status != 'staff_approval'"/>
+                        <button name="action_hr_approve"
+                                string="HR Manager Approve"
+                                type="object"
+                                class="oe_highlight"
+                                groups="hr.group_hr_manager"
+                                invisible="status != 'hr_approval'"/>
+                        <button name="action_fd_approve"
+                                string="Finance Director Approve"
+                                type="object"
+                                class="oe_highlight"
+                                invisible="status != 'fd_approval'"/>
+                        <button name="action_gd_approve"
+                                string="General Director Approve"
+                                type="object"
+                                class="oe_highlight"
+                                invisible="status != 'gd_approval'"/>
+                        <!-- Rejection Button for All Approvers -->
+                        <button name="action_reject"
+                                string="Reject"
+                                type="object"
+                                class="btn-danger"
+                                invisible="status not in ('staff_approval', 'hr_approval', 'fd_approval', 'gd_approval')"/>
                         <button name="action_register_course"
                                 string="Register Course"
                                 type="object"
                                 class="oe_highlight"
-                                invisible="not status == 'active'"/>
+                                invisible="status != 'active'"/>
                         <button name="action_edit" string="Edit" type="object"
                                 invisible="status not in ('draft', 'refused')"/>
                         <button name="action_save" string="Save" type="object"
-                                invisible="status != 'draft'"/>
-                        <button name="action_active" string="Active" type="object"
                                 invisible="status != 'draft'"/>
                         <button name="action_start" string="Start" type="object"
                                 invisible="status != 'active'"/>
                         <button name="action_done" string="Done" type="object"
                                 invisible="status != 'in_progress'"/>
                         <button name="action_cancel" string="Cancel Course" type="object"
-                                invisible="status not in ('active', 'in_progress')"/>
-                        <button name="action_create" string="Create" type="object"
-                                class="oe_highlight" invisible="id != False"/>
-
+                                invisible="status not in ('active', 'in_progress', 'staff_approval',
+                                                          'hr_approval', 'fd_approval', 'gd_approval')"/>
                         <field name="status" widget="statusbar"
-                               statusbar_visible="draft,active,in_progress,done,cancel"/>
+                               statusbar_visible="draft,staff_approval,hr_approval,fd_approval,gd_approval,active,in_progress,done"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -43,7 +68,7 @@
                             </h1>
                         </div>
                         <group>
-                          
+                          <field name="current_approval_level" invisible="1"/>
                             <group>
                                 <field name="year"/>
                                 <field name="start_date" required="1"/>
@@ -87,7 +112,7 @@
                                         <field name="email" readonly="1"/>
                                         <field name="position" readonly="1"/>
                                         <field name="department" readonly="1"/>
-                                        <field name="status"/>
+                                        <field name="status" readonly="1"/>
                                         <button name="action_confirm" string="Confirm" type="object"
                                                 icon="fa-check" invisible="status != 'waiting'"/>
                                         <button name="action_refuse" string="Refuse" type="object"
@@ -106,16 +131,6 @@
                                         <field name="status"/>
                                         <field name="comment"/>
                                         <field name="date"/>
-                                        <button name="action_approve"
-                                                string="Approve"
-                                                type="object"
-                                                icon="fa-check"
-                                                invisible="['|', ('status', '!=', 'waiting'), ('employee_id', '!=', uid)]"/>
-                                        <button name="action_refuse"
-                                                string="Refuse"
-                                                type="object"
-                                                icon="fa-times"
-                                                invisible="['|', ('status', '!=', 'waiting'), ('employee_id', '!=', uid)]"/>
                                     </tree>
                                 </field>
                             </page>
@@ -129,37 +144,14 @@
                 </form>
             </field>
         </record>
-     <!-- Wizard View -->
- <record id="view_training_approval_wizard_form" model="ir.ui.view">
-    <field name="name">hmv.training.approval.wizard.form</field>
-    <field name="model">hmv.training.approval.wizard</field>
-    <field name="arch" type="xml">
-        <form>
-            <sheet>
-                <group>
-                    <field name="comment" placeholder="Enter your comment here (optional)"/>
-                    <field name="approval_id" invisible="1"/>
-                    <field name="action_type" invisible="1"/>
-                </group>
-            </sheet>
-            <footer>
-                <button name="action_confirm"
-                        string="Confirm"
-                        type="object"
-                        class="btn-primary"/>
-                <button string="Cancel"
-                        class="btn-secondary"
-                        special="cancel"/>
-            </footer>
-        </form>
-    </field>
-</record>
+
         <!-- Tree View -->
         <record id="view_hmv_training_courses_tree" model="ir.ui.view">
             <field name="name">hmv.training.courses.tree</field>
             <field name="model">hmv.training.courses</field>
             <field name="arch" type="xml">
                 <tree decoration-info="status=='draft'"
+                      decoration-warning="status in ('staff_approval', 'hr_approval', 'fd_approval', 'gd_approval')"
                       decoration-success="status=='active'"
                       decoration-primary="status=='in_progress'"
                       decoration-muted="status=='cancel'">
