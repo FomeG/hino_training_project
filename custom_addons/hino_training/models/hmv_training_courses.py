@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, AccessError
 from datetime import datetime, date
 
 
@@ -8,7 +8,6 @@ class TrainingCourses(models.Model):
     _description = 'Training Courses'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'course_title'
-
 
     course_title = fields.Char(string='Course Title', required=True, tracking=True)
     start_date = fields.Date(string='Start date', required=True, tracking=True)
@@ -26,31 +25,37 @@ class TrainingCourses(models.Model):
     department_id = fields.Many2one('hr.department', string='Apply for department', required=True, tracking=True)
     training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method',
                                          tracking=True, domain=[('code', '=', 'TRAINING_METHOD')])
-    year = fields.Char(string='Year',compute='_compute_year', store=True)
+    year = fields.Char(string='Year', compute='_compute_year', store=True)
     training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
                                            tracking=True)
     location_id = fields.Many2one('res.country.state', string='Location', required=True, tracking=True)
-    employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,)
+    employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True)
     deptcombine = fields.Text(string='DeptCombine', tracking=True)
     description = fields.Text(string='Description', required=True, tracking=True)
     status = fields.Selection([
         ('draft', 'Draft'),
+        ('staff_approval', 'Staff Approval'),
+        ('hr_approval', 'HR Manager Approval'),
+        ('fd_approval', 'Finance Director Approval'),
+        ('gd_approval', 'General Director Approval'),
         ('active', 'Active'),
-        ('in_progress', 'In progress'),
+        ('in_progress', 'In Progress'),
         ('done', 'Done'),
         ('cancel', 'Cancel')
     ], string='Status', required=True, default='draft', tracking=True)
+
     course_type = fields.Selection([
         ('public', 'Public'),
         ('in_house', 'In-house')
-    ], string='Course Type', required=True, tracking=True) # lấy từ training need
-    estimate_fee = fields.Monetary(string='Actual Fee', required=True, tracking=True) # lấy từ training need
+    ], string='Course Type', required=True, tracking=True)
+    estimate_fee = fields.Monetary(string='Actual Fee', required=True, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
     audience_ids = fields.Many2one('hmv.list.value.line', string='Audience',
                                    tracking=True, domain=[('code', '=', 'TR_LEVEL')])
     participant_ids = fields.One2many('hmv.training.participant', 'course_id', string='Participants')
-    # New Approval Fields
+
+    # Approval Fields
     approval_ids = fields.One2many('hmv.training.course.approval', 'training_course_id',
                                    string='Approval History', tracking=True)
     current_approval_id = fields.Many2one('hmv.training.course.approval',
@@ -61,6 +66,12 @@ class TrainingCourses(models.Model):
         store=True,
         help='Number of available slots remaining in the course'
     )
+    current_approval_level = fields.Selection([
+        ('staff', 'Staff'),
+        ('hr_manager', 'HR Manager'),
+        ('fd', 'Finance Director'),
+        ('gd', 'General Director')
+    ], string='Current Approval Level', compute='_compute_current_approval_level', store=True)
 
     @api.depends('start_date')
     def _compute_year(self):
@@ -69,40 +80,49 @@ class TrainingCourses(models.Model):
                 record.year = fields.Datetime.from_string(record.start_date).strftime('%Y')
             else:
                 record.year = 0
-    @api.depends('slot', 'participant_ids')
+
+    @api.depends('approval_ids.status', 'approval_ids.sequence')
+    def _compute_current_approval_level(self):
+        for record in self:
+            pending_approvals = record.approval_ids.filtered(lambda a: a.status == 'waiting')
+            if pending_approvals:
+                first_pending = min(pending_approvals, key=lambda a: a.sequence)
+                if first_pending.approval_level:
+                    record.current_approval_level = first_pending.approval_level
+                else:
+                    record.current_approval_level = False
+            else:
+                record.current_approval_level = False
+
+    @api.depends('slot', 'participant_ids.status')
     def _compute_remaining_slots(self):
         for record in self:
-            total_participants = len(record.participant_ids)
-            record.remaining_slots = record.slot - total_participants
+            agreed_participants = self.env['hmv.training.participant'].search_count([
+                ('course_id', '=', record.id),
+                ('status', '=', 'agreed')
+            ])
+            record.remaining_slots = record.slot - agreed_participants
 
     def action_register_course(self):
         """Register for a course based on course type and user permissions"""
-        # Check if course is in active state
         if self.status != 'active':
             raise ValidationError(_("Course registration is only available for active courses."))
 
-        # Check remaining slots
         if self.remaining_slots <= 0:
             raise ValidationError(_("No slots remaining in this course."))
 
-        # Get current user's employee record
         current_employee = self.env['hr.employee'].search(
             [('user_id', '=', self.env.user.id)], limit=1)
         if not current_employee:
             raise ValidationError(_("You must be an employee to register for courses."))
 
-        # Handle In-house courses
-        if self.course_type == 'in_house':
-            # Check if user is from HR department
-            if not self.env.user.has_group('hr.group_hr_user'):
-                raise ValidationError(
-                    _("Only HR department members can register participants for in-house courses."))
+        if self.course_type == 'in_house' and not self.env.user.has_group('hr.group_hr_user'):
+            raise ValidationError(
+                _("Only HR department members can register participants for in-house courses."))
 
-        # Check if employee is already registered
         if self.participant_ids.filtered(lambda p: p.employee_id.id == current_employee.id):
             raise ValidationError(_("You are already registered for this course."))
 
-        # Create participant record
         self.env['hmv.training.participant'].create({
             'course_id': self.id,
             'employee_id': current_employee.id,
@@ -119,6 +139,7 @@ class TrainingCourses(models.Model):
                 'sticky': False,
             }
         }
+
     @api.constrains('start_date', 'end_date', 'confirmation_start_date', 'confirmation_end_date')
     def _check_dates(self):
         for record in self:
@@ -149,12 +170,7 @@ class TrainingCourses(models.Model):
         if self.year:
             return {'domain': {'training_brochure_id': [('year', '=', self.year)]}}
 
-    # @api.onchange('training_brochure_id')
-    # def _onchange_training_brochure_id(self):
-    #     if self.training_brochure_id:
-    #         self.course_type = self.training_brochure_id.course_type
-
-
+    # Basic state change actions
     def action_edit(self):
         if self.status not in ['draft', 'refused']:
             raise ValidationError(
@@ -167,8 +183,8 @@ class TrainingCourses(models.Model):
         return True
 
     def action_active(self):
-        if self.status != 'draft':
-            raise ValidationError(_("Only courses in 'Draft' state can be activated."))
+        if self.status != 'gd_approval':
+            raise ValidationError(_("Only courses with General Director approval can be activated."))
         self.status = 'active'
         return True
 
@@ -185,13 +201,79 @@ class TrainingCourses(models.Model):
         return True
 
     def action_cancel(self):
-        if self.status not in ['active', 'in_progress']:
-            raise ValidationError(_("Only courses in 'Active' or 'In Progress' state can be cancelled."))
+        if self.status not in ['active', 'in_progress', 'staff_approval', 'hr_approval', 'fd_approval', 'gd_approval']:
+            raise ValidationError(_("Only active or in-progress courses can be cancelled."))
         self.status = 'cancel'
         return True
 
-    def action_create(self):
-        return True
+    # Approval Actions - Consolidated into a single method
+    def _show_approval_wizard(self, approval_level):
+        """Common method to show approval wizard for any level"""
+        self.ensure_one()
+
+        approval = self.approval_ids.filtered(lambda a: a.approval_level == approval_level and a.status == 'waiting')
+        if not approval:
+            # Tạo approval mới cho level hiện tại
+            current_user = self.env.user.employee_id
+            approval = self.env['hmv.training.course.approval'].create({
+                'training_course_id': self.id,
+                'employee_id': current_user.id if current_user else 1,
+                'approval_level': approval_level,
+                'status': 'waiting',
+                'sequence': 10
+            })
+
+        # Show approval wizard
+        return {
+            'name': 'Approval Comment',
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.training.approval.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_training_course_id': self.id,
+                'default_approval_id': approval.id,
+                'default_action_type': 'approved',
+                'default_approval_level': approval_level,
+            }
+        }
+    # Specific approval actions that call the common method
+    def action_staff_approve(self):
+        return self._show_approval_wizard('staff')
+
+    def action_hr_approve(self):
+        return self._show_approval_wizard('hr_manager')
+
+    def action_fd_approve(self):
+        return self._show_approval_wizard('fd')
+
+    def action_gd_approve(self):
+        return self._show_approval_wizard('gd')
+
+    def action_reject(self):
+        """Reject the training course at current approval level"""
+        self.ensure_one()
+
+        # Get the current pending approval
+        pending_approval = self.approval_ids.filtered(lambda a: a.status == 'waiting')
+        if not pending_approval:
+            raise ValidationError(_("No pending approval found to reject."))
+
+        first_pending = min(pending_approval, key=lambda a: a.sequence)
+
+        return {
+            'name': 'Rejection Comment',
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.training.approval.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_training_course_id': self.id,
+                'default_approval_id': first_pending.id,
+                'default_action_type': 'refused',
+                'default_approval_level': self.current_approval_level,
+            }
+        }
 
     def send_confirmation_email(self):
         template = self.env.ref('hmv_training.email_template_training_confirmation')
@@ -206,12 +288,12 @@ class TrainingCourses(models.Model):
             record.current_approval_id = pending_approvals[0] if pending_approvals else False
 
     def action_submit(self):
-        """Submit the training course for approval"""
+        """Submit the training course for sequential approval workflow"""
         if self.status != 'draft':
             raise ValidationError(_("Only courses in 'Draft' state can be submitted for approval."))
 
-        # Get approvers (department manager and HR manager)
-        approvers = self._get_approvers()
+        # Get approvers in the correct sequence
+        approvers = self._get_approvers_sequence()
         if not approvers:
             raise ValidationError(_("No approvers found for this training course."))
 
@@ -221,150 +303,61 @@ class TrainingCourses(models.Model):
             self.env['hmv.training.course.approval'].create({
                 'training_course_id': self.id,
                 'sequence': sequence,
-                'employee_id': approver.id,
+                'employee_id': approver['employee_id'],
+                'approval_level': approver['level'],
                 'status': 'waiting'
             })
             sequence += 10
 
-        # Update status
+        # Update status to first approval stage
         self.write({
-            'status': 'draft'
+            'status': 'staff_approval'
         })
 
         return True
-    def _get_approvers(self):
-        # Implement your approval flow logic here
-        department_manager = self.department_id.manager_id
+
+    def _get_approvers_sequence(self):
+        """Return approvers in the correct sequence: Staff -> HR Manager -> FD -> GD"""
+        approvers = []
+
+        # 1. Staff approver (department manager)
+        dept_manager = self.department_id.manager_id
+        if dept_manager:
+            approvers.append({
+                'employee_id': dept_manager.id,
+                'level': 'staff'
+            })
+
+        # 2. HR Manager
         hr_manager = self.env['hr.employee'].search([
             ('department_id.name', 'ilike', 'HR'),
             ('job_id.name', 'ilike', 'Manager')
         ], limit=1)
-        return department_manager + hr_manager
-
-class TrainingCourseApproval(models.Model):
-    _name = 'hmv.training.course.approval'
-    _description = 'Training Course Approval History'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
-    _rec_name = 'employee_id'
-    _order = 'sequence'
-
-    training_course_id = fields.Many2one('hmv.training.courses', string='Training Course', required=True)
-    sequence = fields.Integer(string='Sequence', default=10)
-    employee_id = fields.Many2one('hr.employee', string='Approver', required=True, tracking=True)
-    job_id = fields.Many2one(related='employee_id.job_id', string='Position', store=True, readonly=True, tracking=True)
-    department_id = fields.Many2one(related='employee_id.department_id', string='Department', store=True, readonly=True, tracking=True)
-    status = fields.Selection([
-        ('waiting', 'Waiting to approve'),
-        ('approved', 'Approved'),
-        ('refused', 'Refused')
-    ], string='Status', default='waiting', tracking=True)
-    comment = fields.Text(string='Comment', tracking=True)
-    date = fields.Datetime(string='Action Date', tracking=True)
-    @api.model
-    def create(self, vals):
-        vals['date'] = fields.Datetime.now()
-        return super().create(vals)
-
-    def write(self, vals):
-        if 'status' in vals:
-            vals['date'] = fields.Datetime.now()
-        return super().write(vals)
-
-    def action_approve(self):
-        return self._show_approval_wizard('approved')
-
-    def action_refuse(self):
-        return self._show_approval_wizard('refused')
-
-    def _show_approval_wizard(self, action_type):
-        return {
-            'name': 'Approval Comment',
-            'type': 'ir.actions.act_window',
-            'res_model': 'hmv.training.approval.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_approval_id': self.id,
-                'default_action_type': action_type,
-                'default_res_model': 'hmv.training.course.approval',
-                'safe_res_model': 'hmv.training.course.approval'
-            }
-        }
-
-    def _process_approval(self, status, comment):
-        """Process the approval or refusal"""
-        self.ensure_one()
-        training_course = self.training_course_id
-
-        self.write({
-            'status': status,
-            'comment': comment,
-            'date': fields.Datetime.now()
-        })
-
-        if status == 'refused':
-            # If refused, set course back to draft for editing
-            training_course.write({
-                'status': 'draft'
-            })
-            return
-
-        # Check if this was the last approval needed
-        pending_approvals = training_course.approval_ids.filtered(lambda a: a.status == 'waiting')
-        if not pending_approvals:
-            # If no more pending approvals, mark as approved
-            training_course.write({
-                'status': 'active'
+        if hr_manager:
+            approvers.append({
+                'employee_id': hr_manager.id,
+                'level': 'hr_manager'
             })
 
+        # 3. Finance Director
+        fd = self.env['hr.employee'].search([
+            ('job_id.name', 'ilike', 'Finance Director')
+        ], limit=1)
+        if fd:
+            approvers.append({
+                'employee_id': fd.id,
+                'level': 'fd'
+            })
 
-class TrainingApprovalWizard(models.TransientModel):
-    _name = 'hmv.training.approval.wizard'
-    _description = 'Training Approval Comment Wizard'
+        # 4. General Director
+        gd = self.env['hr.employee'].search([
+            ('job_id.name', 'ilike', 'General Director')
+        ], limit=1)
+        if gd:
+            approvers.append({
+                'employee_id': gd.id,
+                'level': 'gd'
+            })
 
-    approval_id = fields.Many2one('hmv.training.course.approval', string='Approval')
-    action_type = fields.Selection([
-        ('approved', 'Approve'),
-        ('refused', 'Refuse')
-    ], string='Action')
-    comment = fields.Text(string='Comment')
-    res_model = fields.Char(string='Resource Model', required=False)
-    def action_confirm(self):
-        approval = self.approval_id
-        approval.write({
-            'status': self.action_type,
-            'comment': self.comment,
-            'date': fields.Datetime.now()
-        })
+        return approvers
 
-        training_course = approval.training_course_id
-        if self.action_type == 'refused':
-            # Set course back to draft for editing
-            training_course.write({'status': 'draft'})
-
-            # Notify the applicant
-            applicant = training_course.create_uid  # The user who created the training course
-            training_course.message_post(
-                body=f"Your training course has been refused by {approval.employee_id.name}. Comment: {self.comment or 'No comment'}",
-                message_type='notification',
-                subtype_xmlid='mail.mt_comment',
-                partner_ids=[applicant.partner_id.id] if applicant.partner_id else []
-            )
-
-        elif self.action_type == 'approved':
-            # Check if this was the last approval needed
-            pending_approvals = training_course.approval_ids.filtered(lambda a: a.status == 'waiting')
-            if not pending_approvals:
-                # If no more pending approvals, mark as active
-                training_course.write({'status': 'active'})
-
-                # Notify the applicant that the course has been fully approved
-                applicant = training_course.create_uid
-                training_course.message_post(
-                    body=f"Your training course '{training_course.course_title}' has been fully approved and is now active.",
-                    message_type='notification',
-                    subtype_xmlid='mail.mt_comment',
-                    partner_ids=[applicant.partner_id.id] if applicant.partner_id else []
-                )
-
-        return {'type': 'ir.actions.act_window_close'}

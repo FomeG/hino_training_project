@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- Approval Wizard Form -->
+        <record id="view_training_approval_wizard_form" model="ir.ui.view">
+            <field name="name">hmv.training.approval.wizard.form</field>
+            <field name="model">hmv.training.approval.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="approval_level" readonly="1"/>
+                            <field name="action_type" readonly="1"/>
+                            <field name="comment" placeholder="Enter your comment here (optional)"/>
+                            <field name="approval_id" invisible="1"/>
+                            <field name="training_course_id" invisible="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_confirm"
+                                string="Confirm"
+                                type="object"
+                                class="btn-primary"/>
+                        <button string="Cancel"
+                                class="btn-secondary"
+                                special="cancel"/>
+                    </footer>
+        </form>
+    </field>
+</record>
+</odoo>

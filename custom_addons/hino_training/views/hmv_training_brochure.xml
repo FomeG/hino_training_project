@@ -5,9 +5,7 @@
         <field name="name">hmv.training.brochure.tree</field>
         <field name="model">hmv.training.brochure</field>
         <field name="arch" type="xml">
-            <tree decoration-muted="state == 'draft'" decoration-info="state == 'submitted'"
-                  decoration-success="state == 'approved'" decoration-warning="state =='rejected'"
-                  decoration-danger="state == 'cancelled'">
+            <tree>
                 <field name="code"/>
                 <field name="year"/>
                 <field name="created_on"/>
@@ -16,13 +14,45 @@
                 <field name="end_date"/>
                 <field name="company_id"/>
                 <field name="name"/>
-                <field name="state" widget="badge" decoration-muted="state == 'draft'" decoration-info="state == 'submitted'"
-                  decoration-success="state == 'approved'" decoration-warning="state =='rejected'"
-                  decoration-danger="state == 'cancelled'"/>
             </tree>
         </field>
     </record>
-
+    <!-- Kanban View -->
+    <record id="view_hmv_training_brochure_kanban" model="ir.ui.view">
+        <field name="name">hmv.training.brochure.kanban</field>
+        <field name="model">hmv.training.brochure</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="year">
+                <field name="year"/>
+                <field name="name"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="employee_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <h3 class="oe_kanban_record_title">
+                                    <field name="name"/>
+                                </h3>
+                                <ul>
+                                    <li t-if="record.start_date.raw_value">
+                                        <strong>Start Date: </strong><field name="start_date"/>
+                                    </li>
+                                    <li t-if="record.end_date.raw_value">
+                                        <strong>End Date: </strong><field name="end_date"/>
+                                    </li>
+                                    <li t-if="record.employee_id.raw_value">
+                                        <strong>Creator: </strong><field name="employee_id"/>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
     <!-- Form View -->
     <record id="view_hmv_training_brochure_form" model="ir.ui.view">
         <field name="name">hmv.training.brochure.form</field>
@@ -30,19 +60,8 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_submit" string="Submit" type="object"
-                        invisible="state != 'draft'" class="btn-success"/>
-                    <button name="action_approve" string="Approve" type="object"
-                        invisible="state != 'submitted'" class="btn-success"/>
-                    <button name="action_reject" string="Reject" type="object"
-                        invisible="state != 'submitted'" class="btn-danger"/>
-                    <button name="action_draft" string="Draft" type="object"
-                        invisible="state != 'rejected'" class="btn-secondary"/>
-                    <button name="action_update_courses" string="Update Course" type="object" class="btn-info"
-                            invisible="not (is_update_button_visible and state == 'draft')"/>
-                    <button name="action_cancel" string="Cancel" type="object"
-                            invisible="state not in ('approved', 'rejected')" class="btn-danger"/>
-                    <field name="state" widget="statusbar"/>
+                    <button name="action_update_courses" string="Update Course" type="object" class="btn-success"
+                            invisible="not is_update_button_visible "/>
                 </header>
                 <sheet>
                     <h3>Training Brochure No.</h3>
@@ -120,11 +139,6 @@
                 <field name="employee_id"/>
                 <field name="company_id"/>
                 <field name="name"/>
-                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
-                <filter name="filter_submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
-                <filter name="filter_approved" string="Approved" domain="[('state', '=', 'approved')]"/>
-                <filter name="filter_rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
-                <filter name="filter_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
             </search>
         </field>
     </record>
@@ -133,7 +147,7 @@
     <record id="action_hmv_training_brochure" model="ir.actions.act_window">
         <field name="name">Training Brochures</field>
         <field name="res_model">hmv.training.brochure</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,form</field>
     </record>
 
 </odoo>

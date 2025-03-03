@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+      <data>
+        <!-- Training course report -->
+        <record id="report_training_course" model="ir.actions.report">
+            <field name="name">Training Course Report</field>
+            <field name="model">hmv.training.courses</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hino_training.report_training_course_template</field>
+            <field name="report_file">hino_training.report_training_course_template</field>
+            <field name="binding_model_id" ref="model_hmv_training_courses"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Training registration summary report -->
+        <record id="report_training_registration_summary_action" model="ir.actions.report">
+            <field name="name">Training Registration Summary</field>
+            <field name="model">hmv.training.courses</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hino_training.report_training_registration_summary</field>
+            <field name="report_file">hino_training.report_training_registration_summary</field>
+            <field name="binding_model_id" ref="model_hmv_training_courses"/>
+            <field name="binding_type">report</field>
+        </record>
+    <template id="application_report_template">
+         <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+
+                <div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <p style="text-align:right; font-size:12px;">
+                        <strong>Mã biểu mẫu/No.:</strong> HIN-123/PO/A<br/>
+                        <strong>Ngày ban hành/Issue date:</strong> 01/01/2018
+                    </p>
+
+                    <img src="/hino_training/static/img/hino_logo.jpg"
+                         alt="Hino Logo"
+                         style="max-height:100px; margin-bottom: 100px;" />
+
+                </div>
+                    <h2 style="text-align:center; margin:5px 0;">PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO</h2>
+                    <h3 style="text-align:center; margin:0 0 10px 0;">APPLICATION FOR ATTENDING TRAINING COURSE</h3>
+
+<!--Main-->
+                <table style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
+
+                    <tr>
+                        <td style="width: 30%; border:1px solid #000; padding:5px;">
+                            Ngày đề xuất<br/>Proposal date
+                        </td>
+                        <td style="width: 70%; border:1px solid #000; padding:5px;">
+                            <t t-esc="doc.x_request_date"/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="border:1px solid #000; padding:5px;">
+                            Phòng ban<br/>Department
+                        </td>
+                        <td style="border:1px solid #000; padding:5px;">
+                            <t t-esc="doc.x_department_id.name"/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="border:1px solid #000; padding:5px;">
+                            Tên khóa học<br/>Name of training course
+                        </td>
+                        <td style="border:1px solid #000; padding:5px;">
+                            <t t-esc="doc.x_course_title.course_title"/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="border:1px solid #000; padding:5px;">
+                            Thời gian đào tạo<br/>Training time
+                        </td>
+                        <td style="border:1px solid #000; padding:5px;">
+                            <strong>Start:</strong> <t t-esc="doc.x_start_date"/>
+                            <span style="display:inline-block; width:2em;"> </span>
+                            <strong>End:</strong> <t t-esc="doc.x_end_date"/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="border:1px solid #000; padding:5px;">
+                            Đơn vị/nhà tổ chức<br/>Vendor/Partner
+                        </td>
+                        <td style="border:1px solid #000; padding:5px;">
+                            <t t-esc="doc.x_vendor_id.name"/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="border:1px solid #000; padding:5px;">
+                            Mục đích tham gia đào tạo<br/>Purpose of attending training course
+                        </td>
+                        <td style="border:1px solid #000; padding:5px;">
+                            <t t-esc="doc.x_purpose_training"/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="border:1px solid #000; padding:5px;">
+                            Thông tin về khóa đào tạo<br/>Training course information
+                        </td>
+                        <td style="border:1px solid #000; padding:5px;">
+                            <t t-esc="doc.x_training_content"/>
+                        </td>
+                    </tr>
+                </table>
+
+
+                <div style="margin-top: 30px;">
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="text-align:center;">
+                                <strong>Người đề xuất</strong><br/>
+                                (Applicant)
+                                <br/><br/><br/>
+                                .............................
+                            </td>
+                            <td style="text-align:center;">
+                                <strong>Trưởng bộ phận</strong><br/>
+                                (Head of Department)
+                                <br/><br/><br/>
+                                .............................
+                            </td>
+                            <td style="text-align:center;">
+                                <strong>Phòng Nhân sự</strong><br/>
+                                (HR Department)
+                                <br/><br/><br/>
+                                .............................
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            </t>
+        </t>
+    </template>
+        </data>
+</odoo>
