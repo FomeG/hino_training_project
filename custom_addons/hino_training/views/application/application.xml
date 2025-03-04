@@ -102,7 +102,7 @@
                             <field name="x_end_date_confirm" readonly="x_is_form_readonly"/>
                             <field name="x_department_apply_id" readonly="x_is_form_readonly"/>
                             <field name="x_training_plan_id"/>
-                            <field name="x_training_method"/>
+<!--                            <field name="x_training_method"/>-->
                             <field name="x_is_form_readonly" invisible="1" column_invisible="1"/>
                             <field name="x_is_all_approved" invisible="1" column_invisible="1"/>
                             <field name="x_is_printable" invisible="1" column_invisible="1"/>
