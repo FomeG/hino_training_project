@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 class TrainingNeedCompanyTab(models.Model):
     _name = 'hmv.training.need.company'
     _description = 'Training Courses Provided By Company Tab'
+    # _sql_constraints = [
+    #     ('unique_employee_company', 
+    #      'UNIQUE(training_need_id, employee_id)',
+    #      'This employee is already registered in Company Training tab!')
+    # ]
 
     training_need_id = fields.Many2one(
         'hmv.training.need',
@@ -36,6 +42,65 @@ class TrainingNeedCompanyTab(models.Model):
         required=True,
         domain="[('training_brochure_id_company', '=', parent.training_brochure_id)]"
     )
+    
+    @api.constrains('employee_id', 'training_brochure_line_id')
+    def _check_max_courses(self):
+        for record in self:
+            if len(record.training_brochure_line_id) > 2:
+                raise ValidationError(
+                    f'Employee {record.employee_id.name} cannot register for more than 2 company training courses!'
+                )
+                
+                
+                
+                
+    
+    @api.constrains('employee_id', 'training_brochure_line_id')
+    def _check_max_courses_total(self):
+        for record in self:
+            
+            # Check if current user is from HR department
+            current_user_employee = self.env.user.employee_id
+            is_hr_employee = current_user_employee and current_user_employee.department_id == 'HR'
+            
+            
+            # If user is HR, skip the validation
+            if is_hr_employee:
+                return
+            
+            # Count courses in Company tab
+            company_courses = len(record.training_brochure_line_id)
+            
+            # Count courses in Factory tab
+            factory_courses = self.env['hmv.training.need.factory'].search_count([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id)
+            ])
+            factory_tab = self.env['hmv.training.need.factory'].search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id)
+            ])
+            if factory_tab:
+                factory_courses = len(factory_tab.training_brochure_line_id)
+            
+            # Count courses in Other tab
+            other_courses = self.env['hmv.training.need.other'].search_count([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id)
+            ])
+            other_tab = self.env['hmv.training.need.other'].search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id)
+            ])
+            if other_tab:
+                other_courses = len(other_tab.training_brochure_line_id)
+            
+            total_courses = company_courses + factory_courses + other_courses
+            
+            if total_courses > 2:
+                raise ValidationError(
+                    f'Employee {record.employee_id.name} cannot register for more than 2 training courses in total across all tabs!'
+                )
 
 
 
@@ -47,6 +112,11 @@ class TrainingNeedCompanyTab(models.Model):
 class TrainingNeedFactoryTab(models.Model):
     _name = 'hmv.training.need.factory'
     _description = 'Factory Training Tab'
+    # _sql_constraints = [
+    #     ('unique_employee_factory',
+    #      'UNIQUE(training_need_id, employee_id)', 
+    #      'This employee is already registered in Factory Training tab!')
+    # ]
 
     training_need_id = fields.Many2one(
         'hmv.training.need',
@@ -67,12 +137,72 @@ class TrainingNeedFactoryTab(models.Model):
         readonly=True
     )
     
-    # Tạm thời đổi thành Char thay vì Many2many
-    training_plan_line_id = fields.Char(
-        string='Courses',
+    # For TrainingNeedFactoryTab model
+    training_brochure_line_id = fields.Many2many(
+        'hmv.training.brochure.line',      # Model đích
+        'factory_training_need_brochure_rel',   # Changed: Unique relation table name
+        'factory_need_id',         # Changed: Unique column name
+        'brochure_line_id',       # Changed: Unique column name
+        string='Factory Training Courses',
         required=True,
-        help="Temporary field for courses"
+        domain="[('training_brochure_id_factory', '=', parent.training_brochure_id)]",
+        help="Selected training courses from Training brochure"
     )
+    @api.constrains('employee_id', 'training_need_id')
+    def _check_unique_employee(self):
+        for record in self:
+            # Tìm kiếm record trùng
+            duplicate = self.search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id),
+                ('id', '!=', record.id)
+            ])
+            
+            if duplicate:
+                raise ValidationError(
+                    f'Employee {record.employee_id.name} is already registered in Factory Training tab!'
+                )
+
+    @api.constrains('employee_id', 'training_brochure_line_id')
+    def _check_max_courses_total(self):
+        for record in self:
+            
+            
+            # Check if current user is from HR department
+            current_user_employee = self.env.user.employee_id
+            is_hr_employee = current_user_employee and current_user_employee.department_id == 'HR'
+            
+            # If user is HR, skip the validation
+            if is_hr_employee:
+                return
+            
+            
+            # Similar logic as above but starting with Factory tab count
+            factory_courses = len(record.training_brochure_line_id)
+            
+            # Count courses in Company tab
+            company_tab = self.env['hmv.training.need.company'].search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id)
+            ])
+            company_courses = len(company_tab.training_brochure_line_id) if company_tab else 0
+            
+            # Count courses in Other tab
+            other_tab = self.env['hmv.training.need.other'].search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id)
+            ])
+            other_courses = len(other_tab.training_brochure_line_id) if other_tab else 0
+            
+            total_courses = factory_courses + company_courses + other_courses
+            
+            if total_courses > 2:
+                raise ValidationError(
+                    f'Employee {record.employee_id.name} cannot register for more than 2 training courses in total across all tabs!'
+                )
+                
+                
+                
 
 
 
@@ -83,6 +213,11 @@ class TrainingNeedFactoryTab(models.Model):
 class TrainingNeedOtherTab(models.Model):
     _name = 'hmv.training.need.other'
     _description = 'Other Training Tab'
+    # _sql_constraints = [
+    #     ('unique_employee_other',
+    #      'UNIQUE(training_need_id, employee_id)',
+    #      'This employee is already registered in Other Training tab!')
+    # ]
 
     training_need_id = fields.Many2one(
         'hmv.training.need',
@@ -103,14 +238,72 @@ class TrainingNeedOtherTab(models.Model):
         readonly=True
     )
     
-    # Tạm thời đổi thành Char thay vì Many2many
-    training_plan_line_id = fields.Char(
-        string='Courses',
+    # For TrainingNeedOtherTab model 
+    training_brochure_line_id = fields.Many2many(
+        'hmv.training.brochure.line',      # Model đích
+        'other_training_brochure_plan_rel',   # Changed: Unique relation table name
+        'other_need_id',         # Changed: Unique column name
+        'brochure_line_id',       # Changed: Unique column name
+        string='Other Training Courses',
         required=True,
-        help="Temporary field for courses"
+        domain="[('training_brochure_id_other', '=', parent.training_brochure_id)]",
+        help="Selected training courses from Training brochure"
     )
+    @api.constrains('employee_id', 'training_need_id')
+    def _check_unique_employee(self):
+        for record in self:
+            # Tìm kiếm record trùng
+            duplicate = self.search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id),
+                ('id', '!=', record.id)
+            ])
+            
+            if duplicate:
+                raise ValidationError(
+                    f'Employee {record.employee_id.name} is already registered in Other Training tab!'
+                )
 
 
+
+
+    @api.constrains('employee_id', 'training_brochure_line_id')
+    def _check_max_courses_total(self):
+        for record in self:
+            
+            
+            # Check if current user is from HR department
+            current_user_employee = self.env.user.employee_id
+            is_hr_employee = current_user_employee and current_user_employee.department_id == 'HR'
+            
+            # If user is HR, skip the validation
+            if is_hr_employee:
+                return
+            
+            
+            # Similar logic as above but starting with Other tab count
+            other_courses = len(record.training_brochure_line_id)
+            
+            # Count courses in Company tab
+            company_tab = self.env['hmv.training.need.company'].search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id)
+            ])
+            company_courses = len(company_tab.training_brochure_line_id) if company_tab else 0
+            
+            # Count courses in Factory tab
+            factory_tab = self.env['hmv.training.need.factory'].search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id)
+            ])
+            factory_courses = len(factory_tab.training_brochure_line_id) if factory_tab else 0
+            
+            total_courses = other_courses + company_courses + factory_courses
+            
+            if total_courses > 2:
+                raise ValidationError(
+                    f'Employee {record.employee_id.name} cannot register for more than 2 training courses in total across all tabs!'
+                )
 
 
 
@@ -153,11 +346,11 @@ class TrainingNeedApprovalHistory(models.Model):
     status = fields.Selection([
         ('waiting', 'Waiting to approve'),
         ('approved', 'Approved'),
-        ('refused', 'Refused')
+        ('rejected', 'Rejected')
     ], string='Status', default='waiting',
-       help="Waiting to approve: Chưa duyệt\nApproved: Đã duyệt\nRefused: Từ chối")
+       help="Waiting to approve: Chưa duyệt\nApproved: Đã duyệt\nRejected: Từ chối")
     
     comment = fields.Text(
         string='Comment',
-        help="Lưu lại comment của approver khi approve/refuse"
+        help="Lưu lại comment của approver khi approve/rejected"
     )

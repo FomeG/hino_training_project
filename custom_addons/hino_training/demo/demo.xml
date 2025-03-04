@@ -253,7 +253,7 @@
         <field name="description">TEST TEST</field>
         <field name="employee_id">8</field>
         <field name="assignee_id">1</field>
-        <field name="registration_date">2030-01-01 09:30:51</field>
+        <field name="registration_date">2029-01-01 09:30:51</field>
         <field name="training_brochure_id">3</field>
     </record>
 
