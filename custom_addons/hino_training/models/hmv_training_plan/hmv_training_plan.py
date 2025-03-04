@@ -1,40 +1,94 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError,UserError
 
 class TrainingPlan(models.Model):
     _name = 'hmv.training.plan'
     _description = 'Training Plan'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    training_plan_line = fields.One2many(
-        'hmv.training.plan.line',  # Tên model con
-        'training_plan_id',        # Khóa ngoại trong model con
-        string='Training Plan Lines'
-    )
+
     tab_training_courses_id = fields.One2many(
         'hmv.tab.training.courses.provided.by.company',  # Tên model con
         'training_plan_id',        # Khóa ngoại trong model con
-        string='Training Plan Lines'
+        string='Training Plan Lines',
+        tracking=True
+
     )
     tab_others_id = fields.One2many(
         'hmv.tab.others',  # Tên model con
         'training_plan_id',        # Khóa ngoại trong model con
-        string='Training Plan Lines'
+        string='Training Plan Lines',
+        tracking=True
+
     )
     tab_factory_id = fields.One2many(
         'hmv.tab.factory.training',  # Tên model con
         'training_plan_id',        # Khóa ngoại trong model con
-        string='Training Plan Lines'
+        string='Training Plan Lines',
+        tracking=True
     )
-    # Khóa học dự kiến (Many2one tham chiếu đến model hmv.trainng.brochure)
+    tab_approval_history_id = fields.One2many(
+        'hmv.tab.approval.training',  # Tên model con
+        'training_plan_id',        # Khóa ngoại trong model con
+        string='Training Plan Lines',
+        tracking=True
+    )
+
+    # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
+    name = fields.Char(string='Training plan No.', required=True, readonly=True, default='New',tracking=True)
+        # Năm kế hoạch đào tạo
+    year = fields.Char(
+        string="Year",
+        required=True,
+        tracking=True
+    )
+
     training_brochure_id = fields.Many2one(
         'hmv.training.brochure',
         string="Training Brochure",
         required=True,
+        tracking=True,
+        domain="['|', ('year', '=', year), ('year', '=', False)]"
     )
-    # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
-    name = fields.Char(string='Training plan No.', required=True, readonly=True, default='New')
 
+    @api.onchange('training_brochure_id')
+    def _onchange_training_brochure_id(self):
+        if self.training_brochure_id:
+            # Cập nhật tab_training_courses_id
+            training_courses_lines = [(0, 0, {
+                'course_title': line.course_name,
+                'start_date': line.start_date,
+                'end_date': line.end_date,
+            }) for line in self.training_brochure_id.company_training_ids]
 
+            # Cập nhật tab_factory_id
+            factory_lines = [(0, 0, {
+                'course_title': line.course_name,
+                'start_date': line.start_date,
+                'end_date': line.end_date,
+            }) for line in self.training_brochure_id.other_training_ids]
+
+            # Cập nhật tab_others_id
+            others_lines = [(0, 0, {
+                'course_title': line.course_name,
+                'start_date': line.start_date,
+                'end_date': line.end_date,
+            }) for line in self.training_brochure_id.factory_training_ids]
+
+            self.tab_training_courses_id = training_courses_lines
+            self.tab_factory_id = factory_lines
+            self.tab_others_id = others_lines
+        else:
+            # Nếu bỏ chọn brochure, xóa tất cả các dòng hiện tại
+            self.tab_training_courses_id = [(5, 0, 0)]
+            self.tab_factory_id = [(5, 0, 0)]
+            self.tab_others_id = [(5, 0, 0)]   
+               
+    @api.onchange('year')
+    def _onchange_year(self):
+        if self.year:
+            return {
+                'domain': {'training_brochure_id': [('year', '=', self.year)]}
+            }
     @api.depends('training_brochure_id.name')
     def _compute_name(self):
         for record in self:
@@ -60,30 +114,20 @@ class TrainingPlan(models.Model):
         return super().create(vals)
 
 
-    # Năm kế hoạch đào tạo
-    year = fields.Char(
-        string="Year",
-        required=True,
-    )
+
 
     # Tổng chi phí các khóa học (các khóa học của toàn văn phòng)
     total = fields.Float(
         string="Total training fee for office",
         required=True,
+        tracking=True
+
     )
-
-
-    # training_brochure_id2 = fields.Char(
-    #     string="Training Brochure",
-    #     required=True
-    # )
-    # Tổng chi phí các khóa học theo từng tab
-    # (Có thể bạn sẽ tính toán bằng công thức SUM các trường fee từ một model con liên quan)
     total_training_fee = fields.Float(
         string="Total training fee",
         required=True,
+        tracking=True
     )
-
     # Tên công ty: chỉ cho phép hệ thống tự động điền, không cho sửa
     company_id = fields.Many2one(
         'res.company',
@@ -91,31 +135,26 @@ class TrainingPlan(models.Model):
         required=True,
         readonly=True,
         default=lambda self: self.env.company,
+        tracking=True
     )
-
-    # Trạng thái: mặc định là draft, không cho sửa (và ẩn trên view theo yêu cầu)
     state = fields.Selection(
         [
             ('draft', 'Draft'),
-            ('fd_processing', 'Fd Processing'),
             ('hr_manager_processing', 'Hr Manager Processing'),
+            ('fd_processing', 'Fd Processing'),
             ('approved', 'Approved'),
             ('cancel', 'Cancel'),
         ],
         string="State",
         required=True,
         readonly=True,
-        default='draft'
+        default='draft',
+        tracking=True
     )
-
-    # Diễn giải
-    description = fields.Text(
+    description = fields.Char(
+        related='training_brochure_id.name',
         string="Description",
     )
-
-    # --- Các nút (button) hành động trên form view ---
-
-  
     def action_edit(self):
         for record in self:
             if record.state in ['submitted', 'approved']:
@@ -143,41 +182,17 @@ class TrainingPlan(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
-    def action_send_approval(self):
-            self.ensure_one()
-            # Logic gửi duyệt
-            self.state = 'approved'
-            return True
-
-    def action_fd_processing(self):
-            self.ensure_one()
-            # Logic hủy
-            self.state = 'fd_processing'
-            return True
-
-    def action_print(self):
-            self.ensure_one()
-            # Logic in phiếu
-            return True
+   
     def action_cancel(self):
             self.ensure_one()
-            # Logic in phiếu
             self.state='cancel'
             return True
 
-    def action_Hr_Manager_Processing(self):
-            self.ensure_one()
-            # Logic từ chối
-            self.state = 'hr_manager_processing'
-            return True
+
     # action report
     def action_print_training_courses(self):
         return self.env.ref('hino_training.action_report_training_plan').report_action(self)
 
-    # def action_print_training_courses_detail(self):
-    #     return self.env.ref('hino_training.action_report_training_courses').report_action(self)
-
-    # Compute total money in training courses provided company
     total_estimated_fee = fields.Float(
             string="Total Estimated Fee", 
             compute="_compute_total_fees", 
@@ -255,3 +270,93 @@ class TrainingPlan(models.Model):
                 record.total_estimated_fee_tab_factory = total_estimated
                 record.total_other_fee_tab_factory = total_other_fee
                 record.total_fee_tab_factory = total_estimated + total_other_fee
+
+
+    def action_hr_manager_approve(self):
+        """HR Manager mở wizard để duyệt"""
+        for record in self:
+            if record.state == 'draft':
+                return {
+                    'name': _('HR Manager Approval'),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'hmv.training.plan.comment.wizard',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'context': {
+                        'default_training_plan_id': record.id,  # Gửi ID sang wizard
+                        'default_action_type': 'approve',
+                    }
+                }
+        return True
+
+
+    def action_submit(self):
+        """Gửi duyệt lên HR Manager và hiển thị wizard"""
+        if self.state != 'draft':
+            raise ValidationError(_("Chỉ có thể gửi phê duyệt từ trạng thái 'Draft'."))
+
+        return {
+            'name': _('Approval Confirmation'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.training.plan.comment.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_training_plan_id': self.id,
+                'default_action_type': 'approve'
+            }
+        }
+
+    def action_send_approval(self):
+        """HR Manager duyệt, gửi lên Finance Director và hiển thị wizard"""
+        if self.state != 'hr_manager_processing':
+            raise ValidationError(_("Chỉ có thể duyệt từ trạng thái 'HR Manager Processing'."))
+
+        return {
+            'name': _('Approval Confirmation'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.training.plan.comment.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_training_plan_id': self.id,
+                'default_action_type': 'approve'
+            }
+        }
+
+    def action_fd_processing(self):
+        """Finance Director duyệt, chuyển sang trạng thái Approved và hiển thị wizard"""
+        if self.state != 'fd_processing':
+            raise ValidationError(_("Chỉ có thể duyệt từ trạng thái 'FD Processing'."))
+
+        return {
+            'name': _('Approval Confirmation'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.training.plan.comment.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_training_plan_id': self.id,
+                'default_action_type': 'approve'
+            }
+        }
+
+    def create_approval_record(self, state):
+            """Tạo bản ghi lịch sử phê duyệt"""
+            approver = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
+            self.env['hmv.tab.approval.training'].create({
+                'training_plan_id': self.id,
+                'employee_id': approver.id,
+                'status': 'waiting' if state != 'approved' else 'approved'
+            })
+    def _get_next_state(self, current_state):
+            """Xác định trạng thái tiếp theo của Training Plan"""
+            state_mapping = {
+                'draft': 'hr_manager_processing',
+                'hr_manager_processing': 'fd_processing',
+                'fd_processing': 'approved'
+            }
+            return state_mapping.get(current_state, 'approved')
+    def action_cancel(self):
+        """ Khi ấn Reject thì chuyển trạng thái về Cancel """
+        self.write({'state': 'draft'})

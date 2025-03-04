@@ -7,6 +7,10 @@ class HMVTrainingBrochureLine(models.Model):
     _description = 'Training Brochure Line'
     _rec_name = 'course_name'
 
+    training_course_id = fields.Many2one(  # ✅ Thêm dòng này
+        'hmv.tab.training.courses.provided.by.company',
+        string='Training Course'
+    )
     # Many2one field to the training brochure
     training_brochure_id_company = fields.Many2one('hmv.training.brochure', string='Training Brochure 1', ondelete='cascade')
     training_brochure_id_factory = fields.Many2one('hmv.training.brochure', string='Training Brochure 2', ondelete='cascade')

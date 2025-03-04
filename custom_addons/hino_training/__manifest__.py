@@ -24,12 +24,15 @@ Long description of module's purpose
         'security/ir.model.access.csv',
         'views/trainning_plan_view.xml',
 
+        'templates/training_plan_tab_factory_training.xml', 
         'templates/training_plan_report_template.xml',
-        'templates/training_plan_tab_factory_training.xml',
         'templates/hmv_training_courses_report.xml',
         'views/hmv_training_courses_form_view.xml',
 
 
+        'views/hmv_training_courses_form_view.xml',
+  
+        'wizard/training_plan_comment_wizard_view.xml',
         'data/sequence.xml',
         'views/views.xml',
 
@@ -50,6 +53,7 @@ Long description of module's purpose
 
         'views/hmv_training_brochure_wizard.xml',
         'views/hmv_training_brochure.xml',
+      
 
         'views/test.xml',
 
