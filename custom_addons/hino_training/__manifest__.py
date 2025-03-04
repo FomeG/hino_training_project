@@ -33,7 +33,7 @@ Long description of module's purpose
         'data/sequence.xml',
         'views/views.xml',
 
-        'data/hmv_need_sequence.xml',
+        # 'data/hmv_need_sequence.xml',
         'data/sequence.xml',
         'data/department_data.xml',
         'data/job_data.xml',
