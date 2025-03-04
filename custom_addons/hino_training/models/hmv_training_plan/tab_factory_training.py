@@ -36,18 +36,15 @@ class tabFactoryTraining(models.Model):
     confirmation_start_date = fields.Date(string='Start date of confirmation', required=False, tracking=True)
     confirmation_end_date = fields.Date(string='End date of confirmation', required=False, tracking=True)
     department_id = fields.Many2one('hr.department', string='Apply for department', required=False, tracking=True)
-    # training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method', required=False,
-    #                                      tracking=True, domain=[('code', '=', 'TRAINING_METHOD')]) ???? lấy ở đâu
-    year = fields.Date(string='Year', required=False, tracking=True)
-    # training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
-    #                                        required=False, tracking=True)
-    
+    year = fields.Char(string='Year', required=False, tracking=True)
+ 
     training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
                                            required=False, tracking=True)
     location_id = fields.Many2one('res.country.state', string='Location', required=False, tracking=True)
     employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,)
     deptcombine = fields.Text(string='DeptCombine', tracking=True)
-    description = fields.Text(string='Description', required=False, tracking=True)
+
+    description = fields.Char( string='Description', store=True)
     status = fields.Selection([
         ('draft', 'Draft'),
         ('active', 'Active'),
@@ -94,11 +91,12 @@ class tabFactoryTraining(models.Model):
         # Nếu course_type là in_house, estimated_fee sẽ không tự động tính,
         # cho phép người dùng nhập giá trị thủ công.
 
-    @api.constrains('start_date', 'end_date')
+    @api.onchange('start_date', 'end_date')
     def _check_dates(self):
         for record in self:
             if record.end_date < record.start_date:
                 raise ValidationError("End Date must be later than Start Date")
             if record.start_date < date.today():
                 raise ValidationError("Start Date cannot be in the past")
-            
+            if record.end_date and not record.start_date:
+                raise ValidationError("Please enter the start date before the end date.")

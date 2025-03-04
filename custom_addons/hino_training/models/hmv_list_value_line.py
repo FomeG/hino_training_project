@@ -13,9 +13,9 @@ class HMVListValueLine(models.Model):
     def init(self):
         """ Tạo dữ liệu mặc định khi module được cài đặt """
         default_values = [
-            {"code": "LV001", "name": "Level 1"},
-            {"code": "LV002", "name": "Level 2"},
-            {"code": "LV003", "name": "Level 3"},
+            {"code": "TR_LEVEL_1", "name": "Senior"},
+            {"code": "TR_LEVEL_2", "name": "Staff"},
+            {"code": "TR_LEVEL_3", "name": "Manager"},
         ]
         for val in default_values:
             if not self.env['hmv.list.value.line'].search([('code', '=', val["code"])]):

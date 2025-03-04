@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+
 class HMVTrainingBrochure(models.Model):
     _name = 'hmv.training.brochure'
     _description = 'Training Brochure'
