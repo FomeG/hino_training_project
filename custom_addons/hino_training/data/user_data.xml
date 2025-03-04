@@ -35,7 +35,7 @@
         <field name="name">DGM2</field>
         <field name="login">dgm2</field>
         <field name="password">dgm2</field>
-        <field name="email">dgm1@example.com</field>
+        <field name="email">dgm2@example.com</field>
         <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
     </record>
 
@@ -67,7 +67,7 @@
         <field name="name">Manager2</field>
         <field name="login">manager2</field>
         <field name="password">manager2</field>
-        <field name="email">manager1@example.com</field>
+        <field name="email">manager2@example.com</field>
         <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
     </record>
 
@@ -99,7 +99,7 @@
         <field name="name">Staff2</field>
         <field name="login">staff2</field>
         <field name="password">staff2</field>
-        <field name="email">staff1@example.com</field>
+        <field name="email">staff2@example.com</field>
         <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
     </record>
 

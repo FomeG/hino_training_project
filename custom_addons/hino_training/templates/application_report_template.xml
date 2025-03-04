@@ -1,147 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="application_report_template">
-        <t t-call="web.html_container">
-            <style type="text/css">
-                /* Tổng quát cho trang báo cáo */
-                .page {
+        <t t-call="web.external_layout">
+            <xpath expr="//header" position="replace">
+<!--                <header>-->
+<!--                    <div class="header">-->
+                            <div class="header-info">
+                                <p>
+                                    <strong>Mã biểu mẫu/No.:</strong>
+                                    HIN-123/PO/A
+                                    <br/>
+                                    <strong>Ngày ban hành/Issue date:</strong>
+                                    01/01/2018
+                                </p>
+                            </div>
+                            <div class="header-title">
+                                PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO
+                            </div>
+                            <div class="header-logo">
+                                <img t-att-src="'/hino_training/static/img/hino_logo.jpg'" alt="Hino Logo"/>
+                            </div>
+<!--                        </div>-->
+                        <div class="sub-title">
+                            APPLICATION FOR ATTENDING TRAINING COURSE
+                        </div>
+<!--                </header>-->
+            </xpath>
+
+            <xpath expr="//footer" position="replace">
+                <footer>
+                    <!-- Footer tùy chỉnh -->
+                    <p style="text-align:center;">Trang
+                        <span class="page"/>
+                        /
+                        <span class="topage"/>
+                    </p>
+                </footer>
+            </xpath>
+            <main>
+                <style type="text/css">
+                    /* Tổng quát cho trang báo cáo */
+                    .page {
                     padding: 20px;
                     font-family: 'DejaVu Sans', sans-serif;
                     color: #333;
                     background-color: #fff;
-                }
-                /* Header */
-                .header {
+                    }
+                    /* Header */
+                    .header {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                     margin-bottom: 30px;
                     border-bottom: 2px solid #333;
                     padding-bottom: 10px;
-                }
-                .header-info {
+                    }
+                    .header-info {
                     font-size: 12px;
                     line-height: 1.4;
                     text-align: right;
-                }
-                .header-title {
+                    }
+                    .header-title {
                     font-size: 18px;
                     font-weight: bold;
                     text-align: center;
                     flex-grow: 1;
                     margin: 0 20px;
-                }
-                .header-logo img {
-                    max-height: 50px;  /* Thu nhỏ logo */
-                }
-                .sub-title {
+                    }
+                    .header-logo img {
+                    max-height: 50px; /* Thu nhỏ logo */
+                    }
+                    .sub-title {
                     text-align: center;
                     font-size: 14px;
                     margin: 0 0 15px 0;
                     color: #555;
-                }
-                /* Bảng dữ liệu */
-                table {
+                    }
+                    /* Bảng dữ liệu */
+                    table {
                     width: 100%;
                     border-collapse: collapse;
                     margin-bottom: 20px;
                     font-size: 12px;
-                }
-                table th, table td {
+                    }
+                    table th, table td {
                     border: 1px solid #ddd;
                     padding: 10px;
                     text-align: left;
-                }
-                table th {
+                    }
+                    table th {
                     background-color: #f8f8f8;
                     color: #333;
-                }
-                table tr:nth-child(even) {
+                    }
+                    table tr:nth-child(even) {
                     background-color: #f9f9f9;
-                }
-                table tr:hover {
+                    }
+                    table tr:hover {
                     background-color: #f1f1f1;
-                }
-                /* Bảng chữ ký */
-                .signature-table td {
+                    }
+                    /* Bảng chữ ký */
+                    .signature-table td {
                     border: none;
                     padding-top: 40px;
                     text-align: center;
                     font-size: 12px;
-                }
-            </style>
-            <t t-foreach="docs" t-as="doc">
-                <div class="page">
-                    <div class="header">
-                        <div class="header-info">
-                            <p>
-                                <strong>Mã biểu mẫu/No.:</strong> HIN-123/PO/A<br/>
-                                <strong>Ngày ban hành/Issue date:</strong> 01/01/2018
-                            </p>
-                        </div>
-                        <div class="header-title">
-                            PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO
-                        </div>
-                        <div class="header-logo">
-                            <img t-att-src="'/hino_training/static/img/hino_logo.jpg'" alt="Hino Logo"/>
-                        </div>
-                    </div>
-                    <div class="sub-title">
-                        APPLICATION FOR ATTENDING TRAINING COURSE
-                    </div>
+                    }
 
-                    <table>
-                        <tr>
-                            <th style="width: 30%;">Ngày đề xuất<br/>Proposal date</th>
-                            <td style="width: 70%;"><t t-esc="doc.x_request_date"/></td>
-                        </tr>
-                        <tr>
-                            <th>Phòng ban<br/>Department</th>
-                            <td><t t-esc="doc.x_department_id.name"/></td>
-                        </tr>
-                        <tr>
-                            <th>Tên khóa học<br/>Name of training course</th>
-                            <td><t t-esc="doc.x_course_title.course_title"/></td>
-                        </tr>
-                        <tr>
-                            <th>Thời gian đào tạo<br/>Training time</th>
-                            <td>
-                                <strong>Start:</strong> <t t-esc="doc.x_start_date"/><br/>
-                                <strong>End:</strong> <t t-esc="doc.x_end_date"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Đơn vị/nhà tổ chức<br/>Vendor/Partner</th>
-                            <td><t t-esc="doc.x_vendor_id.name"/></td>
-                        </tr>
-                        <tr>
-                            <th>Mục đích tham gia đào tạo<br/>Purpose of attending training course</th>
-                            <td><t t-esc="doc.x_purpose_training"/></td>
-                        </tr>
-                        <tr>
-                            <th>Thông tin về khóa đào tạo<br/>Training course information</th>
-                            <td><t t-esc="doc.x_training_content"/></td>
-                        </tr>
-                    </table>
+                </style>
+                <t t-foreach="docs" t-as="doc">
+                    <div class="page">
+<!--                        <div class="header">-->
+<!--                            <div class="header-info">-->
+<!--                                <p>-->
+<!--                                    <strong>Mã biểu mẫu/No.:</strong>-->
+<!--                                    HIN-123/PO/A-->
+<!--                                    <br/>-->
+<!--                                    <strong>Ngày ban hành/Issue date:</strong>-->
+<!--                                    01/01/2018-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                            <div class="header-title">-->
+<!--                                PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO-->
+<!--                            </div>-->
+<!--                            <div class="header-logo">-->
+<!--                                <img t-att-src="'/hino_training/static/img/hino_logo.jpg'" alt="Hino Logo"/>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="sub-title">-->
+<!--                            APPLICATION FOR ATTENDING TRAINING COURSE-->
+<!--                        </div>-->
+                        <table>
+                            <tr>
+                                <th style="width: 30%;">Ngày đề xuất<br/>Proposal date
+                                </th>
+                                <td style="width: 70%;">
+                                    <t t-esc="doc.x_request_date"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Phòng ban<br/>Department
+                                </th>
+                                <td>
+                                    <t t-esc="doc.x_department_id.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Tên khóa học<br/>Name of training course
+                                </th>
+                                <td>
+                                    <t t-esc="doc.x_course_title.course_title"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Thời gian đào tạo<br/>Training time
+                                </th>
+                                <td>
+                                    <strong>Start:</strong>
+                                    <t t-esc="doc.x_start_date"/>
+                                    <br/>
+                                    <strong>End:</strong>
+                                    <t t-esc="doc.x_end_date"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Đơn vị/nhà tổ chức<br/>Vendor/Partner
+                                </th>
+                                <td>
+                                    <t t-esc="doc.x_vendor_id.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Mục đích tham gia đào tạo<br/>Purpose of attending training course
+                                </th>
+                                <td>
+                                    <t t-esc="doc.x_purpose_training"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Thông tin về khóa đào tạo<br/>Training course information
+                                </th>
+                                <td>
+                                    <t t-esc="doc.x_training_content"/>
+                                </td>
+                            </tr>
+                        </table>
 
-                    <table class="signature-table">
-                        <tr>
-                            <td>
-                                <strong>Người đề xuất</strong><br/>(Applicant)<br/><br/><br/>
-                                .............................
-                            </td>
-                            <td>
-                                <strong>Trưởng bộ phận</strong><br/>(Head of Department)<br/><br/><br/>
-                                .............................
-                            </td>
-                            <td>
-                                <strong>Phòng Nhân sự</strong><br/>(HR Department)<br/><br/><br/>
-                                .............................
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </t>
+
+                        <table class="signature-table">
+                            <tr>
+                                <td>
+                                    <strong>Người đề xuất</strong>
+                                    <br/>(Applicant)
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    .............................
+                                </td>
+                                <td>
+                                    <strong>Trưởng bộ phận</strong>
+                                    <br/>(Head of Department)
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    .............................
+                                </td>
+                                <td>
+                                    <strong>Phòng Nhân sự</strong>
+                                    <br/>(HR Department)
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    .............................
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </main>
         </t>
     </template>
 </odoo>

@@ -10,6 +10,10 @@
                 <field name="x_applicant_id"/>
                 <field name="x_department_id"/>
                 <field name="x_course_title"/>
+                <field name="x_approval_status" widget="badge"
+                       decoration-info="x_approval_status == 'wait'"
+                       decoration-success="x_approval_status == 'approved'"
+                       decoration-warning="x_approval_status == 'refused'"/>
             </tree>
         </field>
     </record>
@@ -110,7 +114,6 @@
                             <field name="x_start_date_confirm" readonly="x_is_form_readonly"/>
                             <field name="x_end_date_confirm" readonly="x_is_form_readonly"/>
                             <field name="x_department_apply_id" readonly="x_is_form_readonly"/>
-                            <field name="x_training_plan_id"/>
                             <field name="x_training_method"/>
                             <field name="x_is_form_readonly" invisible="1" column_invisible="1"/>
                             <field name="x_is_all_approved" invisible="1" column_invisible="1"/>
@@ -184,9 +187,10 @@
     <record id="report_application_for_atc" model="ir.actions.report">
         <field name="name">Application Report</field>
         <field name="model">application</field>
-        <field name="report_type">qweb-html</field>
+        <field name="report_type">qweb-pdf</field>
         <field name="report_name">hino_training.application_report_template</field>
         <field name="print_report_name">'Application_%s' % (object.name)</field>
+        <field name="binding_type">report</field>
     </record>
 
     <record id="action_application_for_atc_list" model="ir.actions.act_window">

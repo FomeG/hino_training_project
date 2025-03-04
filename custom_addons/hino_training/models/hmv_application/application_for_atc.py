@@ -32,7 +32,6 @@ class ApplicationForATC(models.Model):
     x_start_date_confirm = fields.Date(string='Start date of confirmation')
     x_end_date_confirm = fields.Date(string='End date of confirmation')
     x_department_apply_id = fields.Many2one('hr.department', string='Apply for department')
-    x_training_plan_id = fields.Char(string='Training Plan')  # WHERE???
     x_training_method = fields.Many2one('hmv.list.value.line', string='Training Method',
                                         related='x_course_title.training_method_id')
 
@@ -54,14 +53,14 @@ class ApplicationForATC(models.Model):
 
     x_applicant_email = fields.Char(string='Applicant Email', compute='_compute_applicant_email', store=True)
 
-    # @api.onchange('course_id')
-    # def _onchange_course_domain(self):
-    #     # Kiểm tra department của current user, đảm bảo có liên kết department (ví dụ: self.env.user.department_id)
-    #     if self.env.user.department_id and self.env.user.department_id.name == 'HR':
-    #         domain = [('state', '=', 'approved'), ('status', '=', 'active')]
-    #     else:
-    #         domain = [('state', '=', 'approved'), ('status', '=', 'active'), ('course_type', '=', 'public')]
-    #     return {'domain': {'course_id': domain}}
+    @api.onchange('course_id')
+    def _onchange_course_domain(self):
+        # Kiểm tra department của current user, đảm bảo có liên kết department (ví dụ: self.env.user.department_id)
+        if self.env.user.department_id and self.env.user.department_id.name == 'HR':
+            domain = [('status', '=', 'active')]
+        else:
+            domain = [('status', '=', 'active'), ('course_type', '=', 'public')]
+        return {'domain': {'course_id': domain}}
 
     # Compute
     def _compute_course_count(self):
@@ -99,6 +98,7 @@ class ApplicationForATC(models.Model):
             else:
                 record.x_is_editable = False
 
+    @api.onchange('x_applicant_id')
     def _compute_applicant_email(self):
         for record in self:
             if record.x_applicant_id:
