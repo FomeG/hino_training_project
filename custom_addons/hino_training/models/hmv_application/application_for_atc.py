@@ -32,8 +32,10 @@ class ApplicationForATC(models.Model):
     x_start_date_confirm = fields.Date(string='Start date of confirmation')
     x_end_date_confirm = fields.Date(string='End date of confirmation')
     x_department_apply_id = fields.Many2one('hr.department', string='Apply for department')
-    x_training_method = fields.Many2one('hmv.list.value.line', string='Training Method',
-                                        related='x_course_title.training_method_id')
+    x_training_method = fields.Selection([
+        ('video', 'Video Learning'),
+        ('in_person', 'In-Person Training')
+    ], string='Training Method', related='x_course_title.training_method')
 
     x_approval_status = fields.Selection([
         ('draft', 'Draft'),
