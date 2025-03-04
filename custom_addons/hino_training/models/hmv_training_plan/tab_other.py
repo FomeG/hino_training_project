@@ -94,11 +94,12 @@ class tabOther(models.Model):
         # Nếu course_type là in_house, estimated_fee sẽ không tự động tính,
         # cho phép người dùng nhập giá trị thủ công.
 
-    @api.constrains('start_date', 'end_date')
+    @api.onchange('start_date', 'end_date')
     def _check_dates(self):
         for record in self:
             if record.end_date < record.start_date:
                 raise ValidationError("End Date must be later than Start Date")
             if record.start_date < date.today():
                 raise ValidationError("Start Date cannot be in the past")
-            
+            if record.end_date and not record.start_date:
+                raise ValidationError("Please enter the start date before the end date.")

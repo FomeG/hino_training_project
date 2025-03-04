@@ -30,7 +30,7 @@ Long description of module's purpose
 
         'views/hmv_training_courses_form_view.xml',
   
-
+        'wizard/training_plan_comment_wizard_view.xml',
         'data/sequence.xml',
         'views/views.xml',
 
