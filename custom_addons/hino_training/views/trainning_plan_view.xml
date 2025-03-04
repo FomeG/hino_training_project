@@ -31,17 +31,42 @@
     <field name="arch" type="xml">
         <form string="Training Plan">
             <header>
-                <button name="action_send_approval" type="object" string="Submit for Approval" class="btn-primary"/>
-                <button name="action_cancel" type="object" class="oe_stat_button border-2 border-warning bg-light text-warning" icon="fa-user-circle">
-                    <span>Cancel</span>
-                </button>
-                <button name="action_Hr_Manager_Processing" type="object" class="oe_stat_button border-2 border-success bg-light text-success" icon="fa-file-text-o">
-                    <span>HR Manager Processing</span>
-                </button>
-                <button name="action_fd_processing" type="object" class="oe_stat_button border-2 border-danger bg-light text-danger" icon="fa-file-text-o">
-                        <span>Fd Processing</span>
-                    </button>
+             <!-- Nút Submit -->
+             <!-- Nút Submit for Approval -->
+                <button name="action_submit"
+                        string="Submit for Approval"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'draft'"/>
 
+                <!-- Nút HR Manager Approve -->
+                <button name="action_send_approval"
+                        string="HR Manager Approve"
+                        type="object"
+                        class="oe_highlight"
+                        groups="hr.group_hr_manager"
+                        invisible="state != 'hr_manager_processing'"/>
+
+                <!-- Nút Finance Director Approve -->
+                <button name="action_fd_processing"
+                        string="Finance Director Approve"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'fd_processing'"/>
+
+                <!-- Nút General Director Approve -->
+                <button name="create_approval_record"
+                        string="General Director Approve"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'approved'"/>
+
+                <!-- Nút Reject -->
+                <button name="action_cancel"
+                        string="Reject"
+                        type="object"
+                        class="btn-danger"
+                        modifiers="{'invisible': [('state', 'not in', ['hr_manager_processing', 'fd_processing', 'approved'])]}"/>
                 <button name="action_print_training_courses"
                     string="Print (PDF)"
                     type="object"
@@ -52,7 +77,7 @@
                     type="object"
                     class="btn-secondary"/> -->
 
-                <field name="state" widget="statusbar" statusbar_visible="draft,fd_processing,hr_manager_processing,approved,cancel"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,hr_manager_processing,fd_processing,approved,cancel"/>
             </header>
             
             <sheet>
@@ -105,46 +130,12 @@
                 <!-- Chèn tab mới vào trong notebook -->
             <xpath expr="//form/sheet/notebook" position="inside">
                     <page string="Approval history" name="tab_approval_history">
-                            <field name="training_plan_line">
+                            <field name="tab_approval_history_id">
                                 <tree editable="bottom">
-                                    <field name="course_title"/>
-                                    <field name="vendor_id"/>
-                                    <field name="location_id"/>
-                                    <field name="slot"/>
-                                    <field name="recommend_level_ids"/>
-                                    <field name="start_date"/>
-                                    <field name="end_date"/>
-                                    <field name="course_type"/>
-                                    <field name="fee"/>
-                                    <field name="estimated_fee"/>
-                                    <field name="other_fee"/>
-                                    <field name="participant_ids"/>
-                                    <field name="department_id"/>
-                                    <field name="purchase_order_id"/>
-
-
-                                    
-                                    <field name="department_id"/>
-                                    <field name="location_id"/>
-                                    <field name="department_id"/>
-                                    <field name="currency_id"/>
-
-
-                                    <field name="training_content"/>
-                                    <field name="confirmation_start_date"/>
-                                    <field name="confirmation_end_date"/>
-                                    <field name="year"/>
-
-
-                                    <field name="description"/>
+                                    <field name="employee_id"/>
+                                
                                     <field name="status"/>
-                                    <field name="department_id"/>
-                                    <field name="currency_id"/>  
-                                    <field name="department_id"/>
-                                    <field name="currency_id"/>
-
-
-
+                                    <field name="comment"/>
                                 </tree>
                             </field>
                     </page>
