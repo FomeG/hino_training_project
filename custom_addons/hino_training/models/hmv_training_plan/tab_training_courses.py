@@ -12,9 +12,8 @@ class tabTrainingCourses(models.Model):
         string='Training Plan',
         ondelete='cascade'
     )
-    course_title = fields.Char(
-                string='Course Title',
-                tracking=True)
+    course_title = fields.Char(string='Course Title', required=False, tracking=True)
+
     recommend_level_ids = fields.Many2many(
         comodel_name='hmv.list.value.line',  # Model được liên kết
         relation='training_course_recommend_level_rel',  # Tên bảng trung gian
@@ -37,10 +36,14 @@ class tabTrainingCourses(models.Model):
     confirmation_start_date = fields.Date(string='Start date of confirmation', required=False, tracking=True)
     confirmation_end_date = fields.Date(string='End date of confirmation', required=False, tracking=True)
     department_id = fields.Many2one('hr.department', string='Apply for department', required=False, tracking=True)
-  
+    # training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method', required=False,
+    #                                      tracking=True, domain=[('code', '=', 'TRAINING_METHOD')]) ???? lấy ở đâu
     year = fields.Date(string='Year', required=False, tracking=True)
-
+    # training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
+    #                                        required=False, tracking=True)
     
+    training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
+                                           required=False, tracking=True)
     location_id = fields.Many2one('res.country.state', string='Location', required=False, tracking=True)
     employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,)
     deptcombine = fields.Text(string='DeptCombine', tracking=True)
@@ -58,18 +61,17 @@ class tabTrainingCourses(models.Model):
     ], string='Course Type', required=False, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
- 
+    # audience_ids = fields.Many2one('hmv.list.value.line', string='Audience', required=False,
+    #                                tracking=True, domain=[('code', '=', 'TR_LEVEL')]) ???? lấy ở đâu
     participant_ids = fields.One2many('hmv.training.participant', 'tab_training_courses', string='Participants')
-    # brochure_line_ids = fields.One2many(
-    #     'hmv.training.brochure.line', 
-    #     'training_course_id',  # ✅ Đã có inverse field
-    #     string='Training Courses'
-    # )
+
+
     fee = fields.Float(string="Fee/per", help="Chi phí một người")
     estimated_fee = fields.Float(string="Estimated fee")
     other_fee = fields.Float(string="Other fee", help="Chi phí khác")
     purpose=fields.Text(string='Purpose')
-    
+    # List of participants (related field, not editable directly)
+    # participants = fields.One2many('hmv.training.course.participant', 'training_course_id', string="List of participants")
     @api.depends('course_type', 'slot', 'fee')
     def _compute_estimated_fee(self):
         for record in self:
@@ -94,8 +96,7 @@ class tabTrainingCourses(models.Model):
 
     @api.onchange('start_date', 'end_date')
     def _check_dates(self):
-        for record in self: 
-             
+        for record in self:
             if record.end_date < record.start_date:
                 raise ValidationError("End Date must be later than Start Date")
             if record.start_date < date.today():
@@ -103,11 +104,3 @@ class tabTrainingCourses(models.Model):
             if record.end_date and not record.start_date:
                 raise ValidationError("Please enter the start date before the end date.")
             
-    # @api.depends('training_plan_id.training_brochure_id.company_training_ids')
-    # def _compute_brochure_lines(self):
-    #     for record in self:
-    #         if record.training_plan_id and record.training_plan_id.training_brochure_id:
-    #             record.brochure_line_ids = record.training_plan_id.training_brochure_id.company_training_ids
-    #             record.brochure_line_ids.write({'training_course_id': record.id})  # ✅ Cập nhật inverse field
-    #         else:
-    #             record.brochure_line_ids = False

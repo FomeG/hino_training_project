@@ -2,7 +2,7 @@
 from odoo import models, fields, api, _
 from datetime import datetime
 
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 class TrainingNeed(models.Model):
     _name = 'hmv.training.need'
@@ -131,7 +131,40 @@ class TrainingNeed(models.Model):
             vals['name'] = self._get_default_code()
         return super(TrainingNeed, self).create(vals)
 
-    # Button methods
+    
+    
+    @api.constrains('department_id', 'registration_date')
+    def _check_department_yearly_need(self):
+        for record in self:
+            # Lấy năm từ ngày đăng ký
+            year = record.registration_date.year
+            
+            # Tìm kiếm các training need khác của cùng phòng ban trong năm này
+            domain = [
+                ('department_id', '=', record.department_id.id),
+                ('id', '!=', record.id),  # Loại trừ record hiện tại
+                ('registration_date', '>=', f'{year}-01-01'),
+                ('registration_date', '<=', f'{year}-12-31'),
+                ('state', 'not in', ['rejected', 'cancel'])  # Không tính các trạng thái bị từ chối hoặc hủy
+            ]
+            
+            existing_need = self.search_count(domain)
+            
+            if existing_need > 0:
+                raise ValidationError(_(
+                    'Your department already has a training need registration for year %s. '
+                    'Only one training need per department is allowed per year.') % year
+                )
+                
+           
+    @api.depends('employee_id')
+    def _compute_department_id(self):
+        for record in self:
+            record.department_id = record.employee_id.department_id or False     
+                
+                
+                
+#region Button methods
     def action_edit(self):
         """Allow editing when in draft or rejected state"""
         self.ensure_one()
@@ -163,14 +196,10 @@ class TrainingNeed(models.Model):
             }
         }
 
+
+    #endregion
         
-    @api.depends('employee_id')
-    def _compute_department_id(self):
-        for record in self:
-            record.department_id = record.employee_id.department_id or False
-            
-            
-            
+        
             
 #region 1.3.2 Phê duyệt yêu cầu
 
@@ -314,6 +343,24 @@ class TrainingNeed(models.Model):
     
 
 
+    # def action_reject(self):
+    #     self.ensure_one()
+    #     if self.state in ['completed','draft']:
+    #         raise UserError(_("You cannot reject a completed/draft training need."))
+            
+    #     return {
+    #         'name': _('Reject Training Need'),
+    #         'type': 'ir.actions.act_window',
+    #         'res_model': 'hmv.training.need.comment.wizard',
+    #         'view_mode': 'form',
+    #         'target': 'new',
+    #         'context': {
+    #             'default_action_type': 'refuse',
+    #             'default_training_need_ids': [(6, 0, self.ids)],
+    #         }
+    #     }
+        
+        
     def action_reject(self):
         self.ensure_one()
         if self.state in ['completed','draft']:
@@ -326,8 +373,9 @@ class TrainingNeed(models.Model):
             'view_mode': 'form',
             'target': 'new',
             'context': {
-                'default_action_type': 'refuse',
+                'default_action_type': 'rejected',
                 'default_training_need_ids': [(6, 0, self.ids)],
+                'default_approval_status': 'rejected',  # Add this line to set default approval status
             }
         }
             

@@ -50,6 +50,39 @@ class TrainingPlan(models.Model):
         domain="['|', ('year', '=', year), ('year', '=', False)]"
     )
 
+    @api.onchange('training_brochure_id')
+    def _onchange_training_brochure_id(self):
+        if self.training_brochure_id:
+            # Cập nhật tab_training_courses_id
+            training_courses_lines = [(0, 0, {
+                'course_title': line.course_name,
+                'start_date': line.start_date,
+                'end_date': line.end_date,
+            }) for line in self.training_brochure_id.company_training_ids]
+
+            # Cập nhật tab_factory_id
+            factory_lines = [(0, 0, {
+                'course_title': line.course_name,
+                'start_date': line.start_date,
+                'end_date': line.end_date,
+            }) for line in self.training_brochure_id.other_training_ids]
+
+            # Cập nhật tab_others_id
+            others_lines = [(0, 0, {
+                'course_title': line.course_name,
+                'start_date': line.start_date,
+                'end_date': line.end_date,
+            }) for line in self.training_brochure_id.factory_training_ids]
+
+            self.tab_training_courses_id = training_courses_lines
+            self.tab_factory_id = factory_lines
+            self.tab_others_id = others_lines
+        else:
+            # Nếu bỏ chọn brochure, xóa tất cả các dòng hiện tại
+            self.tab_training_courses_id = [(5, 0, 0)]
+            self.tab_factory_id = [(5, 0, 0)]
+            self.tab_others_id = [(5, 0, 0)]   
+               
     @api.onchange('year')
     def _onchange_year(self):
         if self.year:
