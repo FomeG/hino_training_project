@@ -1,6 +1,6 @@
 from Tools.scripts.dutree import store
 from odoo import api, fields, models, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 class ApplicationForATC(models.Model):
@@ -25,16 +25,17 @@ class ApplicationForATC(models.Model):
     x_vendor_id = fields.Many2one('res.partner', string='Vendor', related='x_course_title.vendor_id')
     x_staff_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', related='x_course_title.employee_id')
     x_slots = fields.Integer(string='Number of Slots', related='x_course_title.slot', store=True)
-    x_remaining_slots = fields.Integer(string='Remaining Slots', compute='_compute_remaining_slots')
+    x_remaining_slots = fields.Integer(string='Remaining Slots', related='x_course_title.remaining_slots', store=True)
     x_training_content = fields.Text(string='Training Content', related='x_course_title.training_content')
 
     x_purpose_training = fields.Char(string='Purpose of attending training course')
     x_start_date_confirm = fields.Date(string='Start date of confirmation')
     x_end_date_confirm = fields.Date(string='End date of confirmation')
     x_department_apply_id = fields.Many2one('hr.department', string='Apply for department')
-    x_training_plan_id = fields.Char(string='Training Plan')  # WHERE???
-    x_training_method = fields.Many2one('hmv.list.value.line', string='Training Method',
-                                        related='x_course_title.training_method_id')
+    x_training_method = fields.Selection([
+        ('video', 'Video Learning'),
+        ('in_person', 'In-Person Training')
+    ], string='Training Method', related='x_course_title.training_method')
 
     x_approval_status = fields.Selection([
         ('draft', 'Draft'),
@@ -45,6 +46,7 @@ class ApplicationForATC(models.Model):
         ('refused', 'Refused')],
         string='Status', default='draft', readonly=True, tracking=True)
 
+    # Use for change readonly, ...
     x_course_count = fields.Integer(compute='_compute_course_count')
     x_is_form_readonly = fields.Boolean(string='Is Form Read Only?', compute='_compute_is_form_readonly')
     x_approval_history_ids = fields.One2many('approval.history', 'x_application_ids', string='Approval')
@@ -52,18 +54,29 @@ class ApplicationForATC(models.Model):
     x_is_editable = fields.Boolean(string='Is Editable?', compute='_compute_is_editable')
     x_is_printable = fields.Boolean(string='Is Printable?', compute='_compute_is_printable')
 
+    # Additional fields
+    x_applicant_email = fields.Char(string='Applicant Email', compute='_compute_applicant_email', store=True)
+    computed_domain = fields.Char(string='Computed Domain', compute='_compute_computed_domain')
+
+    @api.onchange('x_course_title')
+    def _compute_computed_domain(self):
+        if self.env.user.department_id.name == 'HR':
+            self.computed_domain = [('status', '=', 'active')]
+        else:
+            self.computed_domain = [('status', '=', 'active'), ('course_type', '=', 'public')]
+
     # Compute
     def _compute_course_count(self):
         for record in self:
-            record.x_course_count = self.env['hmv.training.courses'].search_count(
-                [('participant_ids', 'in', record.x_applicant_id.id)])
+            record.x_course_count = self.env['hmv.training.participant'].search_count(
+                [('employee_id', '=', record.x_applicant_id.id)])
 
-    def _compute_remaining_slots(self):
-        for record in self:
-            if record.x_course_title:
-                record.x_remaining_slots = record.x_slots - len(record.x_course_title.participant_ids)
-            else:
-                record.x_remaining_slots = 0
+    # def _compute_remaining_slots(self):
+    #     for record in self:
+    #         if record.x_course_title:
+    #             record.x_remaining_slots = record.x_slots - len(record.x_course_title.participant_ids)
+    #         else:
+    #             record.x_remaining_slots = 0
 
     @api.depends('x_approval_status')
     def _compute_is_form_readonly(self):
@@ -88,6 +101,36 @@ class ApplicationForATC(models.Model):
             else:
                 record.x_is_editable = False
 
+    @api.onchange('x_applicant_id')
+    def _compute_applicant_email(self):
+        for record in self:
+            if record.x_applicant_id:
+                record.x_applicant_email = record.x_applicant_id.work_email
+            else:
+                record.x_applicant_email = ''
+
+    # Create applicant in course
+    def _prepare_data_for_participant(self):
+        """ Prepare data for participants """
+        self.ensure_one()
+        data = {
+            'course_id': self.x_course_title.id,
+            'employee_id': self.x_applicant_id.id,
+        }
+        return data
+
+    def _create_participant(self):
+        """ Create participant """
+        participant_data = self._prepare_data_for_participant()
+        print(participant_data)
+        existing_participant = self.env['hmv.training.participant'].search([
+            ('course_id', '=', participant_data['course_id']),
+            ('employee_id', '=', participant_data['employee_id']),
+        ], limit=1)
+
+        if not existing_participant:
+            self.env['hmv.training.participant'].create(participant_data)
+
     @api.depends('x_approval_history_ids.x_approval_status')
     def _compute_is_all_approved(self):
         for record in self:
@@ -99,6 +142,10 @@ class ApplicationForATC(models.Model):
                 record.x_is_all_approved = False
         if self.x_is_all_approved:
             self.x_approval_status = 'approved'
+            print('Creating Participant')
+            print(self.x_is_all_approved)
+            self._create_participant()
+
             # Send notify for applicant
             '''......................'''
 
@@ -133,10 +180,92 @@ class ApplicationForATC(models.Model):
         self.x_approval_status = 'draft'
         return True
 
+    def send_application_confirmation_email(self):
+        for record in self:
+            if not record.x_applicant_email:
+                raise UserError("Applicant Email is missing.")
+
+            mail_values = {
+                'subject': f'Confirmation: Application for Attending {record.x_course_title.course_title}',
+                'email_from': 'your_configured_email@gmail.com',
+                'email_to': record.x_applicant_email,
+                'body_html': f"""
+                    <div style="font-family: Arial, sans-serif; color: #333;">
+                        <p style="font-size: 16px;">Dear <strong>{record.x_applicant_id.name}</strong>,</p>
+
+                        <p>Thank you for applying to our training program! We have received your application, and we are excited to have you join us.</p>
+
+                        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
+
+                        <h3 style="color: #007BFF;">Application Details</h3>
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                            <tr>
+                                <th style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2; width: 40%;">Fields</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2; width: 60%;">Details</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Application Code:</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">{record.name}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Course:</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">{record.x_course_title.course_title}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Start Date:</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">{record.x_start_date}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>End Date:</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">{record.x_end_date}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Vendor:</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">{record.x_vendor_id.name}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Apply for Department:</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">{record.x_department_apply_id.name}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Training Content:</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">{record.x_training_content}</td>
+                            </tr>
+                        </table>
+
+                        <h3 style="color: #007BFF; margin-top: 20px;">Confirmation Details</h3>
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                            <tr>
+                                <th style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2; width: 40%;">Fields</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2; width: 60%;">Details</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Confirmed Start Date:</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">{record.x_start_date_confirm}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Confirmed End Date:</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">{record.x_end_date_confirm}</td>
+                            </tr>
+                        </table>
+
+                        <p style="margin-top: 20px;">If you have any questions, feel free to contact us.</p>
+
+                        <p style="font-size: 16px; margin-top: 20px;">Best regards,</p>
+                        <p style="font-size: 16px;"><strong>The HR Team</strong></p>
+                    </div>
+                """
+            }
+
+            self.env['mail.mail'].create(mail_values).send()
+
+        return True
+
     # Button
     def action_button_approve(self):
         self._update_current_employee_approval_status('approved')
         self._compute_is_all_approved()
+        self._validate_workflow()
         return {
             'name': 'Approval Comment',
             'type': 'ir.actions.act_window',
@@ -160,6 +289,7 @@ class ApplicationForATC(models.Model):
     # For TESTING
     def action_button_set_waiting(self):
         self.x_approval_status = 'draft'
+        self.x_approval_history_ids.unlink()
         return True
 
     # Create Override
@@ -191,6 +321,12 @@ class ApplicationForATC(models.Model):
                 if record.x_start_date > record.x_end_date:
                     raise ValidationError(_('The Start Date must be before the End Date.'))
 
+    @api.constrains('x_remaining_slots')
+    def _check_remaining_slots(self):
+        for record in self:
+            if record.x_remaining_slots < 0:
+                raise ValidationError(_('The Remaining Slots cannot be less than 0.'))
+
     # Approval Workflow
     @staticmethod
     def _get_approval_flow():
@@ -211,13 +347,42 @@ class ApplicationForATC(models.Model):
 
         return managers
 
+    def _validate_workflow(self):
+        """Validates the approval workflow for the application."""
+        # Get the current employee and the approval flow
+        current_employee = self._get_current_employee()
+        approval_flow = self._get_approval_flow()
+
+        #  Get current employee's job name
+        current_job = current_employee.job_id.name
+
+        # Find the index of the current employee's job in the approval flow
+        current_index = -1
+        for index in range(len(approval_flow)):
+            if approval_flow[index] == current_job:
+                current_index = index
+                break
+        if current_index == -1:
+            raise ValidationError(_('Current employee job not found in the approval flow.'))
+
+        for i in range(current_index):
+            role_to_check = approval_flow[i]
+            found = False
+
+            for record in self.x_approval_history_ids:
+                if record.x_approval_employee_id.job_id.name == role_to_check:
+                    found = True
+                    if record.x_approval_status != 'approved':
+                        raise ValidationError(_('The previous approval for role "%s" is not approved.') % role_to_check)
+                    break
+
     def _create_approval_history(self):
         """Creates an approval history record when an application is registered."""
         approval_history_model = self.env['approval.history']
 
         managers = self._get_manager()
         if not managers:
-            raise ValidationError(_("No approval managers found for this position."))
+            managers.append(self.x_applicant_id)
 
         # Create an approval history record for each manager
         for manager in managers:
@@ -269,8 +434,13 @@ class ApplicationApprovalHistory(models.Model):
     def action_submit_comment(self):
         active_id = self.env.context.get('active_id')
         application = self.env['application'].browse(active_id)
-        if application:
-            application.approval_comment = self.comment
+        if application and application.x_approval_history_ids:
+            # Lọc ra bản ghi approval history có employee_id trùng với employee của current user
+            target_history = application.x_approval_history_ids.filtered(
+                lambda rec: rec.x_approval_employee_id.id == self.env.user.employee_id.id
+            )
+            if target_history:
+                target_history.write({'x_approval_comment': self.x_approval_comment})
         return {'type': 'ir.actions.act_window_close'}
 
     @api.depends('x_approval_status')

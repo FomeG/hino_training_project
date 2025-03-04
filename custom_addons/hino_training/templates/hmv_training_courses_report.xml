@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-      <data>
+    <data>
         <!-- Training course report -->
         <record id="report_training_course" model="ir.actions.report">
             <field name="name">Training Course Report</field>
@@ -22,122 +22,280 @@
             <field name="binding_model_id" ref="model_hmv_training_courses"/>
             <field name="binding_type">report</field>
         </record>
-    <template id="application_report_template">
-         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
+        <!-- Training course report template-->
+        <template id="report_training_course_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <style>
+                        .table-bordered td {
+                            padding: 8px;
+                            vertical-align: top;
+                        }
+                        .signature-row {
+                            height: 120px;
+                        }
+                            </style>
+                            <!-- Header with logo and title -->
+                            <div class="row mb-4">
+                                <div class="col-3">
+<!--                                    <img src="/hmv_training/static/description/hino_logo.png" style="max-height: 80px;"/>-->
+                                </div>
+                                <div class="col-6 text-center">
+                                    <h3>CHƯƠNG TRÌNH ĐÀO TẠO</h3>
+                                    <h4>TRAINING PROGRAM</h4>
+                                </div>
+                                <div class="col-3 text-right">
+                                    <p>Mã số/No : HR-QT02/F03/1</p>
+                                    <p>Ngày ban hành/Issue date : 01/08/2018</p>
+                                </div>
+                            </div>
+
+                            <!-- Content table -->
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td colspan="2"><strong>ĐƠN VỊ / DEPARTMENT:</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="height: 30px;"><span t-field="o.department_id.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Nội dung đào tạo / Training content:</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="height: 80px;"><span t-field="o.training_content"/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Đối tượng tham gia / Participants:</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="height: 30px;">
+                                        <t t-if="o.participant_ids">
+                                            <span t-esc="', '.join([p.employee_id.name for p in o.participant_ids])"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 50%;"><strong>Thời gian / Time:</strong></td>
+                                    <td style="width: 50%;"><strong>Địa điểm / Place:</strong></td>
+                                </tr>
+                                <tr>
+                                    <td style="height: 30px;">
+                                        <t t-if="o.start_date and o.end_date">
+                                            <span t-field="o.start_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                            - <span t-field="o.end_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                        </t>
+                                    </td>
+                                    <td style="height: 30px;">
+                                        <span t-field="o.location_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Phương pháp đào tạo / Training method:</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="height: 30px;"><span t-field="o.training_method"/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Phân công chuẩn bị / Preparation:</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="height: 30px;"><span t-field="o.employee_hr_id.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Bộ phận/Người đào tạo: / PIC Staff/Dept. in charge of training</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="height: 30px;">
+                                        <t t-if="o.employee_id">
+                                            <span t-esc="', '.join([e.name for e in o.employee_id])"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Đơn vị phối hợp (nếu cần) / Coordinating Dept. (if any):</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="height: 30px;"><span t-field="o.deptcombine"/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Dự trù kinh phí đào tạo (nếu có) / Estimated training cost (if any):</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="height: 30px;">
+                                        <span t-field="o.estimate_fee"/>
+                                        <span t-field="o.currency_id.symbol"/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Signature table -->
+                            <table class="table table-bordered mt-5">
+                                <tr>
+                                    <td colspan="4" class="text-center"><strong>Phòng ban đề xuất / Proposal Department</strong></td>
+                                    <td><strong>T.P Nhân sự<br/>HR Manager<br/>Reviewed</strong></td>
+                                </tr>
+                                <tr style="height: 120px;">
+                                    <td class="text-center" style="width: 20%;">
+                                        <p style="margin-bottom: 80px;"><strong>Biên soạn<br/>Prepared by</strong></p>
+                                    </td>
+                                    <td class="text-center" style="width: 20%;">
+                                        <p style="margin-bottom: 80px;"><strong>Soát xét<br/>Reviewed by</strong></p>
+                                    </td>
+                                    <td class="text-center" style="width: 20%;">
+                                        <p style="margin-bottom: 80px;"><strong>Soát xét<br/>Reviewed by</strong></p>
+                                    </td>
+                                    <td class="text-center" style="width: 20%;">
+                                        <p style="margin-bottom: 80px;"><strong>Soát xét<br/>Reviewed by</strong></p>
+                                    </td>
+                                    <td class="text-center" style="width: 20%;"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <!-- Training registration summary report template -->
+        <template id="report_training_registration_summary">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+            <t t-call="web.external_layout">
                 <div class="page">
+                    <style>
+                        .table-bordered {
+                            border: 1px solid #000;
+                            width: 100%;
+                        }
+                        .table-bordered td, .table-bordered th {
+                            border: 1px solid #000;
+                            padding: 8px;
+                        }
+                        .header-row {
+                            text-align: center;
+                            font-weight: bold;
+                        }
+                        .signature-row {
+                            height: 120px;
+                            text-align: center;
+                        }
+                    </style>
 
-                <div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <p style="text-align:right; font-size:12px;">
-                        <strong>Mã biểu mẫu/No.:</strong> HIN-123/PO/A<br/>
-                        <strong>Ngày ban hành/Issue date:</strong> 01/01/2018
-                    </p>
+                    <!-- Header with logo and title -->
+                    <div class="row mb-4">
+                        <div class="col-3">
+<!--                            <img src="/hmv_training/static/description/hino_logo.png" style="max-height: 80px;"/>-->
+                        </div>
+                        <div class="col-6 text-center">
+                            <h3>TỔNG HỢP DANH SÁCH ĐĂNG KÝ THAM GIA ĐÀO TẠO</h3>
+                            <h4>SUMMARY OF TRAINING REGISTRATION</h4>
+                        </div>
+                        <div class="col-3 text-right">
+                            <p>Mã số/No: HR-QT02/F03/2</p>
+                            <p>Ngày ban hành/Issue date: 01/08/2018</p>
+                        </div>
+                    </div>
 
-                    <img src="/hino_training/static/img/hino_logo.jpg"
-                         alt="Hino Logo"
-                         style="max-height:100px; margin-bottom: 100px;" />
-
-                </div>
-                    <h2 style="text-align:center; margin:5px 0;">PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO</h2>
-                    <h3 style="text-align:center; margin:0 0 10px 0;">APPLICATION FOR ATTENDING TRAINING COURSE</h3>
-
-<!--Main-->
-                <table style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
-
-                    <tr>
-                        <td style="width: 30%; border:1px solid #000; padding:5px;">
-                            Ngày đề xuất<br/>Proposal date
-                        </td>
-                        <td style="width: 70%; border:1px solid #000; padding:5px;">
-                            <t t-esc="doc.x_request_date"/>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="border:1px solid #000; padding:5px;">
-                            Phòng ban<br/>Department
-                        </td>
-                        <td style="border:1px solid #000; padding:5px;">
-                            <t t-esc="doc.x_department_id.name"/>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="border:1px solid #000; padding:5px;">
-                            Tên khóa học<br/>Name of training course
-                        </td>
-                        <td style="border:1px solid #000; padding:5px;">
-                            <t t-esc="doc.x_course_title.course_title"/>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="border:1px solid #000; padding:5px;">
-                            Thời gian đào tạo<br/>Training time
-                        </td>
-                        <td style="border:1px solid #000; padding:5px;">
-                            <strong>Start:</strong> <t t-esc="doc.x_start_date"/>
-                            <span style="display:inline-block; width:2em;"> </span>
-                            <strong>End:</strong> <t t-esc="doc.x_end_date"/>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="border:1px solid #000; padding:5px;">
-                            Đơn vị/nhà tổ chức<br/>Vendor/Partner
-                        </td>
-                        <td style="border:1px solid #000; padding:5px;">
-                            <t t-esc="doc.x_vendor_id.name"/>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="border:1px solid #000; padding:5px;">
-                            Mục đích tham gia đào tạo<br/>Purpose of attending training course
-                        </td>
-                        <td style="border:1px solid #000; padding:5px;">
-                            <t t-esc="doc.x_purpose_training"/>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="border:1px solid #000; padding:5px;">
-                            Thông tin về khóa đào tạo<br/>Training course information
-                        </td>
-                        <td style="border:1px solid #000; padding:5px;">
-                            <t t-esc="doc.x_training_content"/>
-                        </td>
-                    </tr>
-                </table>
-
-
-                <div style="margin-top: 30px;">
-                    <table style="width:100%;">
+                    <!-- Course Information Table -->
+                    <table class="table table-bordered">
                         <tr>
-                            <td style="text-align:center;">
-                                <strong>Người đề xuất</strong><br/>
-                                (Applicant)
-                                <br/><br/><br/>
-                                .............................
+                            <td colspan="2"><strong>Tên khóa đào tạo / Training course:</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="height: 30px;"><span t-field="o.course_title"/></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%;"><strong>Đơn vị chủ trì / Organizer:</strong></td>
+                            <td style="width: 50%;"><strong>Thời gian đào tạo / Time:</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="height: 30px;"><span t-field="o.department_id.name"/></td>
+                            <td style="height: 30px;">
+                                <t t-if="o.start_date and o.end_date">
+                                    <span t-field="o.start_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                    - <span t-field="o.end_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </t>
                             </td>
-                            <td style="text-align:center;">
-                                <strong>Trưởng bộ phận</strong><br/>
-                                (Head of Department)
-                                <br/><br/><br/>
-                                .............................
+                        </tr>
+                        <tr>
+                            <td colspan="2"><strong>Mục đích / Purpose:</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="height: 40px;"><span t-field="o.training_content"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><strong>Tài liệu đính kèm / Attachment:</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="height: 30px;">
+                                <t t-if="o.file_attach">
+                                    <span t-esc="', '.join([f.name for f in o.file_attach])"/>
+                                </t>
                             </td>
-                            <td style="text-align:center;">
-                                <strong>Phòng Nhân sự</strong><br/>
-                                (HR Department)
-                                <br/><br/><br/>
-                                .............................
+                        </tr>
+                        <tr>
+                            <td style="height: 80px;"><strong>Dự trù chi phí / Estimated fee:</strong></td>
+                            <td style="height: 80px;">
+                                <span t-field="o.estimate_fee"/>
+                                <span t-field="o.currency_id.symbol"/>
                             </td>
                         </tr>
                     </table>
+
+                    <!-- Participants List Table -->
+                    <table class="table table-bordered mt-4">
+                        <tr class="header-row">
+                            <td colspan="4">DANH SÁCH ĐĂNG KÝ THAM GIA</td>
+                        </tr>
+                        <tr class="header-row">
+                            <td colspan="4">LIST OF TRAINING PARTICIPANTS</td>
+                        </tr>
+                        <tr class="header-row">
+                            <td style="width: 10%;">TT<br/>No.</td>
+                            <td style="width: 40%;">Họ và tên<br/>Full name</td>
+                            <td style="width: 25%;">Bộ phận<br/>Department</td>
+                            <td style="width: 25%;">Vị trí<br/>Position</td>
+                        </tr>
+                        <t t-set="counter" t-value="1"/>
+                        <t t-foreach="o.participant_ids" t-as="participant">
+                            <tr>
+                                <td><span t-esc="counter"/></td>
+                                <td><span t-field="participant.employee_id.name"/></td>
+                                <td><span t-field="participant.department"/></td>
+                                <td><span t-field="participant.position"/></td>
+                            </tr>
+                            <t t-set="counter" t-value="counter + 1"/>
+                        </t>
+                        <t t-foreach="range(1, 6 - len(o.participant_ids.filtered(lambda p: p.status == 'agreed')))" t-as="i">
+                            <tr t-if="i &lt;= (5 - len(o.participant_ids.filtered(lambda p: p.status == 'agreed')))">
+                                <td><span t-esc="counter"/></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <t t-set="counter" t-value="counter + 1"/>
+                        </t>
+                    </table>
+
+                    <!-- Signature Table -->
+                    <table class="table table-bordered mt-4">
+                        <tr class="header-row">
+                            <td style="width: 33%;">Ban soạn<br/>Prepared by</td>
+                            <td style="width: 33%;">TP Nhân sự<br/>HR Manager<br/>Reviewed</td>
+                            <td style="width: 33%;">Giám đốc tài chính<br/>Finance Director<br/>Approved</td>
+                        </tr>
+                        <tr class="signature-row">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
                 </div>
-            </div>
             </t>
         </t>
-    </template>
-        </data>
+    </t>
+</template>
+    </data>
 </odoo>

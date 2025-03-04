@@ -36,6 +36,11 @@
                                 type="object"
                                 class="oe_highlight"
                                 invisible="status != 'gd_approval'"/>
+                        <button name="action_active"
+                                string="Activate"
+                                type="object"
+                                class="oe_highlight"
+                                invisible="not ((status == 'fd_approval' and estimate_fee &lt; 100000000) or status == 'gd_approval')"/>
                         <!-- Rejection Button for All Approvers -->
                         <button name="action_reject"
                                 string="Reject"
@@ -73,8 +78,8 @@
                                 <field name="year"/>
                                 <field name="start_date" required="1"/>
                                 <field name="end_date" required="1"/>
-                                <field name="training_brochure_id" required="0"/>
-                                <!--                                   domain="[('training_brochure_id.year', '=', year)]"/> training brochure khong co year-->
+                                <field name="training_brochure_id" required="1"/>
+                                <!--                                  domain="[('training_brochure_id.year', '=', year)]"/> training brochure khong co year-->
                                 <field name="purchase_order_id" domain="[('partner_id', '=', vendor_id)]"/>
                                 <field name="vendor_id" required="1"
                                        domain="[('is_company', '=', True), ('active', '=', True)]"/>
@@ -90,10 +95,8 @@
                                 <field name="employee_id" widget="many2many_tags" required="1"/>
                                 <field name="employee_hr_id"/>
                                 <field name="deptcombine"/>
-                                <field name="training_method_id" required="0"
-                                       domain="[('code', '=', 'TRAINING_METHOD')]"/>
+                                <field name="training_method" required="1"/>
                                 <field name="location_id" required="1"/>
-<!--                                <field name="training_id"/>-->
                                 <field name="currency_id" invisible="1"/>
                                 <field name="audience_ids" required="0" domain="[('code', '=', 'TR_LEVEL')]"/>
                             </group>
@@ -183,7 +186,7 @@
                     <field name="course_title"/>
                     <field name="vendor_id"/>
                     <field name="department_id"/>
-                    <field name="training_method_id"/>
+                    <field name="training_method"/>
                     <field name="employee_id"/>
                     <separator/>
                     <filter string="Draft" name="filter_draft" domain="[('status', '=', 'draft')]"/>

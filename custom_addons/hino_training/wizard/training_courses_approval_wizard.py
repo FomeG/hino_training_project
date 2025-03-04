@@ -21,7 +21,7 @@ class TrainingApprovalWizard(models.TransientModel):
     comment = fields.Text(string='Comment')
 
     def action_confirm(self):
-        """Confirm the approval or rejection"""
+        """Confirm the approval or rejection with conditional logic based on estimate fee"""
         self.ensure_one()
 
         if not self.approval_id:
@@ -35,22 +35,25 @@ class TrainingApprovalWizard(models.TransientModel):
         })
 
         training_course = self.approval_id.training_course_id
+        THRESHOLD = 100000000  # 100M threshold
 
         # Process based on action type
         if self.action_type == 'approved':
             current_level = self.approval_level
 
-            # Define the next status based on current level
-            next_status_map = {
-                'staff': 'hr_approval',
-                'hr_manager': 'fd_approval',
-                'fd': 'gd_approval',
-                'gd': 'active'
-            }
-
-            next_status = next_status_map.get(current_level)
-            if next_status:
-                training_course.write({'status': next_status})
+            # Define the next status based on current level and estimate fee
+            if current_level == 'staff':
+                training_course.write({'status': 'hr_approval'})
+            elif current_level == 'hr_manager':
+                training_course.write({'status': 'fd_approval'})
+            elif current_level == 'fd':
+                # If estimate fee < 100M, set to active, otherwise go to GD approval
+                if training_course.estimate_fee < THRESHOLD:
+                    training_course.write({'status': 'active'})
+                else:
+                    training_course.write({'status': 'gd_approval'})
+            elif current_level == 'gd':
+                training_course.write({'status': 'active'})
 
         elif self.action_type == 'refused':
             # Reject the course, return to draft
