@@ -31,7 +31,6 @@ class TrainingNeedCompanyTab(models.Model):
     )
     
     
-    
     # Cái này là để lấy ra danh sách company course tương ứng với training brochure
     training_brochure_line_id = fields.Many2many(
         'hmv.training.brochure.line',
@@ -43,6 +42,22 @@ class TrainingNeedCompanyTab(models.Model):
         domain="[('training_brochure_id_company', '=', parent.training_brochure_id)]"
     )
     
+    
+    @api.constrains('employee_id', 'training_need_id')
+    def _check_unique_employee(self):
+        for record in self:
+            duplicate = self.search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id),
+                ('id', '!=', record.id)
+            ])
+            
+            if duplicate:
+                raise ValidationError(
+                    f'Employee {record.employee_id.name} has already been added to Company Training tab!'
+                )
+                
+                
     @api.constrains('employee_id', 'training_brochure_line_id')
     def _check_max_courses(self):
         for record in self:
@@ -51,10 +66,6 @@ class TrainingNeedCompanyTab(models.Model):
                     f'Employee {record.employee_id.name} cannot register for more than 2 company training courses!'
                 )
                 
-                
-                
-                
-    
     @api.constrains('employee_id', 'training_brochure_line_id')
     def _check_max_courses_total(self):
         for record in self:
@@ -148,6 +159,23 @@ class TrainingNeedFactoryTab(models.Model):
         domain="[('training_brochure_id_factory', '=', parent.training_brochure_id)]",
         help="Selected training courses from Training brochure"
     )
+    
+    
+    @api.constrains('employee_id', 'training_need_id')
+    def _check_unique_employee(self):
+        for record in self:
+            duplicate = self.search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id),
+                ('id', '!=', record.id)
+            ])
+            
+            if duplicate:
+                raise ValidationError(
+                    f'Employee {record.employee_id.name} has already been added to Factory Training tab!'
+                )
+                
+                
     @api.constrains('employee_id', 'training_need_id')
     def _check_unique_employee(self):
         for record in self:
@@ -249,6 +277,24 @@ class TrainingNeedOtherTab(models.Model):
         domain="[('training_brochure_id_other', '=', parent.training_brochure_id)]",
         help="Selected training courses from Training brochure"
     )
+    
+    
+    
+    @api.constrains('employee_id', 'training_need_id')
+    def _check_unique_employee(self):
+        for record in self:
+            duplicate = self.search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id),
+                ('id', '!=', record.id)
+            ])
+            
+            if duplicate:
+                raise ValidationError(
+                    f'Employee {record.employee_id.name} has already been added to Other Training tab!'
+                )
+                
+                
     @api.constrains('employee_id', 'training_need_id')
     def _check_unique_employee(self):
         for record in self:
