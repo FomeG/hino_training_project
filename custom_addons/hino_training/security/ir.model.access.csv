@@ -25,7 +25,7 @@ access_hmv_tab_training_courses_provided_by_company,hmv.tab.training.courses.pro
 access_hmv_tab_others,hmv.tab_others,model_hmv_tab_others,,1,1,1,1
 access_hmv_tab_factory_training,hmv.tab.factory.training,model_hmv_tab_factory_training,,1,1,1,1
 
-
+access_hmv_training_approval_wizard,hmv.training.approval.wizard,model_hmv_training_approval_wizard,base.group_user,1,1,1,1
 
 
 
