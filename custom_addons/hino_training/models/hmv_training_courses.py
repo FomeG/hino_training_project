@@ -15,21 +15,24 @@ class TrainingCourses(models.Model):
     vendor_id = fields.Many2one('res.partner', string='Vendor', required=True, tracking=True,
                                 domain=[('is_company', '=', True)])
     purchase_order_id = fields.Many2one('purchase.order', string='Link PO', tracking=True)
-    employee_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', required=True,
-                                   tracking=True)
+    employee_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', required=True,tracking=True,
+                                        domain=[('department_id.name', 'ilike', 'HR')])
     slot = fields.Integer(string='Slots', required=True, tracking=True)
     training_content = fields.Text(string='Training content', required=True, tracking=True)
     file_attach = fields.Many2many('ir.attachment', string='File Attach', attachment=True)
     confirmation_start_date = fields.Date(string='Start date of confirmation', required=True, tracking=True)
     confirmation_end_date = fields.Date(string='End date of confirmation', required=True, tracking=True)
     department_id = fields.Many2one('hr.department', string='Apply for department', required=True, tracking=True)
-    training_method_id = fields.Many2one('hmv.list.value.line', string='Training Method',
-                                         tracking=True, domain=[('code', '=', 'TRAINING_METHOD')])
+    training_method = fields.Selection([
+        ('video', 'Video Learning'),
+        ('in_person', 'In-Person Training')
+    ], string='Training Method', required=True, tracking=True)
     year = fields.Char(string='Year', compute='_compute_year', store=True)
     training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
                                            tracking=True)
     location_id = fields.Many2one('res.country.state', string='Location', required=True, tracking=True)
-    employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True)
+    employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,
+                                     domain=[('department_id.name', 'ilike', 'HR')])
     deptcombine = fields.Text(string='DeptCombine', tracking=True)
     description = fields.Text(string='Description', required=True, tracking=True)
     status = fields.Selection([
@@ -54,8 +57,6 @@ class TrainingCourses(models.Model):
     audience_ids = fields.Many2one('hmv.list.value.line', string='Audience',
                                    tracking=True, domain=[('code', '=', 'TR_LEVEL')])
     participant_ids = fields.One2many('hmv.training.participant', 'course_id', string='Participants')
-
-    # Approval Fields
     approval_ids = fields.One2many('hmv.training.course.approval', 'training_course_id',
                                    string='Approval History', tracking=True)
     current_approval_id = fields.Many2one('hmv.training.course.approval',
@@ -73,6 +74,34 @@ class TrainingCourses(models.Model):
         ('gd', 'General Director')
     ], string='Current Approval Level', compute='_compute_current_approval_level', store=True)
 
+    # Sao lấy được course type và estimate fee từ training plan trong khi không có trường nối đến??
+    @api.onchange('training_brochure_id')
+    def _onchange_training_brochure_id(self):
+        """
+        Automatically populate course_type and estimate_fee from a related tab model via training_brochure_id.
+        """
+        if self.training_brochure_id:
+            related_tab_course = self.env['hmv.tab.training.courses.provided.by.company'].search([
+                ('training_brochure_id', '=', self.training_brochure_id.id)
+            ], limit=1)
+            if related_tab_course:
+                self.course_type = related_tab_course.course_type
+                self.estimate_fee = related_tab_course.estimated_fee
+            else:
+                related_tab_other = self.env['hmv.tab.others'].search([
+                    ('training_brochure_id', '=', self.training_brochure_id.id)
+                ], limit=1)
+                if related_tab_other:
+                    self.course_type = related_tab_other.course_type
+                    self.estimate_fee = related_tab_other.estimated_fee
+                else:
+                    # Try fetching from hmv.tab.factory.training
+                    related_tab_factory = self.env['hmv.tab.factory.training'].search([
+                        ('training_brochure_id', '=', self.training_brochure_id.id)
+                    ], limit=1)
+                    if related_tab_factory:
+                        self.course_type = related_tab_factory.course_type
+                        self.estimate_fee = related_tab_factory.estimated_fee
     @api.depends('start_date')
     def _compute_year(self):
         for record in self:
@@ -140,20 +169,47 @@ class TrainingCourses(models.Model):
             }
         }
 
-    @api.constrains('start_date', 'end_date', 'confirmation_start_date', 'confirmation_end_date')
-    def _check_dates(self):
-        for record in self:
-            today = date.today()
-            if record.start_date and record.start_date < today:
-                raise ValidationError(_("Start date cannot be earlier than today."))
-            if record.end_date and record.start_date and record.end_date < record.start_date:
-                raise ValidationError(_("End date cannot be earlier than start date."))
-            if record.confirmation_start_date and record.confirmation_start_date < today:
-                raise ValidationError(_("Confirmation start date cannot be earlier than today."))
-            if (record.confirmation_end_date and record.confirmation_start_date and
-                    record.confirmation_end_date < record.confirmation_start_date):
-                raise ValidationError(_("Confirmation end date cannot be earlier than confirmation start date."))
+    @api.onchange('start_date', 'end_date', 'confirmation_start_date', 'confirmation_end_date')
+    def _onchange_dates(self):
+        today = date.today()
+        warning = {}
 
+        # Check start date not earlier than today
+        if self.start_date and self.start_date < today:
+            warning = {
+                'title': _('Warning!'),
+                'message': _('Start date cannot be earlier than today.')
+            }
+            self.start_date = today
+
+        # Check end date not earlier than start date
+        if self.end_date and self.start_date and self.end_date < self.start_date:
+            warning = {
+                'title': _('Warning!'),
+                'message': _('End date cannot be earlier than start date.')
+            }
+            self.end_date = self.start_date
+
+        # Check confirmation start date not earlier than today
+        if self.confirmation_start_date and self.confirmation_start_date < today:
+            warning = {
+                'title': _('Warning!'),
+                'message': _('Confirmation start date cannot be earlier than today.')
+            }
+            self.confirmation_start_date = today
+
+        # Check confirmation end date not earlier than confirmation start date
+        if (self.confirmation_end_date and self.confirmation_start_date and
+                self.confirmation_end_date < self.confirmation_start_date):
+            warning = {
+                'title': _('Warning!'),
+                'message': _('Confirmation end date cannot be earlier than confirmation start date.')
+            }
+            self.confirmation_end_date = self.confirmation_start_date
+
+        # Return warning if any validation failed
+        if warning:
+            return {'warning': warning}
     @api.constrains('slot')
     def _check_slot(self):
         for record in self:
@@ -183,10 +239,24 @@ class TrainingCourses(models.Model):
         return True
 
     def action_active(self):
-        if self.status != 'gd_approval':
-            raise ValidationError(_("Only courses with General Director approval can be activated."))
-        self.status = 'active'
-        return True
+        """Activate the training course after FD or GD approval based on fee threshold"""
+        self.ensure_one()
+        THRESHOLD = 100000000  # 100M threshold
+
+        # Check conditions for activation
+        if self.status == 'fd_approval' and self.estimate_fee < THRESHOLD:
+            # Can activate directly after FD approval if fee < 100M
+            self.status = 'active'
+            return True
+        elif self.status == 'gd_approval':
+            # Can activate after GD approval regardless of fee
+            self.status = 'active'
+            return True
+        else:
+            raise ValidationError(_(
+                "Cannot activate this course. For courses with fee < 100M, activation is allowed after FD approval. "
+                "For courses with fee >= 100M, GD approval is required before activation."
+            ))
 
     def action_start(self):
         if self.status != 'active':
@@ -317,10 +387,18 @@ class TrainingCourses(models.Model):
         return True
 
     def _get_approvers_sequence(self):
-        """Return approvers in the correct sequence: Staff -> HR Manager -> FD -> GD"""
-        approvers = []
+        """Return approvers in the correct sequence based on estimate fee:
 
-        # 1. Staff approver (department manager)
+        If Estimate Fee < 100M:
+          - Staff -> HR Manager -> FD -> Active (skip GD)
+
+        If Estimate Fee >= 100M:
+          - Staff -> HR Manager -> FD -> GD -> Active
+        """
+        approvers = []
+        THRESHOLD = 100000000  # 100M threshold
+
+        # 1. Staff approver (department manager) - always included
         dept_manager = self.department_id.manager_id
         if dept_manager:
             approvers.append({
@@ -328,7 +406,7 @@ class TrainingCourses(models.Model):
                 'level': 'staff'
             })
 
-        # 2. HR Manager
+        # 2. HR Manager - always included
         hr_manager = self.env['hr.employee'].search([
             ('department_id.name', 'ilike', 'HR'),
             ('job_id.name', 'ilike', 'Manager')
@@ -339,7 +417,7 @@ class TrainingCourses(models.Model):
                 'level': 'hr_manager'
             })
 
-        # 3. Finance Director
+        # 3. Finance Director - always included
         fd = self.env['hr.employee'].search([
             ('job_id.name', 'ilike', 'Finance Director')
         ], limit=1)
@@ -349,15 +427,15 @@ class TrainingCourses(models.Model):
                 'level': 'fd'
             })
 
-        # 4. General Director
-        gd = self.env['hr.employee'].search([
-            ('job_id.name', 'ilike', 'General Director')
-        ], limit=1)
-        if gd:
-            approvers.append({
-                'employee_id': gd.id,
-                'level': 'gd'
-            })
+        # 4. General Director - only included if estimate fee >= 100M
+        if self.estimate_fee >= THRESHOLD:
+            gd = self.env['hr.employee'].search([
+                ('job_id.name', 'ilike', 'General Director')
+            ], limit=1)
+            if gd:
+                approvers.append({
+                    'employee_id': gd.id,
+                    'level': 'gd'
+                })
 
         return approvers
-
