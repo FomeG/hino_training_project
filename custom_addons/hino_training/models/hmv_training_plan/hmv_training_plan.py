@@ -5,12 +5,7 @@ class TrainingPlan(models.Model):
     _name = 'hmv.training.plan'
     _description = 'Training Plan'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    training_plan_line = fields.One2many(
-        'hmv.training.plan.line',  # Tên model con
-        'training_plan_id',        # Khóa ngoại trong model con
-        string='Training Plan Lines',
-        tracking=True
-    )
+
     tab_training_courses_id = fields.One2many(
         'hmv.tab.training.courses.provided.by.company',  # Tên model con
         'training_plan_id',        # Khóa ngoại trong model con
@@ -37,17 +32,30 @@ class TrainingPlan(models.Model):
         string='Training Plan Lines',
         tracking=True
     )
-    # Khóa học dự kiến (Many2one tham chiếu đến model hmv.trainng.brochure)
+
+    # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
+    name = fields.Char(string='Training plan No.', required=True, readonly=True, default='New',tracking=True)
+        # Năm kế hoạch đào tạo
+    year = fields.Char(
+        string="Year",
+        required=True,
+        tracking=True
+    )
+
     training_brochure_id = fields.Many2one(
         'hmv.training.brochure',
         string="Training Brochure",
         required=True,
-        tracking=True
+        tracking=True,
+        domain="['|', ('year', '=', year), ('year', '=', False)]"
     )
-    # Số kế hoạch đào tạo: tự động sinh theo sequence (ví dụ: New khi tạo mới)
-    name = fields.Char(string='Training plan No.', required=True, readonly=True, default='New',tracking=True)
 
-
+    @api.onchange('year')
+    def _onchange_year(self):
+        if self.year:
+            return {
+                'domain': {'training_brochure_id': [('year', '=', self.year)]}
+            }
     @api.depends('training_brochure_id.name')
     def _compute_name(self):
         for record in self:
@@ -73,13 +81,7 @@ class TrainingPlan(models.Model):
         return super().create(vals)
 
 
-    # Năm kế hoạch đào tạo
-    year = fields.Char(
-        string="Year",
-        required=True,
-        tracking=True
 
-    )
 
     # Tổng chi phí các khóa học (các khóa học của toàn văn phòng)
     total = fields.Float(
@@ -116,7 +118,8 @@ class TrainingPlan(models.Model):
         default='draft',
         tracking=True
     )
-    description = fields.Text(
+    description = fields.Char(
+        related='training_brochure_id.name',
         string="Description",
     )
     def action_edit(self):

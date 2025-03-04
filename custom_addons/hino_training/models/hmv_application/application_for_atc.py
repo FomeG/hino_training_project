@@ -1,3 +1,4 @@
+from Tools.scripts.dutree import store
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
@@ -6,16 +7,16 @@ class ApplicationForATC(models.Model):
     _name = 'application'
     _description = 'Application for Attending Training Course'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    # remain_slots chua tinh, nut print hoi bug 1 ti
+    # remain_slots chua tinh, dynamic approval flow
 
     # Header
     name = fields.Char(string='Application No.', required=True, readonly=True, default=lambda self: _('New'),
                        help='Document number with format BS/YYYY/NNNN')
     x_applicant_id = fields.Many2one('hr.employee', string='Name of Applicant')
-    x_department_id = fields.Many2one('hr.department', string='Department')
-    x_position_id = fields.Char(string='Position', help='Input your position')
-    x_request_date = fields.Date(string='Request Date',
-                                 help='The Request Date CAN NOT be later than the Start Date')
+    x_department_id = fields.Many2one('hr.department', string='Department', related='x_applicant_id.department_id',
+                                      store=True)
+    x_position_id = fields.Many2one('hr.job', string='Position', related='x_applicant_id.job_id', store=True)
+    x_request_date = fields.Date(string='Request Date', default=fields.Date.today, store=True)
 
     # Training course info
     x_course_title = fields.Many2one('hmv.training.courses', string='Course Title')
@@ -31,8 +32,9 @@ class ApplicationForATC(models.Model):
     x_start_date_confirm = fields.Date(string='Start date of confirmation')
     x_end_date_confirm = fields.Date(string='End date of confirmation')
     x_department_apply_id = fields.Many2one('hr.department', string='Apply for department')
-    x_training_plan_id = fields.Char(string='Training Plan')
-    x_training_method = fields.Char(string='Training Method')  # ???
+    x_training_plan_id = fields.Char(string='Training Plan')  # WHERE???
+    x_training_method = fields.Many2one('hmv.list.value.line', string='Training Method',
+                                        related='x_course_title.training_method_id')
 
     x_approval_status = fields.Selection([
         ('draft', 'Draft'),
@@ -46,8 +48,9 @@ class ApplicationForATC(models.Model):
     x_course_count = fields.Integer(compute='_compute_course_count')
     x_is_form_readonly = fields.Boolean(string='Is Form Read Only?', compute='_compute_is_form_readonly')
     x_approval_history_ids = fields.One2many('approval.history', 'x_application_ids', string='Approval')
+    x_is_all_approved = fields.Boolean(string='Is All Approved?', compute='_compute_is_all_approved')
+    x_is_editable = fields.Boolean(string='Is Editable?', compute='_compute_is_editable')
     x_is_printable = fields.Boolean(string='Is Printable?', compute='_compute_is_printable')
-    x_is_all_approved = fields.Boolean(string='Is All Approved?', compute='_compute_is_all_approved', store=True)
 
     # Compute
     def _compute_course_count(self):
@@ -69,6 +72,22 @@ class ApplicationForATC(models.Model):
         else:
             self.x_is_form_readonly = False
 
+    @api.depends('x_approval_history_ids.x_approval_status', 'x_approval_status')
+    def _compute_is_printable(self):
+        for record in self:
+            if record.x_approval_status == 'approved' and record.x_is_all_approved:
+                record.x_is_printable = True
+            else:
+                record.x_is_printable = False
+
+    @api.depends('x_approval_history_ids.x_approval_status', 'x_approval_status')
+    def _compute_is_editable(self):
+        for record in self:
+            if record.x_approval_status == 'refused' and record.x_is_all_approved == False:
+                record.x_is_editable = True
+            else:
+                record.x_is_editable = False
+
     @api.depends('x_approval_history_ids.x_approval_status')
     def _compute_is_all_approved(self):
         for record in self:
@@ -78,6 +97,10 @@ class ApplicationForATC(models.Model):
                 )
             else:
                 record.x_is_all_approved = False
+        if self.x_is_all_approved:
+            self.x_approval_status = 'approved'
+            # Send notify for applicant
+            '''......................'''
 
     # Smart Button
     def action_button_open_training_course(self):
@@ -94,39 +117,57 @@ class ApplicationForATC(models.Model):
         }
 
     def action_button_print(self):
-        return self.env.ref('hino_training.report_application_for_atc_preview').report_action(self)
+        return self.env.ref('hino_training.report_application_for_atc').report_action(self)
 
     def action_button_register(self):
         self.x_approval_status = 'wait'
+        self._create_approval_history()
+        return True
 
     def action_button_edit(self):
+        self.x_approval_history_ids.unlink()
         self.x_approval_status = 'draft'
+        return True
 
     def action_button_save(self):
         self.x_approval_status = 'draft'
+        return True
 
     # Button
     def action_button_approve(self):
-        self.x_approval_status = 'approved'
-        self._create_approval_history('approved')
+        self._update_current_employee_approval_status('approved')
         self._compute_is_all_approved()
+        return {
+            'name': 'Approval Comment',
+            'type': 'ir.actions.act_window',
+            'res_model': 'approval.history',
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
     def action_button_refuse(self):
-        self.x_approval_status = 'refused'
-        self._create_approval_history('refused')
+        self._update_current_employee_approval_status('refused')
         # Send notify for applicant
         # self.x_applicant_id.message_post(body=f'Your application for attending training course has been refused.')
+        return {
+            'name': 'Rejection Comment',
+            'type': 'ir.actions.act_window',
+            'res_model': 'approval.history',
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
     # For TESTING
     def action_button_set_waiting(self):
         self.x_approval_status = 'draft'
+        return True
 
     # Create Override
     @api.model
     def create(self, vals):
         if vals.get('name', _('New')) == _('New'):
             seq = self.env['ir.sequence'].next_by_code('application.sequence') or '0001'
-            vals['name'] = f'BS{seq}'
+            vals['name'] = f'{seq}'
         return super(ApplicationForATC, self).create(vals)
 
     # For VALIDATING
@@ -150,18 +191,61 @@ class ApplicationForATC(models.Model):
                 if record.x_start_date > record.x_end_date:
                     raise ValidationError(_('The Start Date must be before the End Date.'))
 
-    # for Tab Approval History
-    def _create_approval_history(self, status):
-        """Creates an approval history record when an application is approved or refused."""
+    # Approval Workflow
+    @staticmethod
+    def _get_approval_flow():
+        return ["Manager", "Senior Manager", "DGM", "GM", "Officer", "HR Manager"]
+
+    def _get_manager(self):
+        approval_flow = self._get_approval_flow()
+        managers = []
+
+        current_manager = self.x_applicant_id.parent_id
+        # Find the next matching manager in the approval flow
+        while current_manager:
+            job_name = current_manager.job_id.name
+            if job_name in approval_flow:
+                managers.append(current_manager)
+
+            current_manager = current_manager.parent_id
+
+        return managers
+
+    def _create_approval_history(self):
+        """Creates an approval history record when an application is registered."""
+        approval_history_model = self.env['approval.history']
+
+        managers = self._get_manager()
+        if not managers:
+            raise ValidationError(_("No approval managers found for this position."))
+
+        # Create an approval history record for each manager
+        for manager in managers:
+            approval_history_model.create({
+                'x_application_ids': self.id,
+                'x_approval_employee_id': manager.id,
+                'x_approval_status': 'wait',
+            })
+
+    def _get_current_employee(self):
+        """Get the current employee based on the user's employee_id"""
         current_employee = self.env.user.employee_id
         if not current_employee:
-            raise ValidationError(_("You need to be linked to an employee to approve or refuse this request."))
+            raise ValidationError(_("No Employee found for the current user."))
+        return current_employee
 
-        self.env['approval.history'].create({
-            'x_application_ids': self.id,
-            'x_approval_employee_id': current_employee.id,
-            'x_approval_status': status
-        })
+    def _update_current_employee_approval_status(self, new_status):
+        """Update the approval status for the current employee"""
+        current_employee = self._get_current_employee()
+
+        # Find the correct line in the approval history
+        approval_line = self.x_approval_history_ids.filtered(
+            lambda line: line.x_approval_employee_id.id == current_employee.id
+        )
+        if not approval_line:
+            raise ValidationError(_("You are not authorized to approve/refuse this application."))
+
+        approval_line.write({'x_approval_status': new_status})
 
 
 # Tab Approval History
@@ -179,8 +263,15 @@ class ApplicationApprovalHistory(models.Model):
         ('approved', 'Approved'),
         ('refused', 'Refused')],
         string='Status', default='wait', readonly=True, tracking=True)
-    x_approval_comment = fields.Text(string='Comment')
+    x_approval_comment = fields.Text(string='Comment', default='')
     x_is_approval_readonly = fields.Boolean(string='Is Approval Read Only?', compute='_compute_is_approval_readonly')
+
+    def action_submit_comment(self):
+        active_id = self.env.context.get('active_id')
+        application = self.env['application'].browse(active_id)
+        if application:
+            application.approval_comment = self.comment
+        return {'type': 'ir.actions.act_window_close'}
 
     @api.depends('x_approval_status')
     def _compute_is_approval_readonly(self):

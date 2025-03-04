@@ -1,4 +1,4 @@
-
+from . import training_courses_approval_wizard
 
 
 
