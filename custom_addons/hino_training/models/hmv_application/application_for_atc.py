@@ -44,6 +44,7 @@ class ApplicationForATC(models.Model):
         ('refused', 'Refused')],
         string='Status', default='draft', readonly=True, tracking=True)
 
+    # Use for change readonly, ...
     x_course_count = fields.Integer(compute='_compute_course_count')
     x_is_form_readonly = fields.Boolean(string='Is Form Read Only?', compute='_compute_is_form_readonly')
     x_approval_history_ids = fields.One2many('approval.history', 'x_application_ids', string='Approval')
@@ -51,16 +52,16 @@ class ApplicationForATC(models.Model):
     x_is_editable = fields.Boolean(string='Is Editable?', compute='_compute_is_editable')
     x_is_printable = fields.Boolean(string='Is Printable?', compute='_compute_is_printable')
 
+    # Additional fields
     x_applicant_email = fields.Char(string='Applicant Email', compute='_compute_applicant_email', store=True)
+    computed_domain = fields.Char(string='Computed Domain', compute='_compute_computed_domain')
 
-    @api.onchange('course_id')
-    def _onchange_course_domain(self):
-        # Kiểm tra department của current user, đảm bảo có liên kết department (ví dụ: self.env.user.department_id)
-        if self.env.user.department_id and self.env.user.department_id.name == 'HR':
-            domain = [('status', '=', 'active')]
+    @api.onchange('x_course_title')
+    def _compute_computed_domain(self):
+        if self.env.user.department_id.name == 'HR':
+            self.computed_domain = [('status', '=', 'active')]
         else:
-            domain = [('status', '=', 'active'), ('course_type', '=', 'public')]
-        return {'domain': {'course_id': domain}}
+            self.computed_domain = [('status', '=', 'active'), ('course_type', '=', 'public')]
 
     # Compute
     def _compute_course_count(self):

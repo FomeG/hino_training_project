@@ -99,7 +99,8 @@
 
                     <group string="Training course information">
                         <group>
-                            <field name="x_course_title" readonly="x_is_form_readonly"/>
+                            <field name="x_course_title" readonly="x_is_form_readonly"
+                                   domain="computed_domain"/>
                             <field name="x_start_date"/>
                             <field name="x_end_date"/>
                             <field name="x_vendor_id"/>
@@ -119,6 +120,7 @@
                             <field name="x_is_all_approved" invisible="1" column_invisible="1"/>
                             <field name="x_is_printable" invisible="1" column_invisible="1"/>
                             <field name="x_is_editable" invisible="1" column_invisible="1"/>
+                            <field name="computed_domain" invisible="1" column_invisible="1"/>
                         </group>
                     </group>
 

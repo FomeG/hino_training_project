@@ -3,39 +3,28 @@
     <template id="application_report_template">
         <t t-call="web.external_layout">
             <xpath expr="//header" position="replace">
-<!--                <header>-->
-<!--                    <div class="header">-->
-                            <div class="header-info">
-                                <p>
-                                    <strong>Mã biểu mẫu/No.:</strong>
-                                    HIN-123/PO/A
-                                    <br/>
-                                    <strong>Ngày ban hành/Issue date:</strong>
-                                    01/01/2018
-                                </p>
-                            </div>
-                            <div class="header-title">
-                                PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO
-                            </div>
-                            <div class="header-logo">
-                                <img t-att-src="'/hino_training/static/img/hino_logo.jpg'" alt="Hino Logo"/>
-                            </div>
-<!--                        </div>-->
-                        <div class="sub-title">
-                            APPLICATION FOR ATTENDING TRAINING COURSE
-                        </div>
-<!--                </header>-->
-            </xpath>
-
-            <xpath expr="//footer" position="replace">
-                <footer>
-                    <!-- Footer tùy chỉnh -->
-                    <p style="text-align:center;">Trang
-                        <span class="page"/>
-                        /
-                        <span class="topage"/>
+                <!--                <header>-->
+                <!--                    <div class="header">-->
+                <div class="header-info">
+                    <p>
+                        <strong>Mã biểu mẫu/No.:</strong>
+                        HIN-123/PO/A
+                        <br/>
+                        <strong>Ngày ban hành/Issue date:</strong>
+                        01/01/2018
                     </p>
-                </footer>
+                </div>
+                <div class="header-logo">
+                    <img t-att-src="'/hino_training/static/img/hino_logo.jpg'" alt="Hino Logo"/>
+                </div>
+                <div class="header-title">
+                    PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO
+                </div>
+                <!--                        </div>-->
+                <div class="sub-title">
+                    APPLICATION FOR ATTENDING TRAINING COURSE
+                </div>
+                <!--                </header>-->
             </xpath>
             <main>
                 <style type="text/css">
@@ -109,26 +98,26 @@
                 </style>
                 <t t-foreach="docs" t-as="doc">
                     <div class="page">
-<!--                        <div class="header">-->
-<!--                            <div class="header-info">-->
-<!--                                <p>-->
-<!--                                    <strong>Mã biểu mẫu/No.:</strong>-->
-<!--                                    HIN-123/PO/A-->
-<!--                                    <br/>-->
-<!--                                    <strong>Ngày ban hành/Issue date:</strong>-->
-<!--                                    01/01/2018-->
-<!--                                </p>-->
-<!--                            </div>-->
-<!--                            <div class="header-title">-->
-<!--                                PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO-->
-<!--                            </div>-->
-<!--                            <div class="header-logo">-->
-<!--                                <img t-att-src="'/hino_training/static/img/hino_logo.jpg'" alt="Hino Logo"/>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="sub-title">-->
-<!--                            APPLICATION FOR ATTENDING TRAINING COURSE-->
-<!--                        </div>-->
+                        <!--                        <div class="header">-->
+                        <!--                            <div class="header-info">-->
+                        <!--                                <p>-->
+                        <!--                                    <strong>Mã biểu mẫu/No.:</strong>-->
+                        <!--                                    HIN-123/PO/A-->
+                        <!--                                    <br/>-->
+                        <!--                                    <strong>Ngày ban hành/Issue date:</strong>-->
+                        <!--                                    01/01/2018-->
+                        <!--                                </p>-->
+                        <!--                            </div>-->
+                        <!--                            <div class="header-title">-->
+                        <!--                                PHIẾU ĐĂNG KÝ THAM GIA ĐÀO TẠO-->
+                        <!--                            </div>-->
+                        <!--                            <div class="header-logo">-->
+                        <!--                                <img t-att-src="'/hino_training/static/img/hino_logo.jpg'" alt="Hino Logo"/>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
+                        <!--                        <div class="sub-title">-->
+                        <!--                            APPLICATION FOR ATTENDING TRAINING COURSE-->
+                        <!--                        </div>-->
                         <table>
                             <tr>
                                 <th style="width: 30%;">Ngày đề xuất<br/>Proposal date
@@ -184,7 +173,6 @@
                                 </td>
                             </tr>
                         </table>
-
 
                         <table class="signature-table">
                             <tr>
