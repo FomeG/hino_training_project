@@ -1,6 +1,6 @@
 <odoo>
     <data>
-<!--region Hino company-->
+        <!--region Hino company-->
         <record id="hmv_company" model="res.company">
             <field name="name">Hino Motors Vietnam</field>
             <field name="street">Xuân Thủy, Cầu Giấy</field>
@@ -11,8 +11,8 @@
             <field name="email">hinovietnam@hinomotors.com.vn</field>
             <field name="website">www.hinomotors.com.vn</field>
         </record>
-<!--        endregion-->
-<!--region User -->
+        <!--        endregion-->
+        <!--region User -->
         <record id="hmv_user_1" model="res.users">
             <field name="name">Nguyễn Văn A</field>
             <field name="login">nguyenvana</field>
@@ -48,8 +48,8 @@
             <field name="company_ids" eval="[(4, ref('hmv_company'))]"/>
             <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
         </record>
-<!--endregion-->
-<!--region Hino employee-->
+        <!--endregion-->
+        <!--region Hino employee-->
         <record id="hmv_employee_1" model="hr.employee">
             <field name="name">HR - Staff - Template</field>
             <field name="user_id" ref="hmv_user_1"/>
@@ -73,8 +73,8 @@
             <field name="user_id" ref="hmv_user_4"/>
             <field name="company_id" ref="hmv_company"/>
         </record>
-<!--endregion-->
-<!--region Training Brochure  -->
+        <!--endregion-->
+        <!--region Training Brochure  -->
         <record id="hmv_training_brochure_1" model="hmv.training.brochure">
             <field name="code">CP0010</field>
             <field name="name">Course Plan</field>
@@ -129,8 +129,8 @@
             <field name="employee_id" ref="hmv_employee_4"/>
 
         </record>
-<!--endregion-->
-<!--region Training Brochure Line-->
+        <!--endregion-->
+        <!--region Training Brochure Line-->
         <record id="demo_brochure_line_company_1" model="hmv.training.brochure.line">
             <field name="training_brochure_id_company" ref="hmv_training_brochure_1"/>
             <field name="course_name">Khóa học Quản lý dự án cơ bản</field>
@@ -200,75 +200,78 @@
         </record>
 
         <record id="demo_brochure_line_other_2" model="hmv.training.brochure.line">
-             <field name="training_brochure_id_other" ref="hmv_training_brochure_2"/>
-             <field name="course_name">Nghệ thuật chụp ảnh cơ bản</field>
-             <field name="start_date">2030-07-07</field>
-             <field name="end_date">2030-07-10</field>
+            <field name="training_brochure_id_other" ref="hmv_training_brochure_2"/>
+            <field name="course_name">Nghệ thuật chụp ảnh cơ bản</field>
+            <field name="start_date">2030-07-07</field>
+            <field name="end_date">2030-07-10</field>
         </record>
 
         <record id="demo_brochure_line_other_3" model="hmv.training.brochure.line">
-             <field name="training_brochure_id_other" ref="hmv_training_brochure_3"/>
-             <field name="course_name">Lớp học vẽ tranh màu nước</field>
-             <field name="start_date">2026-08-03</field>
-             <field name="end_date">2026-08-06</field>
+            <field name="training_brochure_id_other" ref="hmv_training_brochure_3"/>
+            <field name="course_name">Lớp học vẽ tranh màu nước</field>
+            <field name="start_date">2026-08-03</field>
+            <field name="end_date">2026-08-06</field>
         </record>
 
         <record id="demo_brochure_line_other_4" model="hmv.training.brochure.line">
-             <field name="training_brochure_id_other" ref="hmv_training_brochure_4"/>
-             <field name="course_name">Học cách làm bánh ngọt tại nhà</field>
-             <field name="start_date">2025-11-25</field>
-             <field name="end_date">2025-11-28</field>
+            <field name="training_brochure_id_other" ref="hmv_training_brochure_4"/>
+            <field name="course_name">Học cách làm bánh ngọt tại nhà</field>
+            <field name="start_date">2025-11-25</field>
+            <field name="end_date">2025-11-28</field>
         </record>
 
         <record id="demo_brochure_line_other_5" model="hmv.training.brochure.line">
-             <field name="training_brochure_id_other" ref="hmv_training_brochure_5"/>
-             <field name="course_name">Lớp học nhạc cụ dân tộc</field>
-             <field name="start_date">2024-03-15</field>
-             <field name="end_date">2024-03-18</field>
+            <field name="training_brochure_id_other" ref="hmv_training_brochure_5"/>
+            <field name="course_name">Lớp học nhạc cụ dân tộc</field>
+            <field name="start_date">2024-03-15</field>
+            <field name="end_date">2024-03-18</field>
         </record>
-<!--        endregion-->
+        <!--        endregion-->
 
 
+        <!-- region Training Need -->
 
+        <record id="hmv_training_need_1" model="hmv.training.need">
+            <field name="name">TN0001</field>
+            <field name="description">TEST TEST</field>
+            <field name="employee_id">8</field>
+            <field name="assignee_id">1</field>
+            <field name="registration_date">2029-01-01 09:30:51</field>
+            <field name="training_brochure_id">3</field>
+        </record>
 
+        <record id="hmv_training_need_2" model="hmv.training.need">
+            <field name="name">TN0002</field>
+            <field name="description">TEST TEST</field>
+            <field name="employee_id">8</field>
+            <field name="assignee_id">1</field>
+            <field name="registration_date">2030-01-01 09:30:51</field>
+            <field name="training_brochure_id">4</field>
+        </record>
 
+        <!-- #endregion -->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- region Training Need -->
-
-    <record id="hmv_training_need_1" model="hmv.training.need">
-        <field name="name">TN0001</field>
-        <field name="description">TEST TEST</field>
-        <field name="employee_id">8</field>
-        <field name="assignee_id">1</field>
-        <field name="registration_date">2029-01-01 09:30:51</field>
-        <field name="training_brochure_id">3</field>
-    </record>
-
-    <record id="hmv_training_need_2" model="hmv.training.need">
-        <field name="name">TN0002</field>
-        <field name="description">TEST TEST</field>
-        <field name="employee_id">8</field>
-        <field name="assignee_id">1</field>
-        <field name="registration_date">2030-01-01 09:30:51</field>
-        <field name="training_brochure_id">4</field>
-    </record>
-
-<!-- #endregion -->
-
-
+        <!--        region Training Course-->
+        <record id="hmv_training_course_1" model="hmv.training.course">
+            <field name="course_title">1Champ Yasuo</field>
+            <field name="start_date">2025-01-01</field>
+            <field name="end_date">2025-12-01</field>
+            <field name="training_brochure_id">1</field>
+            <field name="vendor_id">15</field>
+            <field name="confirmation_start_date">2025-01-01</field>
+            <field name="confirmation_end_date">2025-12-01</field>
+            <field name="slot">5</field>
+            <field name="training_content">How to become 1champ Yasuo</field>
+            <field name="description">Super Tutorial</field>
+            <field name="course_type">public</field>
+            <field name="estimate_fee">5</field>
+            <field name="department_id">8</field>
+            <field name="employee_id">22,23,21</field>
+            <field name="employee_hr_id">21</field>
+            <field name="training_method">video</field>
+            <field name="location_id">1174</field>
+        </record>
+        <!--        #endregion-->
 
     </data>
 </odoo>

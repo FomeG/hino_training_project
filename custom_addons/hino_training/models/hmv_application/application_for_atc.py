@@ -61,9 +61,9 @@ class ApplicationForATC(models.Model):
     @api.onchange('x_course_title')
     def _compute_computed_domain(self):
         if self.env.user.department_id.name == 'HR':
-            self.computed_domain = [('status', '=', 'active')]
+            self.computed_domain = [('status', '=', 'active'), ('remaining_slots', '>', 0)]
         else:
-            self.computed_domain = [('status', '=', 'active'), ('course_type', '=', 'public')]
+            self.computed_domain = [('status', '=', 'active'), ('course_type', '=', 'public'), ('remaining_slots', '>', 0)]
 
     # Compute
     def _compute_course_count(self):

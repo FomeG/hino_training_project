@@ -118,7 +118,7 @@
     <!--        <field name="smtp_port">587</field>-->
     <!--        <field name="smtp_encryption">tls</field>-->
     <!--        <field name="smtp_user">tompdo159@gmail.com</field>-->
-    <!--        <field name="smtp_pass">mxup-lweq-cujf-flul</field>-->
+    <!--        <field name="smtp_pass">mxup lweq cujf flul</field>-->
     <!--        <field name="sequence">1</field>-->
     <!--        <field name="active" eval="True"/>-->
     <!--    </record>-->
