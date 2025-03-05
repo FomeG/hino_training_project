@@ -180,19 +180,102 @@ class TrainingNeed(models.Model):
         return False
 
     def action_send_email(self):
-        pass
+        """Send notification email to assignee"""
+        for record in self:
+            if not record.assignee_id.work_email:
+                raise ValidationError(_("Assignee must have an email address defined."))
+                
+            mail_values = {
+                'subject': f'Training Need Assignment: {record.name}',
+                'email_from': self.env.user.email or self.env.company.email,
+                'email_to': record.assignee_id.work_email,
+                'body_html': f"""
+                    <div style="margin: 0px; padding: 0px;">
+                        <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                            Dear {record.assignee_id.name},
+                            <br/><br/>
+                            You have been assigned to complete the Training Need: {record.name}
+                            <br/><br/>
+                            Details:
+                            <ul>
+                                <li>Department: {record.department_id.name}</li>
+                                <li>Created by: {record.employee_id.name}</li>
+                                <li>Registration Date: {record.registration_date}</li>
+                                <li>Training Course Plan: {record.training_brochure_id.name}</li>
+                            </ul>
+                            <br/>
+                            Please review and complete the required information.
+                            <br/><br/>
+                            Best regards,<br/>
+                            {self.env.user.name}
+                        </p>
+                    </div>
+                """
+            }
+
+            # Create and send email
+            self.env['mail.mail'].create(mail_values).send()
+
+            # Show success message
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Success'),
+                    'message': _('Notification email sent to %s') % record.assignee_id.name,
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
             
     def action_send_mass_email(self):
-        """Send mass email to selected records"""
-        # Tạo thông báo sticky với message_type là warning 
+        """Send notification emails to assignees of selected training needs"""
+        for record in self:
+            if not record.assignee_id.work_email:
+                raise ValidationError(_(
+                    "Assignee '%s' must have an email address defined.") % record.assignee_id.name
+                )
+                
+            mail_values = {
+                'subject': f'Training Need Assignment: {record.name}',
+                'email_from': self.env.user.email or self.env.company.email,
+                'email_to': record.assignee_id.work_email,
+                'body_html': f"""
+                    <div style="margin: 0px; padding: 0px;">
+                        <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                            Dear {record.assignee_id.name},
+                            <br/><br/>
+                            You have been assigned to complete the Training Need: {record.name}
+                            <br/><br/>
+                            Details:
+                            <ul>
+                                <li>Department: {record.department_id.name}</li>
+                                <li>Created by: {record.employee_id.name}</li>
+                                <li>Registration Date: {record.registration_date}</li>
+                                <li>Training Course Plan: {record.training_brochure_id.name}</li>
+                            </ul>
+                            <br/>
+                            Please review and complete the required information.
+                            <br/><br/>
+                            Best regards,<br/>
+                            {self.env.user.name}
+                        </p>
+                    </div>
+                """
+            }
+
+            # Create and send email
+            self.env['mail.mail'].create(mail_values).send()
+
+        # Show success message with count of emails sent
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': 'TEST',
-                'message': 'gửi mail thành công (test)',
-                'type': 'success',  # warning sẽ hiển thị màu vàng
-                'sticky': False,     # thông báo sẽ không tự động biến mất
+                'title': _('Success'),
+                'message': _('Notification emails sent to %s assignees') % len(self),
+                'type': 'success',
+                'sticky': False,
             }
         }
 
