@@ -54,8 +54,11 @@ class TrainingCourses(models.Model):
     estimate_fee = fields.Monetary(string='Actual Fee', required=True, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
-    audience_ids = fields.Many2one('hmv.list.value.line', string='Audience',
-                                   tracking=True, domain=[('code', '=', 'TR_LEVEL')])
+    audience_ids = fields.Many2many('hmv.list.value.line',
+                                    relation='hmv_training_audience_line_rel',
+                                    column1='training_course_id',
+                                    column2='list_value_line_id',
+                                    string='Audience')
     participant_ids = fields.One2many('hmv.training.participant', 'course_id', string='Participants')
     approval_ids = fields.One2many('hmv.training.course.approval', 'training_course_id',
                                    string='Approval History', tracking=True)
@@ -74,41 +77,118 @@ class TrainingCourses(models.Model):
         ('gd', 'General Director')
     ], string='Current Approval Level', compute='_compute_current_approval_level', store=True)
 
-    # Sao lấy được course type và estimate fee từ training plan trong khi không có trường nối đến??
     @api.onchange('training_brochure_id')
     def _onchange_training_brochure_id(self):
-        """
-        Automatically populate course_type and estimate_fee from a related tab model via training_brochure_id.
-        """
+        """Handle both participant population and estimate_fee/course_type updates"""
         if self.training_brochure_id:
-            related_tab_course = self.env['hmv.tab.training.courses.provided.by.company'].search([
-                ('training_brochure_id', '=', self.training_brochure_id.id)
+            # 1. Handle participant population
+            # Clear existing participants first
+            self.participant_ids = [(5, 0, 0)]
+            participants = []
+
+            # Search for matching records in all three Training Need tabs
+            company_lines = self.env['hmv.training.need.company'].search([
+                ('training_brochure_line_id', 'in', self.training_brochure_id.ids),
+                ('training_need_id.state', '=', 'completed')
+            ])
+
+            factory_lines = self.env['hmv.training.need.factory'].search([
+                ('training_brochure_line_id', 'in', self.training_brochure_id.ids),
+                ('training_need_id.state', '=', 'completed')
+            ])
+
+            other_lines = self.env['hmv.training.need.other'].search([
+                ('training_brochure_line_id', 'in', self.training_brochure_id.ids),
+                ('training_need_id.state', '=', 'completed')
+            ])
+
+            # Process each tab separately and append to participants list
+            for line in company_lines:
+                if line.employee_id:
+                    participants.append((0, 0, {
+                        'employee_id': line.employee_id.id,
+                        'full_name': line.employee_id.name,
+                        'email': line.email or line.employee_id.work_email,
+                        'status': 'waiting',
+                        'position': line.employee_id.job_id.name if line.employee_id.job_id else False,
+                        'department': line.employee_id.department_id.name if line.employee_id.department_id else False
+                    }))
+
+            for line in factory_lines:
+                if line.employee_id:
+                    participants.append((0, 0, {
+                        'employee_id': line.employee_id.id,
+                        'full_name': line.employee_id.name,
+                        'email': line.email or line.employee_id.work_email,
+                        'status': 'waiting',
+                        'position': line.employee_id.job_id.name if line.employee_id.job_id else False,
+                        'department': line.employee_id.department_id.name if line.employee_id.department_id else False
+                    }))
+
+            for line in other_lines:
+                if line.employee_id:
+                    participants.append((0, 0, {
+                        'employee_id': line.employee_id.id,
+                        'full_name': line.employee_id.name,
+                        'email': line.email or line.employee_id.work_email,
+                        'status': 'waiting',
+                        'position': line.employee_id.job_id.name if line.employee_id.job_id else False,
+                        'department': line.employee_id.department_id.name if line.employee_id.department_id else False
+                    }))
+
+            # Check slot limit
+            if len(participants) > self.slot:
+                raise ValidationError(
+                    f"Number of participants ({len(participants)}) exceeds available slots ({self.slot})!"
+                )
+
+            # Update participant_ids
+            if participants:
+                self.participant_ids = participants
+
+            # 2. Handle estimate_fee and course_type population
+            course_line = self.env['hmv.tab.training.courses.provided.by.company'].search([
+                ('training_plan_id.training_brochure_id', '=', self.training_brochure_id.id)
             ], limit=1)
-            if related_tab_course:
-                self.course_type = related_tab_course.course_type
-                self.estimate_fee = related_tab_course.estimated_fee
+            if course_line:
+                self.estimate_fee = course_line.estimated_fee or 0.0
+                self.course_type = course_line.course_type or False
             else:
-                related_tab_other = self.env['hmv.tab.others'].search([
-                    ('training_brochure_id', '=', self.training_brochure_id.id)
+                other_line = self.env['hmv.tab.others'].search([
+                    ('training_plan_id.training_brochure_id', '=', self.training_brochure_id.id)
                 ], limit=1)
-                if related_tab_other:
-                    self.course_type = related_tab_other.course_type
-                    self.estimate_fee = related_tab_other.estimated_fee
+                if other_line:
+                    self.estimate_fee = other_line.estimated_fee or 0.0
+                    self.course_type = other_line.course_type or False
                 else:
-                    # Try fetching from hmv.tab.factory.training
-                    related_tab_factory = self.env['hmv.tab.factory.training'].search([
-                        ('training_brochure_id', '=', self.training_brochure_id.id)
+                    factory_line = self.env['hmv.tab.factory.training'].search([
+                        ('training_plan_id.training_brochure_id', '=', self.training_brochure_id.id)
                     ], limit=1)
-                    if related_tab_factory:
-                        self.course_type = related_tab_factory.course_type
-                        self.estimate_fee = related_tab_factory.estimated_fee
-    @api.depends('start_date')
-    def _compute_year(self):
-        for record in self:
-            if record.start_date:
-                record.year = fields.Datetime.from_string(record.start_date).strftime('%Y')
-            else:
-                record.year = 0
+                    if factory_line:
+                        self.estimate_fee = factory_line.estimated_fee or 0.0
+                        self.course_type = factory_line.course_type or False
+                    else:
+                        self.estimate_fee = 0.0
+                        self.course_type = False
+        else:
+            # When brochure is cleared
+            self.participant_ids = [(5, 0, 0)]
+            self.estimate_fee = 0.0
+            self.course_type = False
+
+    @api.model
+    def create(self, vals):
+        if 'training_brochure_id' in vals and vals.get('training_brochure_id'):
+            record = super(TrainingCourses, self).create(vals)
+            record._onchange_training_brochure_id()
+            return record
+        return super(TrainingCourses, self).create(vals)
+
+    def write(self, vals):
+        res = super(TrainingCourses, self).write(vals)
+        if 'training_brochure_id' in vals:
+            self._onchange_training_brochure_id()
+        return res
 
     @api.depends('approval_ids.status', 'approval_ids.sequence')
     def _compute_current_approval_level(self):
