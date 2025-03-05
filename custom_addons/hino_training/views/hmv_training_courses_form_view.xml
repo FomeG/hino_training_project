@@ -98,7 +98,7 @@
                                 <field name="training_method" required="1"/>
                                 <field name="location_id" required="1"/>
                                 <field name="currency_id" invisible="1"/>
-                                <field name="audience_ids" required="0" domain="[('code', '=', 'TR_LEVEL')]"/>
+                                <field name="audience_ids" required="0" widget="many2many_tags"/>
                             </group>
                         </group>
                         <group>
