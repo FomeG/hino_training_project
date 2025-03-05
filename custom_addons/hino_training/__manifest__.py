@@ -22,71 +22,32 @@ Long description of module's purpose
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/trainning_plan_view.xml',
 
+        # templates
         'templates/training_plan_tab_factory_training.xml', 
         'templates/training_plan_report_template.xml',
         'templates/hmv_training_courses_report.xml',
-        'views/hmv_training_courses_form_view.xml',
-
-
-        'views/hmv_training_courses_form_view.xml',
+        'templates/application_report_template.xml',
   
-        'wizard/training_plan_comment_wizard_view.xml',
-        'data/sequence.xml',
-        'views/views.xml',
-
-        # 'data/hmv_need_sequence.xml',
+        # data,
         'data/sequence.xml',
         'data/department_data.xml',
         'data/job_data.xml',
         'data/user_data.xml',
-
-
-
-
-
-
-
-
-        'views/hmv_training_need_view.xml',
-
-        'views/hmv_training_brochure_wizard.xml',
+    
+        # views
         'views/hmv_training_brochure.xml',
-      
-
-        'views/test.xml',
-
-
-        'templates/application_report_template.xml',
-        'views/application/application.xml',
-
+        'views/hmv_training_courses_form_view.xml',
+        'views/hmv_training_need_view.xml',
+        'views/trainning_plan_view.xml',
+        'views/application.xml',
         'views/menu.xml',
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         # Chỗ import wizard
         'wizard/training_need_comment_wizard_view.xml',
         'wizard/training_courses_approval_wizard_view.xml',
-
-
-
+        'wizard/training_plan_comment_wizard_view.xml',
+        'wizard/hmv_training_brochure_wizard.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
