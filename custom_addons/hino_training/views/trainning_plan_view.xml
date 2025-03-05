@@ -100,9 +100,7 @@
                 </group>
 
                   <notebook>
-                      <!-- <page string="Training Courses" name="training_courses">
-                          <field name="description" widget="text" placeholder="Enter training description..."/>
-                      </page> -->
+       
                   </notebook>
                   
                   
@@ -118,30 +116,50 @@
         </form>
     </field>
 </record>
+         <!-- Inherit view_training_plan_form -->
+<record id="view_training_course_form_inherit2" model="ir.ui.view">
+    <field name="name">training.course.form.inherit</field>
+    <field name="model">hmv.training.plan</field>
+    <field name="inherit_id" ref="hino_training.view_training_plan_form"/>
+    <field name="arch" type="xml">
+        <!-- Chèn tab mới vào trong notebook -->
+        <xpath expr="//form/sheet/notebook" position="inside">
+            <page string="Training courses provided by company">
+                <field name="tab_training_courses_id">
+                    <tree editable="bottom" create="false">
+                        <field name="course_title"/>
+                        <field name="vendor_id"/>
+                        <field name="location_id"/>
+                        <field name="slot"/>
+                        <field name="recommend_level_ids" widget="many2many_tags"/>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                        <field name="course_type"/>
+                   <field name="fee" readonly="course_type == 'in_house'" />
+<field name="estimated_fee" readonly="course_type == 'public'" />
+                        <field name="other_fee"/>   
+                        <field name="participant_ids"/>
+                    </tree>
+                </field>
+                <!-- Chèn group hiển thị tổng vào bên trong tab -->
+                    <group string="Totals" colspan="4" style="float: right; margin-top: 10px;">
+                    <!-- Nhóm 1: Hiển thị total_estimated_fee và total_other_fee trên 1 dòng -->
+                    <group col="2">
+                        <field name="total_estimated_fee" readonly="1" widget="monetary"/>
+                        <field name="total_other_fee" readonly="1" widget="monetary"/>
+                    </group>
+                    <!-- Nhóm 2: Hiển thị total_fee dưới dòng trên -->
+                    <group style= "text-align:center;">
+                        <field name="total_fee" readonly="1" widget="monetary"/>
+                    </group>
+                </group>
 
-<!-- Inherit tab approval -->
+            </page>
+        </xpath>
+    </field>
+</record>
 
-        <!-- Inherit view_training_plan_form -->
-        <record id="view_tab_aprroval_history_inherit2_tab_approval" model="ir.ui.view">
-            <field name="name">training.course.form.inherit.tab.approval</field>
-            <field name="model">hmv.training.plan</field>
-            <field name="inherit_id" ref="hino_training.view_training_plan_form"/>
-            <field name="arch" type="xml">
-                <!-- Chèn tab mới vào trong notebook -->
-            <xpath expr="//form/sheet/notebook" position="inside">
-                    <page string="Approval history" name="tab_approval_history">
-                            <field name="tab_approval_history_id">
-                                <tree editable="bottom">
-                                    <field name="employee_id"/>
-                                
-                                    <field name="status"/>
-                                    <field name="comment"/>
-                                </tree>
-                            </field>
-                    </page>
-                </xpath>
-            </field>
-        </record>
+
 
 <!-- tab factory -->
 
@@ -155,17 +173,17 @@
             <xpath expr="//form/sheet/notebook" position="inside">
                      <page string="Tad factory training" name="tab_factory_training">
                                 <field name="tab_factory_id">
-                                    <tree editable="bottom">
+                                    <tree editable="bottom" create="false">
                                         <field name="course_title"/>
                                         <field name="vendor_id"/>
                                             <field name="location_id"/>
                                             <field name="slot"/>
-                                            <field name="recommend_level_ids"/>
+                                            <field name="recommend_level_ids" widget="many2many_tags"/>
                                             <field name="start_date"/>
                                             <field name="end_date"/>
                                             <field name="course_type"/>
-            <field name="fee" attrs="{'readonly': [('course_type', '=', 'in_house')]}" />
-                            <field name="estimated_fee" attrs="{'readonly': [('course_type', '=', 'public')]}" />
+                     <field name="fee" readonly="course_type == 'in_house'" />
+<field name="estimated_fee" readonly="course_type == 'public'" />
                             <field name="other_fee"/>   
                                     </tree>
                                 </field>
@@ -196,19 +214,19 @@
             <xpath expr="//form/sheet/notebook" position="inside">
                         <page string="Tad other" name="tab_other">
                                 <field name="tab_others_id">
-                                    <tree editable="bottom">
+                                    <tree editable="bottom" create="false">
                                         <field name="course_title"/>
                                         <field name="purpose"/>
                                         <field name="department_id"/>
                                         <field name="vendor_id"/>
                                             <field name="location_id"/>
                                             <field name="slot"/>
-                                            <field name="recommend_level_ids"/>
+                                            <field name="recommend_level_ids" widget="many2many_tags"/>
                                             <field name="start_date"/>
                                             <field name="end_date"/>
                                             <field name="course_type"/>
-            <field name="fee" attrs="{'readonly': [('course_type', '=', 'in_house')]}" />
-                            <field name="estimated_fee" attrs="{'readonly': [('course_type', '=', 'public')]}" />
+                  <field name="fee" readonly="course_type == 'in_house'" />
+<field name="estimated_fee" readonly="course_type == 'public'" />
                             <field name="other_fee"/>   
                                     </tree>
                                 </field>
@@ -229,49 +247,30 @@
                 </xpath>
             </field>
         </record>
-           <!-- Inherit view_training_plan_form -->
-<record id="view_training_course_form_inherit2" model="ir.ui.view">
-    <field name="name">training.course.form.inherit</field>
-    <field name="model">hmv.training.plan</field>
-    <field name="inherit_id" ref="hino_training.view_training_plan_form"/>
-    <field name="arch" type="xml">
-        <!-- Chèn tab mới vào trong notebook -->
-        <xpath expr="//form/sheet/notebook" position="inside">
-            <page string="Training courses provided by company">
-                <field name="tab_training_courses_id">
-                    <tree editable="bottom">
-                        <field name="course_title"/>
-                        <field name="vendor_id"/>
-                        <field name="location_id"/>
-                        <field name="slot"/>
-                        <field name="recommend_level_ids" widget="many2many_tags"/>
-                        <field name="start_date"/>
-                        <field name="end_date"/>
-                        <field name="course_type"/>
-                        <field name="fee" attrs="{'readonly': [('course_type', '=', 'in_house')]}" />
-                        <field name="estimated_fee" attrs="{'readonly': [('course_type', '=', 'public')]}" />
-                        <field name="other_fee"/>   
-                        <field name="participant_ids"/>
-                    </tree>
-                </field>
-                <!-- Chèn group hiển thị tổng vào bên trong tab -->
-                    <group string="Totals" colspan="4" style="float: right; margin-top: 10px;">
-                    <!-- Nhóm 1: Hiển thị total_estimated_fee và total_other_fee trên 1 dòng -->
-                    <group col="2">
-                        <field name="total_estimated_fee" readonly="1" widget="monetary"/>
-                        <field name="total_other_fee" readonly="1" widget="monetary"/>
-                    </group>
-                    <!-- Nhóm 2: Hiển thị total_fee dưới dòng trên -->
-                    <group style= "text-align:center;">
-                        <field name="total_fee" readonly="1" widget="monetary"/>
-                    </group>
-                </group>
+  
+<!-- Inherit tab approval -->
 
-            </page>
-        </xpath>
-    </field>
-</record>
-
+        <!-- Inherit view_training_plan_form -->
+        <record id="view_tab_aprroval_history_inherit2_tab_approval" model="ir.ui.view">
+            <field name="name">training.course.form.inherit.tab.approval</field>
+            <field name="model">hmv.training.plan</field>
+            <field name="inherit_id" ref="hino_training.view_training_plan_form"/>
+            <field name="arch" type="xml">
+                <!-- Chèn tab mới vào trong notebook -->
+            <xpath expr="//form/sheet/notebook" position="inside">
+                    <page string="Approval history" name="tab_approval_history">
+                            <field name="tab_approval_history_id">
+                                <tree editable="bottom">
+                                    <field name="employee_id"/>
+                                
+                                    <field name="status"/>
+                                    <field name="comment"/>
+                                </tree>
+                            </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
 
 
    
