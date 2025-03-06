@@ -127,7 +127,6 @@ class tabTrainingCourses(models.Model):
         if self.course_type == 'public':
             self.estimated_fee = (self.fee or 0.0) * self.participant_count
 
-
     # @api.onchange('start_date', 'end_date')
     # def _check_dates(self):
     #     for record in self:

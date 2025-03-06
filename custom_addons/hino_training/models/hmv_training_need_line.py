@@ -55,66 +55,63 @@ class TrainingNeedCompanyTab(models.Model):
                 raise ValidationError(
                     f'Employee {record.employee_id.name} has already been added to Company Training tab!'
                 )
-                
-                
-    @api.constrains('employee_id', 'training_brochure_line_id')
-    def _check_max_courses(self):
-        for record in self:
-            if len(record.training_brochure_line_id) > 2:
-                raise ValidationError(
-                    f'Employee {record.employee_id.name} cannot register for more than 2 company training courses!'
-                )
-                
+    
+
+    # @api.constrains('employee_id', 'training_brochure_line_id')
+    # def _check_max_courses(self):
+    #     for record in self:
+    #         if len(record.training_brochure_line_id) > 2:
+    #             raise ValidationError(
+    #                 f'Employee {record.employee_id.name} cannot register for more than 2 company training courses!'
+    #             )
+        
+
+
+# Hàm kiểm tra tổng số khóa học trên tất cả các tab
     @api.constrains('employee_id', 'training_brochure_line_id')
     def _check_max_courses_total(self):
+        current_user_employee = self.env['hr.employee']._get_valid_employee_for_user()
+        is_hr_employee = False
+        # if self.env.user.has_group('hr.group_hr_user') or self.env.user.has_group('hr.group_hr_manager'):
+        #     is_hr_employee = True
+        if current_user_employee and current_user_employee.department_id and current_user_employee.department_id.name == 'HR':
+            is_hr_employee = True
+
+        if is_hr_employee:
+            return
+                
+                
+        
         for record in self:
-            
-            # Check if current user is from HR department
-            current_user_employee = self.env.user.employee_id
-            is_hr_employee = current_user_employee and current_user_employee.department_id == 'HR'
+            if not record.employee_id:
+                continue
             
             
-            # If user is HR, skip the validation
-            if is_hr_employee:
-                return
-            
-            # Count courses in Company tab
+            print("Chay")
+            # Đếm số khóa học trong tab Company
             company_courses = len(record.training_brochure_line_id)
-            
-            # Count courses in Factory tab
-            factory_courses = self.env['hmv.training.need.factory'].search_count([
-                ('training_need_id', '=', record.training_need_id.id),
-                ('employee_id', '=', record.employee_id.id)
-            ])
+
+            # Đếm số khóa học trong tab Factory
             factory_tab = self.env['hmv.training.need.factory'].search([
                 ('training_need_id', '=', record.training_need_id.id),
                 ('employee_id', '=', record.employee_id.id)
             ])
-            if factory_tab:
-                factory_courses = len(factory_tab.training_brochure_line_id)
-            
-            # Count courses in Other tab
-            other_courses = self.env['hmv.training.need.other'].search_count([
-                ('training_need_id', '=', record.training_need_id.id),
-                ('employee_id', '=', record.employee_id.id)
-            ])
+            factory_courses = len(factory_tab.training_brochure_line_id) if factory_tab else 0
+
+            # Đếm số khóa học trong tab Other
             other_tab = self.env['hmv.training.need.other'].search([
                 ('training_need_id', '=', record.training_need_id.id),
                 ('employee_id', '=', record.employee_id.id)
             ])
-            if other_tab:
-                other_courses = len(other_tab.training_brochure_line_id)
-            
+            other_courses = len(other_tab.training_brochure_line_id) if other_tab else 0
+
+            # Tổng số khóa học
             total_courses = company_courses + factory_courses + other_courses
-            
+
             if total_courses > 2:
                 raise ValidationError(
-                    f'Employee {record.employee_id.name} cannot register for more than 2 training courses in total across all tabs!'
-                )
-
-
-
-
+                    f'Employee {record.employee_id.name} can not register above 2 courses!'
+                )   
 
 
 
@@ -160,20 +157,6 @@ class TrainingNeedFactoryTab(models.Model):
     )
     
     
-    @api.constrains('employee_id', 'training_need_id')
-    def _check_unique_employee(self):
-        for record in self:
-            duplicate = self.search([
-                ('training_need_id', '=', record.training_need_id.id),
-                ('employee_id', '=', record.employee_id.id),
-                ('id', '!=', record.id)
-            ])
-            
-            if duplicate:
-                raise ValidationError(
-                    f'Employee {record.employee_id.name} has already been added to Factory Training tab!'
-                )
-                
                 
     @api.constrains('employee_id', 'training_need_id')
     def _check_unique_employee(self):
@@ -190,42 +173,57 @@ class TrainingNeedFactoryTab(models.Model):
                     f'Employee {record.employee_id.name} is already registered in Factory Training tab!'
                 )
 
+# Hàm kiểm tra tổng số khóa học trên tất cả các tab
     @api.constrains('employee_id', 'training_brochure_line_id')
     def _check_max_courses_total(self):
+        current_user_employee = self.env['hr.employee']._get_valid_employee_for_user()
+        is_hr_employee = False
+        # if self.env.user.has_group('hr.group_hr_user') or self.env.user.has_group('hr.group_hr_manager'):
+        #     is_hr_employee = True
+        if current_user_employee and current_user_employee.department_id and current_user_employee.department_id.name == 'HR':
+            is_hr_employee = True
+
+        if is_hr_employee:
+            return
+
+        
+        
+        
         for record in self:
-            
-            
-            # Check if current user is from HR department
+            if not record.employee_id:
+                continue
+
+            # Kiểm tra xem người dùng hiện tại có phải là nhân viên HR không
             current_user_employee = self.env.user.employee_id
-            is_hr_employee = current_user_employee and current_user_employee.department_id == 'HR'
-            
-            # If user is HR, skip the validation
+            is_hr_employee = current_user_employee and current_user_employee.department_id.name == 'HR'
+
+            # Nếu là HR, bỏ qua kiểm tra
             if is_hr_employee:
-                return
-            
-            
-            # Similar logic as above but starting with Factory tab count
+                continue
+
+            # Đếm số khóa học trong tab Factory
             factory_courses = len(record.training_brochure_line_id)
-            
-            # Count courses in Company tab
+
+            # Đếm số khóa học trong tab Company
             company_tab = self.env['hmv.training.need.company'].search([
                 ('training_need_id', '=', record.training_need_id.id),
                 ('employee_id', '=', record.employee_id.id)
             ])
             company_courses = len(company_tab.training_brochure_line_id) if company_tab else 0
-            
-            # Count courses in Other tab
+
+            # Đếm số khóa học trong tab Other
             other_tab = self.env['hmv.training.need.other'].search([
                 ('training_need_id', '=', record.training_need_id.id),
                 ('employee_id', '=', record.employee_id.id)
             ])
             other_courses = len(other_tab.training_brochure_line_id) if other_tab else 0
-            
+
+            # Tổng số khóa học
             total_courses = factory_courses + company_courses + other_courses
-            
+
             if total_courses > 2:
                 raise ValidationError(
-                    f'Employee {record.employee_id.name} cannot register for more than 2 training courses in total across all tabs!'
+                    f'Employee {record.employee_id.name} can not register above 2 courses!'
                 )
                 
                 
@@ -279,20 +277,6 @@ class TrainingNeedOtherTab(models.Model):
     
     
     
-    @api.constrains('employee_id', 'training_need_id')
-    def _check_unique_employee(self):
-        for record in self:
-            duplicate = self.search([
-                ('training_need_id', '=', record.training_need_id.id),
-                ('employee_id', '=', record.employee_id.id),
-                ('id', '!=', record.id)
-            ])
-            
-            if duplicate:
-                raise ValidationError(
-                    f'Employee {record.employee_id.name} has already been added to Other Training tab!'
-                )
-                
                 
     @api.constrains('employee_id', 'training_need_id')
     def _check_unique_employee(self):
@@ -312,42 +296,56 @@ class TrainingNeedOtherTab(models.Model):
 
 
 
-    @api.constrains('employee_id', 'training_brochure_line_id')
+# Hàm kiểm tra tổng số khóa học trên tất cả các tab
+    @api.onchange('employee_id', 'training_brochure_line_id')
     def _check_max_courses_total(self):
+        current_user_employee = self.env['hr.employee']._get_valid_employee_for_user()
+        is_hr_employee = False
+        # if self.env.user.has_group('hr.group_hr_user') or self.env.user.has_group('hr.group_hr_manager'):
+        #     is_hr_employee = True
+        if current_user_employee and current_user_employee.department_id and current_user_employee.department_id.name == 'HR':
+            is_hr_employee = True
+
+        if is_hr_employee:
+            return
+
+        
+        
         for record in self:
-            
-            
-            # Check if current user is from HR department
+            if not record.employee_id:
+                continue
+
+            # Kiểm tra xem người dùng hiện tại có phải là nhân viên HR không
             current_user_employee = self.env.user.employee_id
-            is_hr_employee = current_user_employee and current_user_employee.department_id == 'HR'
-            
-            # If user is HR, skip the validation
+            is_hr_employee = current_user_employee and current_user_employee.department_id.name == 'HR'
+
+            # Nếu là HR, bỏ qua kiểm tra
             if is_hr_employee:
-                return
-            
-            
-            # Similar logic as above but starting with Other tab count
+                continue
+
+            # Đếm số khóa học trong tab Other
             other_courses = len(record.training_brochure_line_id)
-            
-            # Count courses in Company tab
+
+            # Đếm số khóa học trong tab Company
             company_tab = self.env['hmv.training.need.company'].search([
                 ('training_need_id', '=', record.training_need_id.id),
                 ('employee_id', '=', record.employee_id.id)
             ])
             company_courses = len(company_tab.training_brochure_line_id) if company_tab else 0
-            
-            # Count courses in Factory tab
+
+            # Đếm số khóa học trong tab Factory
             factory_tab = self.env['hmv.training.need.factory'].search([
                 ('training_need_id', '=', record.training_need_id.id),
                 ('employee_id', '=', record.employee_id.id)
             ])
             factory_courses = len(factory_tab.training_brochure_line_id) if factory_tab else 0
-            
+
+            # Tổng số khóa học
             total_courses = other_courses + company_courses + factory_courses
-            
+
             if total_courses > 2:
                 raise ValidationError(
-                    f'Employee {record.employee_id.name} cannot register for more than 2 training courses in total across all tabs!'
+                    f'Employee {record.employee_id.name} can not register above 2 courses!'
                 )
 
 

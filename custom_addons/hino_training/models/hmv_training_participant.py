@@ -7,7 +7,12 @@ class TrainingParticipant(models.Model):
 
     course_id = fields.Many2one('hmv.training.courses', string='Training Course', ondelete='cascade')
     tab_training_courses = fields.Many2one('hmv.tab.training.courses.provided.by.company', string='tab_training_courses', ondelete='cascade')
-
+    training_brochure_line_id = fields.Many2one(
+        'hmv.training.brochure.line',
+        string='Training Brochure Line',
+        related='course_id.training_brochure_id',
+        store=True
+    )
     # # lấy từ training need
     employee_id = fields.Many2one('hr.employee', string='Employee', required=True)
     full_name = fields.Char(related='employee_id.name', string='Full Name', readonly=True, store=True)
@@ -22,16 +27,20 @@ class TrainingParticipant(models.Model):
         ('agreed', 'Agree to participant')
     ], string='Status', default='waiting', tracking=True)
 
-    @api.constrains('employee_id', 'course_id')
+    @api.constrains('employee_id', 'course_id', 'training_brochure_line_id')
     def _check_unique_employee_course(self):
         for record in self:
             duplicate = self.search([
                 ('employee_id', '=', record.employee_id.id),
                 ('course_id', '=', record.course_id.id),
+                ('training_brochure_line_id', '=', record.training_brochure_line_id.id),
                 ('id', '!=', record.id)
             ])
             if duplicate:
-                raise ValidationError(_("Employee %s is already registered for this course!") % record.employee_id.name)
+                raise ValidationError(
+                    _("Employee %s is already registered for this course from the same brochure line!")
+                    % record.employee_id.name
+                )
 
     def action_confirm(self):
         for record in self:

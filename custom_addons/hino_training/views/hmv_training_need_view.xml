@@ -130,10 +130,11 @@
                         <page string="Training courses provided by company" name="company_training">
                             <field name="company_line_ids">
                                 <tree editable="bottom">
-                                    <field name="employee_id" />
+                                    <field name="employee_id"
+                                        options="{'no_create': True, 'no_open': True, 'trigger_on_change': true}" />
                                     <field name="email" />
-                                    <field name="training_brochure_line_id" widget="many2many_tags" />
-
+                                    <field name="training_brochure_line_id" widget="many2many_tags"
+                                        options="{'no_create': True, 'no_quick_create': True, 'trigger_on_change': true}" />
                                 </tree>
                             </field>
                         </page>
@@ -143,9 +144,11 @@
                         <page string="Factory Training" name="factory_training">
                             <field name="factory_line_ids">
                                 <tree editable="bottom">
-                                    <field name="employee_id" />
+                                    <field name="employee_id"
+                                        options="{'no_create': True, 'no_open': True, 'trigger_on_change': true}" />
                                     <field name="email" />
-                                    <field name="training_brochure_line_id" widget="many2many_tags"/>
+                                    <field name="training_brochure_line_id" widget="many2many_tags"
+                                        options="{'no_create': True, 'no_quick_create': True, 'trigger_on_change': true}" />
                                 </tree>
                             </field>
                         </page>
@@ -155,9 +158,11 @@
                         <page string="Other Training" name="other_training">
                             <field name="other_line_ids">
                                 <tree editable="bottom">
-                                    <field name="employee_id" />
+                                    <field name="employee_id"
+                                        options="{'no_create': True, 'no_open': True, 'trigger_on_change': true}" />
                                     <field name="email" />
-                                    <field name="training_brochure_line_id" widget="many2many_tags"/>
+                                    <field name="training_brochure_line_id" widget="many2many_tags"
+                                        options="{'no_create': True, 'no_quick_create': True, 'trigger_on_change': true}" />
                                 </tree>
                             </field>
                         </page>
