@@ -24,7 +24,6 @@ _build/
 
 # /addons/*
 # !/addons/
-# !/addons/auth_totp/
 # !/addons/hr/
 # !/addons/stock/
 # !/addons/product/

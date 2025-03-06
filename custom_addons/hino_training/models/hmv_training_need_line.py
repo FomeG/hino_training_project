@@ -58,31 +58,37 @@ class TrainingNeedCompanyTab(models.Model):
                 )
     
 
-    @api.constrains('employee_id', 'training_brochure_line_id')
-    def _check_max_courses(self):
-        for record in self:
-            if len(record.training_brochure_line_id) > 2:
-                raise ValidationError(
-                    f'Employee {record.employee_id.name} cannot register for more than 2 company training courses!'
-                )
+    # @api.constrains('employee_id', 'training_brochure_line_id')
+    # def _check_max_courses(self):
+    #     for record in self:
+    #         if len(record.training_brochure_line_id) > 2:
+    #             raise ValidationError(
+    #                 f'Employee {record.employee_id.name} cannot register for more than 2 company training courses!'
+    #             )
         
 
 
 # Hàm kiểm tra tổng số khóa học trên tất cả các tab
     @api.constrains('employee_id', 'training_brochure_line_id')
     def _check_max_courses_total(self):
+        current_user_employee = self.env['hr.employee']._get_valid_employee_for_user()
+        is_hr_employee = False
+        # if self.env.user.has_group('hr.group_hr_user') or self.env.user.has_group('hr.group_hr_manager'):
+        #     is_hr_employee = True
+        if current_user_employee and current_user_employee.department_id and current_user_employee.department_id.name == 'HR':
+            is_hr_employee = True
+
+        if is_hr_employee:
+            return
+                
+                
+        
         for record in self:
             if not record.employee_id:
                 continue
-
-            # Kiểm tra xem người dùng hiện tại có phải là nhân viên HR không
-            current_user_employee = self.env.user.employee_id
-            is_hr_employee = current_user_employee and current_user_employee.department_id.name == 'HR'
-
-            # Nếu là HR, bỏ qua kiểm tra
-            if is_hr_employee:
-                continue
-
+            
+            
+            print("Chay")
             # Đếm số khóa học trong tab Company
             company_courses = len(record.training_brochure_line_id)
 
@@ -171,6 +177,19 @@ class TrainingNeedFactoryTab(models.Model):
 # Hàm kiểm tra tổng số khóa học trên tất cả các tab
     @api.constrains('employee_id', 'training_brochure_line_id')
     def _check_max_courses_total(self):
+        current_user_employee = self.env['hr.employee']._get_valid_employee_for_user()
+        is_hr_employee = False
+        # if self.env.user.has_group('hr.group_hr_user') or self.env.user.has_group('hr.group_hr_manager'):
+        #     is_hr_employee = True
+        if current_user_employee and current_user_employee.department_id and current_user_employee.department_id.name == 'HR':
+            is_hr_employee = True
+
+        if is_hr_employee:
+            return
+
+        
+        
+        
         for record in self:
             if not record.employee_id:
                 continue
@@ -281,6 +300,18 @@ class TrainingNeedOtherTab(models.Model):
 # Hàm kiểm tra tổng số khóa học trên tất cả các tab
     @api.onchange('employee_id', 'training_brochure_line_id')
     def _check_max_courses_total(self):
+        current_user_employee = self.env['hr.employee']._get_valid_employee_for_user()
+        is_hr_employee = False
+        # if self.env.user.has_group('hr.group_hr_user') or self.env.user.has_group('hr.group_hr_manager'):
+        #     is_hr_employee = True
+        if current_user_employee and current_user_employee.department_id and current_user_employee.department_id.name == 'HR':
+            is_hr_employee = True
+
+        if is_hr_employee:
+            return
+
+        
+        
         for record in self:
             if not record.employee_id:
                 continue
