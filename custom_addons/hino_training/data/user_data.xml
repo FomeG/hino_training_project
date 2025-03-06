@@ -5,7 +5,7 @@
         <field name="password">1</field>
         <field name="email">hr_manager@example.com</field>
         <!-- Thêm nhóm hr.group_hr_user để có quyền truy cập Job Position -->
-        <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
     </record>
 
     <record id="employee_hr_hr_manager" model="hr.employee">
@@ -20,7 +20,7 @@
         <field name="login">dgm1</field>
         <field name="password">1</field>
         <field name="email">dgm1@example.com</field>
-        <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
     </record>
 
     <record id="employee_hr_dgm1" model="hr.employee">
@@ -36,7 +36,7 @@
         <field name="login">dgm2</field>
         <field name="password">1</field>
         <field name="email">dgm2@example.com</field>
-        <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
     </record>
 
     <record id="employee_hr_dgm2" model="hr.employee">
@@ -52,7 +52,7 @@
         <field name="login">manager1</field>
         <field name="password">1</field>
         <field name="email">manager1@example.com</field>
-        <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
     </record>
 
     <record id="employee_hr_manager1" model="hr.employee">
@@ -68,7 +68,7 @@
         <field name="login">manager2</field>
         <field name="password">1</field>
         <field name="email">manager2@example.com</field>
-        <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
     </record>
 
     <record id="employee_hr_manager2" model="hr.employee">
@@ -84,7 +84,7 @@
         <field name="login">staff1</field>
         <field name="password">1</field>
         <field name="email">staff1@example.com</field>
-        <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
     </record>
 
     <record id="employee_hr_staff1" model="hr.employee">
@@ -100,7 +100,7 @@
         <field name="login">staff2</field>
         <field name="password">1</field>
         <field name="email">staff2@example.com</field>
-        <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('hr.group_hr_user')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
     </record>
 
     <record id="employee_hr_staff2" model="hr.employee">
