@@ -61,8 +61,63 @@ class TrainingParticipant(models.Model):
             record.status = 'refused'
         return True
 
-    def action_resend(self):
-        template = self.env.ref('hmv_training.email_template_training_confirmation')
-        for record in self:
-            template.send_mail(record.id, force_send=True)
-        return True
+    def action_resend_email(self):
+        """Resend notification email to the participant"""
+        self.ensure_one()
+
+        if not self.email:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Warning'),
+                    'message': _('No email address found for this participant.'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+
+        mail_values = {
+            'subject': f'Training Course Notification: {self.course_id.course_title}',
+            'email_from': self.env.user.email or self.env.company.email,
+            'email_to': self.email,
+            'body_html': f"""
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Dear {self.full_name},
+                        <br/><br/>
+                        This is a notification regarding the Training Course: {self.course_id.course_title}
+                        <br/><br/>
+                        Details:
+                        <ul>
+                            <li>Course Title: {self.course_id.course_title}</li>
+                            <li>Start Date: {self.course_id.start_date}</li>
+                            <li>End Date: {self.course_id.end_date}</li>
+                            <li>Vendor: {self.course_id.vendor_id.name if self.course_id.vendor_id else ''}</li>
+                            <li>Training Method: {dict(self.course_id._fields['training_method'].selection).get(self.course_id.training_method) if hasattr(self.course_id, 'training_method') else ''}</li>
+                            <li>Location: {self.course_id.location_id.name if hasattr(self.course_id, 'location_id') and self.course_id.location_id else ''}</li>
+                        </ul>
+                        <br/>
+                        Please confirm your participation at your earliest convenience.
+                        <br/><br/>
+                        Best regards,<br/>
+                        {self.env.user.name}
+                    </p>
+                </div>
+            """
+        }
+
+        # Create and send email
+        self.env['mail.mail'].create(mail_values).send()
+
+        # Show success message
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('Notification email sent to %s') % self.full_name,
+                'type': 'success',
+                'sticky': False,
+            }
+        }
