@@ -14,6 +14,42 @@ class tabFactoryTraining(models.Model):
     )
     course_title = fields.Char(string='Course Title', required=False, tracking=True)
 
+    participant_ids = fields.Many2many(
+        'hr.employee',
+        'training_factory_participant_rel',  # Tên bảng quan hệ riêng cho trường này
+        'training_factory_id',               # Cột liên kết với model hiện tại
+        'employee_id',                      # Cột liên kết với hr.employee
+        string='List of Participants',
+        compute='_compute_participant_ids',
+        store=True
+    )
+
+    # Trường hiển thị số lượng học viên đã đăng ký
+    participant_count = fields.Integer(
+        string="Participant Count",
+        compute="_compute_participant_count",
+        store=True
+    )
+
+    @api.depends('course_title')
+    def _compute_participant_ids(self):
+        for record in self:
+            if record.course_title:
+                # Tìm các need line (hmv.training.need.factory) có brochure line với course_name trùng với course_title của bản ghi này
+                need_lines = self.env['hmv.training.need.factory'].search([
+                    ('training_brochure_line_id.course_name', '=', record.course_title)
+                ])
+                # Lấy danh sách nhân viên từ các need line tìm được
+                record.participant_ids = need_lines.mapped('employee_id')
+            else:
+                record.participant_ids = [(5, 0, 0)]
+
+    @api.depends('participant_ids')
+    def _compute_participant_count(self):
+        for record in self:
+            # Đếm số lượng học viên từ danh sách participant_ids
+            record.participant_count = len(record.participant_ids)
+
     recommend_level_ids = fields.Many2many(
         comodel_name='hmv.list.value.line',  # Model được liên kết
         relation='training_tab_factory_recommend_level_rel',  # Tên bảng trung gian mới
@@ -58,17 +94,12 @@ class tabFactoryTraining(models.Model):
     ], string='Course Type', required=False, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
-    # audience_ids = fields.Many2one('hmv.list.value.line', string='Audience', required=False,
-    #                                tracking=True, domain=[('code', '=', 'TR_LEVEL')]) ???? lấy ở đâu
-    participant_ids = fields.One2many('hmv.training.participant', 'tab_training_courses', string='Participants')
-
 
     fee = fields.Float(string="Fee/per", help="Chi phí một người")
     estimated_fee = fields.Float(string="Estimated fee")
     other_fee = fields.Float(string="Other fee", help="Chi phí khác")
-    purpose=fields.Text(string='Purpose')
-    # List of participants (related field, not editable directly)
-    # participants = fields.One2many('hmv.training.course.participant', 'training_course_id', string="List of participants")
+    purpose = fields.Text(string='Purpose')
+
     @api.depends('course_type', 'slot', 'fee')
     def _compute_estimated_fee(self):
         for record in self:
@@ -82,12 +113,12 @@ class tabFactoryTraining(models.Model):
         for record in self:
             if record.course_type == 'in_house':
                 record.fee = 0.0
-            # You could add additional logic if fee is determined from another source
+
     @api.onchange('course_type', 'fee', 'participant_ids')
     def _onchange_estimated_fee(self):
         if self.course_type == 'public':
             # Tự động tính dựa trên fee * số lượng học viên đăng ký
-            self.estimated_fee = (self.fee or 0.0) * len(self.participant_ids)
+            self.estimated_fee = (self.fee or 0.0) * self.participant_count
         # Nếu course_type là in_house, estimated_fee sẽ không tự động tính,
         # cho phép người dùng nhập giá trị thủ công.
 

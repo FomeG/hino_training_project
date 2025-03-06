@@ -133,6 +133,7 @@
                                     <field name="employee_id" />
                                     <field name="email" />
                                     <field name="training_brochure_line_id" widget="many2many_tags" />
+
                                 </tree>
                             </field>
                         </page>
