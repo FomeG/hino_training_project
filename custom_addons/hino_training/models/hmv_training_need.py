@@ -164,6 +164,25 @@ class TrainingNeed(models.Model):
                 
                 
                 
+    @api.onchange('training_brochure_id')
+    def _onchange_training_brochure_id(self):
+        """
+        When training_brochure_id changes, reset all tabs by clearing their lines
+        """
+        # Clear all lines in the Company tab
+        self.company_line_ids = [(5, 0, 0)]
+        
+        # Clear all lines in the Factory tab
+        self.factory_line_ids = [(5, 0, 0)]
+        
+        # Clear all lines in the Other tab
+        self.other_line_ids = [(5, 0, 0)] 
+                
+                
+                
+                
+                
+                
 #region Button methods
     def action_edit(self):
         """Allow editing when in draft or rejected state"""
