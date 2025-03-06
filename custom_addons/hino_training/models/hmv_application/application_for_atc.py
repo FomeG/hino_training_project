@@ -6,7 +6,7 @@ from odoo.exceptions import ValidationError, UserError
 class ApplicationForATC(models.Model):
     _name = 'application'
     _description = 'Application for Attending Training Course'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'workflow.mixin']
     # remain_slots chua tinh, dynamic approval flow
 
     # Header
@@ -328,8 +328,11 @@ class ApplicationForATC(models.Model):
                 raise ValidationError(_('The Remaining Slots cannot be less than 0.'))
 
     # Approval Workflow
-    @staticmethod
-    def _get_approval_flow():
+    def _get_approval_flow(self):
+        if self.x_workflow_template_id:
+            steps = self.x_workflow_template_id.x_step_ids.sorted(key=lambda step: step.x_sequence)
+            print([step.x_role for step in steps])
+            return [step.x_role for step in steps]
         return ["Manager", "Senior Manager", "DGM", "GM", "Officer", "HR Manager"]
 
     def _get_manager(self):
