@@ -12,17 +12,17 @@ class TrainingCourses(models.Model):
     course_title = fields.Char(string='Course Title', required=True, tracking=True)
     start_date = fields.Date(string='Start date', required=True, tracking=True)
     end_date = fields.Date(string='End date', required=True, tracking=True)
-    vendor_id = fields.Many2one('res.partner', string='Vendor', required=True, tracking=True,
+    vendor_id = fields.Many2one('res.partner', string='Vendor', required=False, tracking=True,
                                 domain=[('is_company', '=', True)])
     purchase_order_id = fields.Many2one('purchase.order', string='Link PO', tracking=True)
-    employee_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', required=True,tracking=True,
+    employee_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', required=False,tracking=True,
                                         domain=[('department_id.name', 'ilike', 'HR')])
     slot = fields.Integer(string='Slots', required=True, tracking=True)
     training_content = fields.Text(string='Training content', required=True, tracking=True)
     file_attach = fields.Many2many('ir.attachment', string='File Attach', attachment=True)
     confirmation_start_date = fields.Date(string='Start date of confirmation', required=True, tracking=True)
     confirmation_end_date = fields.Date(string='End date of confirmation', required=True, tracking=True)
-    department_id = fields.Many2one('hr.department', string='Apply for department', required=True, tracking=True)
+    department_id = fields.Many2one('hr.department', string='Apply for department', required=False, tracking=True)
     training_method = fields.Selection([
         ('video', 'Video Learning'),
         ('in_person', 'In-Person Training')
@@ -30,7 +30,7 @@ class TrainingCourses(models.Model):
     year = fields.Char(string='Year', compute='_compute_year', store=True)
     training_brochure_id = fields.Many2one('hmv.training.brochure.line', string='Training brochure',
                                            tracking=True)
-    location_id = fields.Many2one('res.country.state', string='Location', required=True, tracking=True)
+    location_id = fields.Many2one('res.country.state', string='Location', required=False, tracking=True)
     employee_hr_id = fields.Many2one('hr.employee', string='Prepared', tracking=True,
                                      domain=[('department_id.name', 'ilike', 'HR')])
     deptcombine = fields.Text(string='DeptCombine', tracking=True)
@@ -50,8 +50,8 @@ class TrainingCourses(models.Model):
     course_type = fields.Selection([
         ('public', 'Public'),
         ('in_house', 'In-house')
-    ], string='Course Type', required=True, tracking=True)
-    estimate_fee = fields.Monetary(string='Actual Fee', required=True, tracking=True)
+    ], string='Course Type', required=False, tracking=True)
+    estimate_fee = fields.Monetary(string='Actual Fee', required=False, tracking=True)
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
     audience_ids = fields.Many2many('hmv.list.value.line',
@@ -139,7 +139,8 @@ class TrainingCourses(models.Model):
             # Check slot limit
             if len(participants) > self.slot:
                 raise ValidationError(
-                    f"Number of participants ({len(participants)}) exceeds available slots ({self.slot})!"
+                    "Number of participants: " + str(len(participants)) + " exceeds available slots " + str(
+                        self.slot) + "!"
                 )
 
             # Update participant_ids

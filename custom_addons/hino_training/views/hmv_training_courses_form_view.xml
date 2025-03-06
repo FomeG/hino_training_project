@@ -120,7 +120,7 @@
                                                 icon="fa-check" invisible="status != 'waiting'"/>
                                         <button name="action_refuse" string="Refuse" type="object"
                                                 icon="fa-times" invisible="status != 'waiting'"/>
-                                        <button name="action_resend" string="RESEND" type="object" icon="fa-envelope"/>
+                                        <button name="action_resend_email" string="RESEND" type="object" icon="fa-envelope"/>
                                     </tree>
                                 </field>
                             </page>

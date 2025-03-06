@@ -53,6 +53,11 @@ class TrainingPlan(models.Model):
     @api.onchange('training_brochure_id')
     def _onchange_training_brochure_id(self):
         if self.training_brochure_id:
+            # Clear existing lines
+            self.tab_training_courses_id = [(5, 0, 0)]
+            self.tab_factory_id = [(5, 0, 0)]
+            self.tab_others_id = [(5, 0, 0)]
+
             # Cập nhật tab_training_courses_id
             training_courses_lines = [(0, 0, {
                 'course_title': line.course_name,
@@ -65,14 +70,14 @@ class TrainingPlan(models.Model):
                 'course_title': line.course_name,
                 'start_date': line.start_date,
                 'end_date': line.end_date,
-            }) for line in self.training_brochure_id.other_training_ids]
+            }) for line in self.training_brochure_id.factory_training_ids]
 
             # Cập nhật tab_others_id
             others_lines = [(0, 0, {
                 'course_title': line.course_name,
                 'start_date': line.start_date,
                 'end_date': line.end_date,
-            }) for line in self.training_brochure_id.factory_training_ids]
+            }) for line in self.training_brochure_id.other_training_ids]
 
             self.tab_training_courses_id = training_courses_lines
             self.tab_factory_id = factory_lines
@@ -81,8 +86,7 @@ class TrainingPlan(models.Model):
             # Nếu bỏ chọn brochure, xóa tất cả các dòng hiện tại
             self.tab_training_courses_id = [(5, 0, 0)]
             self.tab_factory_id = [(5, 0, 0)]
-            self.tab_others_id = [(5, 0, 0)]   
-               
+            self.tab_others_id = [(5, 0, 0)]
     @api.onchange('year')
     def _onchange_year(self):
         if self.year:
@@ -142,6 +146,7 @@ class TrainingPlan(models.Model):
             ('draft', 'Draft'),
             ('hr_manager_processing', 'Hr Manager Processing'),
             ('fd_processing', 'Fd Processing'),
+            ('gd_processing', 'Gd Processing'),
             ('approved', 'Approved'),
             ('cancel', 'Cancel'),
         ],
@@ -340,6 +345,23 @@ class TrainingPlan(models.Model):
                 'default_action_type': 'approve'
             }
         }
+    def action_gd_processing(self):
+        """Finance Director duyệt, chuyển sang trạng thái Approved và hiển thị wizard"""
+        if self.state != 'gd_processing':
+            raise ValidationError(_("Chỉ có thể duyệt từ trạng thái 'GD Processing'."))
+
+        return {
+            'name': _('Approval Confirmation'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hmv.training.plan.comment.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_training_plan_id': self.id,
+                'default_action_type': 'approve'
+            }
+        }
+
 
     def create_approval_record(self, state):
             """Tạo bản ghi lịch sử phê duyệt"""
@@ -354,7 +376,8 @@ class TrainingPlan(models.Model):
             state_mapping = {
                 'draft': 'hr_manager_processing',
                 'hr_manager_processing': 'fd_processing',
-                'fd_processing': 'approved'
+                'fd_processing': 'gd_processing',
+                'gd_processing': 'approved'
             }
             return state_mapping.get(current_state, 'approved')
     def action_cancel(self):
