@@ -15,8 +15,8 @@ class TrainingCourses(models.Model):
     vendor_id = fields.Many2one('res.partner', string='Vendor', required=False, tracking=True,
                                 domain=[('is_company', '=', True)])
     purchase_order_id = fields.Many2one('purchase.order', string='Link PO', tracking=True)
-    employee_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', required=False,tracking=True,
-                                        domain=[('department_id.name', 'ilike', 'HR')])
+    employee_id = fields.Many2many('hr.employee', string='P.I.C Staff/Dept', required=False, tracking=True,
+                                   domain=[('department_id.name', 'ilike', 'HR')])
     slot = fields.Integer(string='Slots', required=True, tracking=True)
     training_content = fields.Text(string='Training content', required=True, tracking=True)
     file_attach = fields.Many2many('ir.attachment', string='File Attach', attachment=True)
@@ -147,30 +147,48 @@ class TrainingCourses(models.Model):
             if participants:
                 self.participant_ids = participants
 
-            # 2. Handle estimate_fee and course_type population
-            course_line = self.env['hmv.tab.training.courses.provided.by.company'].search([
-                ('training_plan_id.training_brochure_id', '=', self.training_brochure_id.id)
-            ], limit=1)
-            if course_line:
-                self.estimate_fee = course_line.estimated_fee or 0.0
-                self.course_type = course_line.course_type or False
-            else:
-                other_line = self.env['hmv.tab.others'].search([
-                    ('training_plan_id.training_brochure_id', '=', self.training_brochure_id.id)
+                # 2. Handle estimate_fee and course_type population
+                # First check in company tab
+                course_line = self.env['hmv.tab.training.courses.provided.by.company'].search([
+                    ('course_title', '=', self.training_brochure_id.course_name),
+                    (
+                        'training_plan_id.training_brochure_id', '=',
+                        self.training_brochure_id.training_brochure_id_company.id)
                 ], limit=1)
-                if other_line:
-                    self.estimate_fee = other_line.estimated_fee or 0.0
-                    self.course_type = other_line.course_type or False
+
+                if course_line:
+                    self.estimate_fee = course_line.estimated_fee or 0.0
+                    self.course_type = course_line.course_type or False
                 else:
-                    factory_line = self.env['hmv.tab.factory.training'].search([
-                        ('training_plan_id.training_brochure_id', '=', self.training_brochure_id.id)
+                    # Then check in other tab
+                    other_line = self.env['hmv.tab.others'].search([
+                        ('course_title', '=', self.training_brochure_id.course_name),
+                        (
+                            'training_plan_id.training_brochure_id', '=',
+                            self.training_brochure_id.training_brochure_id_other.id)
                     ], limit=1)
-                    if factory_line:
-                        self.estimate_fee = factory_line.estimated_fee or 0.0
-                        self.course_type = factory_line.course_type or False
+
+                    if other_line:
+                        self.estimate_fee = other_line.estimated_fee or 0.0
+                        self.course_type = other_line.course_type or False
                     else:
-                        self.estimate_fee = 0.0
-                        self.course_type = False
+                        # Finally check in factory tab
+                        factory_line = self.env['hmv.tab.factory.training'].search([
+                            ('course_title', '=', self.training_brochure_id.course_name),
+                            (
+                                'training_plan_id.training_brochure_id', '=',
+                                self.training_brochure_id.training_brochure_id_factory.id)
+                        ], limit=1)
+
+                        if factory_line:
+                            self.estimate_fee = factory_line.estimated_fee or 0.0
+                            self.course_type = factory_line.course_type or False
+                        else:
+                            self.estimate_fee = 0.0
+                            self.course_type = False
+            else:
+                self.estimate_fee = 0.0
+                self.course_type = False
         else:
             # When brochure is cleared
             self.participant_ids = [(5, 0, 0)]
@@ -190,6 +208,14 @@ class TrainingCourses(models.Model):
         if 'training_brochure_id' in vals:
             self._onchange_training_brochure_id()
         return res
+
+    @api.depends('start_date')
+    def _compute_year(self):
+        for record in self:
+            if record.start_date:
+                record.year = fields.Datetime.from_string(record.start_date).strftime('%Y')
+            else:
+                record.year = 0
 
     @api.depends('approval_ids.status', 'approval_ids.sequence')
     def _compute_current_approval_level(self):
@@ -291,6 +317,7 @@ class TrainingCourses(models.Model):
         # Return warning if any validation failed
         if warning:
             return {'warning': warning}
+
     @api.constrains('slot')
     def _check_slot(self):
         for record in self:
@@ -388,6 +415,7 @@ class TrainingCourses(models.Model):
                 'default_approval_level': approval_level,
             }
         }
+
     # Specific approval actions that call the common method
     def action_staff_approve(self):
         return self._show_approval_wizard('staff')
