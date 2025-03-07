@@ -328,12 +328,13 @@ class ApplicationForATC(models.Model):
                 raise ValidationError(_('The Remaining Slots cannot be less than 0.'))
 
     # Approval Workflow
-    def _get_approval_flow(self):
-        if self.x_workflow_template_id:
-            steps = self.x_workflow_template_id.x_step_ids.sorted(key=lambda step: step.x_sequence)
-            print([step.x_role for step in steps])
-            return [step.x_role for step in steps]
-        return ["Manager", "Senior Manager", "DGM", "GM", "Officer", "HR Manager"]
+    @staticmethod
+    def _get_approval_flow():
+        # if self.x_workflow_template_id:
+        #     steps = self.x_workflow_template_id.x_step_ids.sorted(key=lambda step: step.x_sequence)
+        #     print([step.x_role for step in steps])
+        #     return [step.x_role for step in steps]
+        return ["manager", "senior_manager", "dgm", "gm", "officer", "hr_manager"]
 
     def _get_manager(self):
         approval_flow = self._get_approval_flow()
@@ -343,11 +344,12 @@ class ApplicationForATC(models.Model):
         # Find the next matching manager in the approval flow
         while current_manager:
             user_tag = current_manager.x_user_tag
+            print(user_tag)
             if user_tag in approval_flow:
                 managers.append(current_manager)
 
             current_manager = current_manager.parent_id
-
+        print(managers)
         return managers
 
     def _validate_workflow(self):
@@ -387,11 +389,19 @@ class ApplicationForATC(models.Model):
         if not managers:
             managers.append(self.x_applicant_id)
 
-        # Create an approval history record for each manager
+        hr_managers = self.env['hr.employee'].search([('x_user_tag', 'in', ['hr_manager'])])
+
         for manager in managers:
             approval_history_model.create({
                 'x_application_ids': self.id,
                 'x_approval_employee_id': manager.id,
+                'x_approval_status': 'wait',
+            })
+
+        for hr_manager in hr_managers:
+            approval_history_model.create({
+                'x_application_ids': self.id,
+                'x_approval_employee_id': hr_manager.id,
                 'x_approval_status': 'wait',
             })
 
