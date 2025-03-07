@@ -54,19 +54,21 @@
                         class="oe_highlight"
                         invisible="state != 'fd_processing'"/>
 
-                <!-- Nút General Director Approve -->
-                <button name="create_approval_record"
+                                <!-- Nút Finance Director Approve -->
+                <button name="action_gd_processing"
                         string="General Director Approve"
                         type="object"
                         class="oe_highlight"
-                        invisible="state != 'approved'"/>
+                        invisible="state != 'gd_processing'"/>
+                <!-- Nút General Director Approve -->
+      
 
                 <!-- Nút Reject -->
                 <button name="action_cancel"
                         string="Reject"
                         type="object"
                         class="btn-danger"
-                        modifiers="{'invisible': [('state', 'not in', ['hr_manager_processing', 'fd_processing', 'approved'])]}"/>
+                        modifiers="{'invisible': [('state', 'not in', ['hr_manager_processing', 'fd_processing','gd_processing', 'approved'])]}"/>
                 <button name="action_print_training_courses"
                     string="Print (PDF)"
                     type="object"
@@ -77,7 +79,7 @@
                     type="object"
                     class="btn-secondary"/> -->
 
-                <field name="state" widget="statusbar" statusbar_visible="draft,hr_manager_processing,fd_processing,approved,cancel"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,hr_manager_processing,fd_processing,gd_processing,approved,cancel"/>
             </header>
             
             <sheet>
@@ -135,10 +137,11 @@
                         <field name="start_date"/>
                         <field name="end_date"/>
                         <field name="course_type"/>
-                   <field name="fee" readonly="course_type == 'in_house'" />
-<field name="estimated_fee" readonly="course_type == 'public'" />
+                        <field name="fee" readonly="course_type == 'in_house'" />
+                        <field name="estimated_fee" readonly="course_type == 'public'" />
                         <field name="other_fee"/>   
-                        <field name="participant_ids"/>
+                    <field name="participant_count" readonly="1"/>
+                    <field name="participant_ids" widget="many2many_tags"/>
                     </tree>
                 </field>
                 <!-- Chèn group hiển thị tổng vào bên trong tab -->
@@ -182,9 +185,11 @@
                                             <field name="start_date"/>
                                             <field name="end_date"/>
                                             <field name="course_type"/>
-                     <field name="fee" readonly="course_type == 'in_house'" />
-<field name="estimated_fee" readonly="course_type == 'public'" />
-                            <field name="other_fee"/>   
+                                            <field name="fee" readonly="course_type == 'in_house'" />
+                                            <field name="estimated_fee" readonly="course_type == 'public'" />
+                                            <field name="other_fee"/>   
+                                                         <field name="participant_count" readonly="1"/>
+                                                        <field name="participant_ids" widget="many2many_tags"/>
                                     </tree>
                                 </field>
                                     <!-- Chèn group hiển thị tổng vào bên trong tab -->
@@ -225,9 +230,11 @@
                                             <field name="start_date"/>
                                             <field name="end_date"/>
                                             <field name="course_type"/>
-                  <field name="fee" readonly="course_type == 'in_house'" />
-<field name="estimated_fee" readonly="course_type == 'public'" />
-                            <field name="other_fee"/>   
+                                            <field name="fee" readonly="course_type == 'in_house'" />
+                                            <field name="estimated_fee" readonly="course_type == 'public'" />
+                                            <field name="other_fee"/>   
+                                            <field name="participant_count" readonly="1"/>
+                                            <field name="participant_ids" widget="many2many_tags"/>
                                     </tree>
                                 </field>
                                     <!-- Chèn group hiển thị tổng vào bên trong tab -->

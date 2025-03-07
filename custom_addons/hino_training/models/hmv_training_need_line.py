@@ -29,7 +29,7 @@ class TrainingNeedCompanyTab(models.Model):
         related='employee_id.work_email',
         readonly=True
     )
-    
+
     
     # Cái này là để lấy ra danh sách company course tương ứng với training brochure
     training_brochure_line_id = fields.Many2many(
@@ -41,8 +41,7 @@ class TrainingNeedCompanyTab(models.Model):
         required=True,
         domain="[('training_brochure_id_company', '=', parent.training_brochure_id)]"
     )
-    
-    
+  
     @api.constrains('employee_id', 'training_need_id')
     def _check_unique_employee(self):
         for record in self:
