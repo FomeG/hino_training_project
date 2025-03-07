@@ -6,7 +6,7 @@ from odoo.exceptions import ValidationError, UserError
 class ApplicationForATC(models.Model):
     _name = 'application'
     _description = 'Application for Attending Training Course'
-    _inherit = ['mail.thread', 'mail.activity.mixin', 'workflow.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     # remain_slots chua tinh, dynamic approval flow
 
     # Header
@@ -342,8 +342,8 @@ class ApplicationForATC(models.Model):
         current_manager = self.x_applicant_id.parent_id
         # Find the next matching manager in the approval flow
         while current_manager:
-            job_name = current_manager.job_id.name
-            if job_name in approval_flow:
+            user_tag = current_manager.x_user_tag
+            if user_tag in approval_flow:
                 managers.append(current_manager)
 
             current_manager = current_manager.parent_id
@@ -357,12 +357,12 @@ class ApplicationForATC(models.Model):
         approval_flow = self._get_approval_flow()
 
         #  Get current employee's job name
-        current_job = current_employee.job_id.name
+        current_tag = current_employee.x_user_tag
 
         # Find the index of the current employee's job in the approval flow
         current_index = -1
         for index in range(len(approval_flow)):
-            if approval_flow[index] == current_job:
+            if approval_flow[index] == current_tag:
                 current_index = index
                 break
         if current_index == -1:
@@ -373,7 +373,7 @@ class ApplicationForATC(models.Model):
             found = False
 
             for record in self.x_approval_history_ids:
-                if record.x_approval_employee_id.job_id.name == role_to_check:
+                if record.x_approval_employee_id.x_user_tag == role_to_check:
                     found = True
                     if record.x_approval_status != 'approved':
                         raise ValidationError(_('The previous approval for role "%s" is not approved.') % role_to_check)
@@ -453,3 +453,17 @@ class ApplicationApprovalHistory(models.Model):
                 record.x_is_approval_readonly = True
             else:
                 record.x_is_approval_readonly = False
+
+
+class ApplicationInheritHREmployee(models.Model):
+    _inherit = 'hr.employee'
+
+    x_user_tag = fields.Selection([
+        ('staff', 'Staff'),
+        ('manager', 'Manager'),
+        ('senior_manager', 'Senior Manager'),
+        ('dgm', 'DGM'),
+        ('gm', 'GM'),
+        ('officer', 'Officer'),
+        ('hr_manager', 'HR Manager')
+    ], string='User Tag', required=True)
