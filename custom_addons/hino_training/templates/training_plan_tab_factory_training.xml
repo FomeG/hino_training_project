@@ -18,137 +18,99 @@
                                     <p>Ngày ban hành/Issue date: <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/></p>
                                 </div>
                             </div>
-
-                            <!-- Training courses information by office Section -->
-                            <div style="background-color: #FFFFCC; border: 1px solid black; padding: 5px; margin-bottom: 10px;">
-                                <p style="text-align: center; font-weight: bold; margin: 0;">Training courses information by office</p>
-                            </div>
-
                             <!-- First Table - Training Courses by Department -->
-                            <table class="table table-bordered" style="margin-bottom: 20px;">
-                                <thead>
-                                    <tr style="background-color: #D3D3D3;">
-                                        <th style="width: 5%; text-align: center; vertical-align: middle;">TT No</th>
-                                        <th style="width: 20%; text-align: center; vertical-align: middle;">Phòng ban<br/>Dept</th>
-                                        <th style="width: 10%; text-align: center; vertical-align: middle;"></th>
-                                        <th colspan="8" style="text-align: center; vertical-align: middle;">Name of training courses</th>
+                        <table class="table table-bordered" style="margin-bottom: 20px;">
+                            <thead>
+                                <tr style="background-color: #D3D3D3;">
+                                    <th style="width: 5%; text-align: center; vertical-align: middle;">TT No</th>
+                                    <th style="width: 20%; text-align: center; vertical-align: middle;">Phòng ban<br/>Dept</th>
+                                    <!-- <th style="width: 10%; text-align: center; vertical-align: middle;"></th> -->
+                                    <th colspan="8" style="text-align: center; vertical-align: middle;">Name of training courses</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="3"></td>
 
-                                    </tr>
-                                    <tr style="background-color: #D3D3D3;">
-                                        <td colspan="3"></td>
-                                        <td style="text-align: center;">Name of training course </td>
-                                        <td style="text-align: center;">Name of training course </td>
-                                        <td style="text-align: center;">Name of training course </td>
-                                        <td style="text-align: center;">Name of training course </td>
-                                        <td style="text-align: center;">Name of training course </td>
-                                        <td style="text-align: center;">Name of training course </td>
-                                        <td style="text-align: center;">Name of training course </td>
-                                        <td style="text-align: center;">Name of training course </td>
-                                    </tr>
-                                    <tr style="background-color: #D3D3D3;">
-                                        <td colspan="3"></td>
-                                        <td style="text-align: center;">Date</td>
-                                        <td style="text-align: center;">Date</td>
-                                        <td style="text-align: center;">Date</td>
-                                        <td style="text-align: center;">Date</td>
-                                        <td style="text-align: center;">Date</td>
-                                        <td style="text-align: center;">Date</td>
-                                        <td style="text-align: center;">Date</td>
-                                        <td style="text-align: center;">Date</td>
-                                    </tr>
-                                    <tr style="background-color: #D3D3D3;">
-                                        <td colspan="3"></td>
-                                        <td style="text-align: center;">Name of Supplier </td>
-                                        <td style="text-align: center;">Name of Supplier</td>
-                                        <td style="text-align: center;">Name of Supplier</td>
-                                        <td style="text-align: center;">Name of Supplier</td>
-                                        <td style="text-align: center;">Name of Supplier</td>
-                                        <td style="text-align: center;">Name of Supplierr</td>
-                                        <td style="text-align: center;">Name of Supplier</td>
-                                        <td style="text-align: center;">Name of Supplier</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Section 1. Các khóa học tập trung lập kế hoạch hàng năm: Training courses provided by Company (job-refer to Training Brochure FY2023) -->
-                                    <tr>
-                                        <td colspan="11" style="font-weight: bold;">1. Các khóa học tập trung lập kế hoạch hàng năm: Training courses provided by Company (job-refer to Training Brochure FY2023)</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center;">1</td>
-                                        <td>General Administration Dept</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center;">2</td>
-                                        <td>Human Resource Dept</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center;">3</td>
-                                        <td>Purchasing, Import &amp; Export Dept</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                    <!-- Add more departments as needed -->
-                                    <tr>
-                                        <td colspan="2" style="text-align: center; font-weight: bold;">Quantity/Course</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" style="text-align: center; font-weight: bold;">Training fee</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                        <td style="text-align: center;">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="11" style="font-weight: bold;">Other fee (material, venue, transportation...)</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" style="text-align: center; font-weight: bold; background-color: #c7d7eb;">Sub Total Estimated Training Fee for Office (1)</td>
-                                        <td colspan="9" style="text-align: right; font-weight: bold; background-color: #c7d7eb;">
-                                            <t t-set="total_fee" t-value="sum(course.estimated_fee for course in doc.tab_training_courses_id)"/>
-                                            <t t-esc="total_fee"/>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    <t t-foreach="doc.tab_training_courses_id" t-as="course">
+                                        <td style="text-align: center;"><t t-esc="course.course_title"/></td>
+                                    </t>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <t t-foreach="doc.tab_training_courses_id" t-as="course">
+                                        <td style="text-align: center;"><t t-esc="course.start_date"/></td>
+                                    </t>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"></td>
+                                        <t t-foreach="docs" t-as="doc">
+                                            <t t-foreach="doc.tab_training_courses_id" t-as="course">
+                                                <td style="text-align: center;"><t t-esc="course.vendor_id.name"/></td>
+                                            </t>
+                                        </t>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top: 10px; font-weight: bold;">1. Các khóa đào tạo do Công ty giới thiệu/ Training courses provided by Company (pls. refer to Training Brochure FY<t t-esc="doc.year"/>)</p>
+                        <!-- Department table -->
+                        <table class="table table-bordered" style="width: 100%; border-collapse: collapse;">
+                            <tbody>
+                                <!-- Get departments and create a row for each -->    
+                                                
+                                <t t-foreach="docs" t-as="doc">
+                                    <t t-foreach="doc.tab_training_courses_id" t-as="course" t-foreach-index="index">   
+                                        <tr>
+                                            <!-- Hiển thị số thứ tự -->
+                                            <td style="text-align: center;"><t t-esc="(index or 0) + 1"/></td>
+
+                                            <!-- Hiển thị tên phòng ban -->
+                                            <td style="width: 20%; text-align: left;">
+                                                    <t t-esc="course.vendor_id.name"/>
+
+                                            </td>
+                                            <!-- Thêm các ô trống cho hàng -->
+                                            <t t-foreach="range(0, 8)" t-as="i">
+                                                <td style="width: 10%; border: 1px solid #ddd;"></td>
+                                            </t>
+                                        </tr>
+                                    </t>
+                                </t>
+
+                                
+                                <!-- Quantity/Course Row -->
+                                <tr>
+                                    <td colspan="2" style="text-align: center; border: 1px solid #ddd; font-weight: bold;">Quantity/Course</td>
+                                    <t t-foreach="range(0, 8)" t-as="i">
+                                        <td style="text-align: center; border: 1px solid #ddd;">0</td>
+                                    </t>
+                                </tr>
+                                
+                                <!-- Training fee Row -->
+                                <tr>
+                                    <td colspan="2" style="text-align: center; border: 1px solid #ddd; font-weight: bold;">Training fee</td>
+                                    <t t-foreach="range(0, 8)" t-as="i">
+                                        <td style="text-align: center; border: 1px solid #ddd;">0</td>
+                                    </t>
+                                </tr>
+                                
+                                <!-- Other fee Row -->
+                                <tr>
+                                    <td colspan="2" style="text-align: center; border: 1px solid #ddd; font-weight: bold;">Other fee (teabreak, venue, transportation...)</td>
+                                    <t t-foreach="range(0, 8)" t-as="i">
+                                        <td style="text-align: center; border: 1px solid #ddd;"></td>
+                                    </t>
+                                </tr>
+                                
+                                <!-- Sub-Total Row -->
+                                <tr>
+                                    <td colspan="2" style="text-align: center; border: 1px solid #ddd; font-weight: bold;">Sub-Total Estimated Training Fee for Office (1)</td>
+                                    <td colspan="8" style="text-align: center; border: 1px solid #ddd; font-weight: bold;">
+                                        <t t-esc="doc.total_fee"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
 
                             <!-- Second Table - Factory Training -->
                             <div style="page-break-before: always;"></div>
@@ -165,15 +127,17 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <t t-foreach="doc.tab_factory_id" t-as="course" t-foreach-index="index">
-                                            <tr>
-                                                <td style="text-align: center;"><t t-esc="(index or 0) + 1"/></td>
-                                                <td><t t-esc="course.course_title"/></td>
-                                                <td><t t-esc="course.vendor_id.name"/></td>
-                                                <td style="text-align: center;"><t t-esc="course.start_date"/></td>
-                                                <td style="text-align: right;"><t t-esc="course.estimated_fee"/></td>
-                                            </tr>
-                                        </t>
+                                        <t t-foreach="docs" t-as="doc">
+                                            <t t-foreach="doc.tab_factory_id" t-as="course" t-foreach-index="index">
+                                                <tr>
+                                                    <td style="text-align: center;"><t t-esc="(index or 0) + 1"/></td>
+                                                    <td><t t-esc="course.course_title"/></td>
+                                                    <td><t t-esc="course.vendor_id.name"/></td>
+                                                    <td style="text-align: center;"><t t-esc="course.start_date"/></td>
+                                                    <td style="text-align: right;"><t t-esc="course.estimated_fee"/></td>
+                                                </tr>
+                                            </t>
+                                         </t>
                                     </tbody>
                                 </table>
                                 <table style="width:100%; margin-top:10px; background-color: #c7d7eb;" border="1">
@@ -183,7 +147,9 @@
                                         </td>
                                         <td style="text-align:right; font-weight:bold; padding:5px;">
                                             <!-- <t t-set="total_factory_fee" t-value="sum(course.estimated_fee for course in doc.tab_factory_id)"/> -->
-                                            <t t-esc="total_fee_tab_factory"/>
+                                            <t t-foreach="docs" t-as="doc">
+                                                <t t-esc="doc.total_fee_tab_factory"/>
+                                            </t>
                                         </td>
                                     </tr>
                                 </table>
@@ -204,16 +170,21 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <t t-foreach="doc.tab_others_id" t-as="course" t-foreach-index="index">
-                                            <tr>
-                                                <td style="text-align: center;"><t t-esc="(index or 0) + 1"/></td>
-                                                <td><t t-esc="course.department_id.name"/></td>
-                                                <td><t t-esc="course.course_title"/></td>
-                                                <td><t t-esc="course.vendor_id.name"/></td>
-                                                <td style="text-align: center;"><t t-esc="course.start_date"/></td>
-                                                <td style="text-align: right;"><t t-esc="course.estimated_fee"/></td>
-                                            </tr>
+                                        <t t-foreach="docs" t-as="doc">
+
+                                            <t t-foreach="doc.tab_others_id" t-as="course" t-foreach-index="index">
+
+                                                <tr>
+                                                    <td style="text-align: center;"><t t-esc="(index or 0) + 1"/></td>
+                                                    <td><t t-esc="course.department_id.name"/></td>
+                                                    <td><t t-esc="course.course_title"/></td>
+                                                    <td><t t-esc="course.vendor_id.name"/></td>
+                                                    <td style="text-align: center;"><t t-esc="course.start_date"/></td>
+                                                    <td style="text-align: right;"><t t-esc="course.estimated_fee"/></td>
+                                                </tr>
+                                            </t>
                                         </t>
+
                                     </tbody>
                                 </table>
                                 <table style="width:100%; margin-top:10px; background-color: #c7d7eb;" border="1">
@@ -222,15 +193,19 @@
                                             Other Estimated Training Fee (3)
                                         </td>
                                         <td style="text-align:right; font-weight:bold; padding:5px;">
-                                            <!-- <t t-set="total_others_fee" t-value="sum(course.estimated_fee for course in doc.tab_others_id)"/> -->
-                                            <t t-esc="total_fee_tab_other"/>
+                                            <t t-foreach="docs" t-as="doc">
+                                                <t t-esc="doc.total_fee"/>
+                                            </t>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="text-align:left; font-weight:bold; padding:5px;">
-                                            Other Total (4)
+                                            Other Test (4)
                                         </td>
                                         <td style="text-align:right; font-weight:bold; padding:5px;">
+                                            <!-- <t t-foreach="docs" t-as="doc">
+                                                <t t-esc="doc.total_fee_tab_other"/>
+                                            </t> -->
                                             0
                                         </td>
                                     </tr>
@@ -252,8 +227,11 @@
                                         TOTAL TRAINING FEE FOR OFFICE (1)+(2)+(3)+(4)+(5)
                                     </td>
                                     <td style="text-align:right; font-weight:bold; padding:5px; width: 30%;">
-                                        <t t-set="total_fee" t-value="sum(course.estimated_fee for course in doc.tab_training_courses_id) + sum(course.estimated_fee for course in doc.tab_factory_id) + sum(course.estimated_fee for course in doc.tab_others_id)"/>
-                                        <t t-esc="total_fee"/>
+                                        <!-- <t t-set="total_fee" t-value="sum(course.estimated_fee for course in doc.tab_training_courses_id) + sum(course.estimated_fee for course in doc.tab_factory_id) + sum(course.estimated_fee for course in doc.tab_others_id)"/>
+                                        <t t-esc="total_fee"/> -->
+                                            <t t-foreach="docs" t-as="doc">
+                                                <t t-esc="doc.total"/>
+                                            </t>
                                     </td>
                                     <td style="text-align:right; font-weight:bold; padding:5px; width: 20%;">
                                         Budget compared FY22

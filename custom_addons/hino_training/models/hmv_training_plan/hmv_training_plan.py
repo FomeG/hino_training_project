@@ -49,6 +49,9 @@ class TrainingPlan(models.Model):
         tracking=True,
         domain="['|', ('year', '=', year), ('year', '=', False)]"
     )
+    #created by for send mail
+    created_by = fields.Many2one('res.users', string="Created By", default=lambda self: self.env.user)
+
 
     @api.onchange('training_brochure_id')
     def _onchange_training_brochure_id(self):
@@ -123,15 +126,12 @@ class TrainingPlan(models.Model):
     # Tổng chi phí các khóa học (các khóa học của toàn văn phòng)
     total = fields.Float(
         string="Total training fee for office",
-        required=True,
+        compute="_compute_total_training_fee",
+        store=True,
         tracking=True
+    )
 
-    )
-    total_training_fee = fields.Float(
-        string="Total training fee",
-        required=True,
-        tracking=True
-    )
+
     # Tên công ty: chỉ cho phép hệ thống tự động điền, không cho sửa
     company_id = fields.Many2one(
         'res.company',
@@ -157,8 +157,9 @@ class TrainingPlan(models.Model):
         tracking=True
     )
     description = fields.Char(
-        related='training_brochure_id.name',
         string="Description",
+        tracking=True
+
     )
     def action_edit(self):
         for record in self:
@@ -383,3 +384,55 @@ class TrainingPlan(models.Model):
     def action_cancel(self):
         """ Khi ấn Reject thì chuyển trạng thái về Cancel """
         self.write({'state': 'draft'})
+
+  
+    @api.depends('total_fee', 'total_fee_tab_factory', 'total_fee_tab_other')
+    def _compute_total_training_fee(self):
+        for record in self:
+            record.total = (record.total_fee or 0.0) + \
+                        (record.total_fee_tab_factory or 0.0) + \
+                        (record.total_fee_tab_other or 0.0)
+     # Api onchange method to check the year
+    @api.onchange('year')
+    def _onchange_year(self):
+        if self.year:
+            existing_record = self.search([('year', '=', self.year)], limit=1)
+            if existing_record:
+                raise ValidationError(f"Training Plan {self.year} are available. Please select another year.")
+            
+    
+
+    def action_send_mail_plan(self):
+        for record in self:
+            # Lấy email của người tạo
+            creator_email = record.created_by.email
+            if not creator_email:
+                raise ValidationError("The creator does not have an email address.")
+
+            # Tạo email để gửi
+            mail_values = {
+                'subject': 'Record Created Training Plan: %s' % record.name,
+                'email_from': self.env.user.email or self.env.company.email,  # Email người gửi
+                'email_to': creator_email,  # Email người nhận (người tạo bản ghi)
+                'body_html': f"""
+                           <p>Dear {record.created_by.name},</p>
+                           <p>Your Training Plan: <strong>{record.name}</strong>  has been approved.</p>
+                           <p>Best regards,<br/> {self.env.user.name}</p>
+                       """
+            }
+
+            # Tạo và gửi email
+            mail = self.env['mail.mail'].create(mail_values)
+            mail.send()
+        # Show success message with count of emails sent
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('Notification emails sent to %s assignees') % len(self),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+    
