@@ -13,7 +13,7 @@
         <field name="user_id" ref="user_hr_hr_manager"/>
         <field name="department_id" ref="department_hr"/>
         <field name="job_id" ref="job_hr_hr_manager"/>
-        <field name="x_user_tag" ref="hr_manager"/>
+        <field name="x_user_tag">hr_manager</field>
     </record>
 
     <record id="user_hr_dgm1" model="res.users">
@@ -29,7 +29,7 @@
         <field name="user_id" ref="user_hr_dgm1"/>
         <field name="department_id" ref="department_hr"/>
         <field name="job_id" ref="job_hr_dgm"/>
-        <field name="x_user_tag" ref="dgm"/>
+        <field name="x_user_tag">dgm</field>
         <field name="parent_id" ref="employee_hr_hr_manager"/>
     </record>
 
@@ -46,7 +46,7 @@
         <field name="user_id" ref="user_hr_dgm2"/>
         <field name="department_id" ref="department_hr"/>
         <field name="job_id" ref="job_hr_dgm"/>
-        <field name="x_user_tag" ref="dgm"/>
+        <field name="x_user_tag">dgm</field>
         <field name="parent_id" ref="employee_hr_hr_manager"/>
     </record>
 
@@ -63,7 +63,7 @@
         <field name="user_id" ref="user_hr_manager1"/>
         <field name="department_id" ref="department_hr"/>
         <field name="job_id" ref="job_hr_manager"/>
-        <field name="x_user_tag" ref="manager"/>
+        <field name="x_user_tag">manager</field>
         <field name="parent_id" ref="employee_hr_dgm1"/>
     </record>
 
@@ -80,7 +80,7 @@
         <field name="user_id" ref="user_hr_manager2"/>
         <field name="department_id" ref="department_hr"/>
         <field name="job_id" ref="job_hr_manager"/>
-        <field name="x_user_tag" ref="manager"/>
+        <field name="x_user_tag">manager</field>
         <field name="parent_id" ref="employee_hr_dgm2"/>
     </record>
 
@@ -97,7 +97,7 @@
         <field name="user_id" ref="user_hr_staff1"/>
         <field name="department_id" ref="department_hr"/>
         <field name="job_id" ref="job_hr_staff"/>
-        <field name="x_user_tag" ref="staff"/>
+        <field name="x_user_tag">staff</field>
         <field name="parent_id" ref="employee_hr_manager1"/>
     </record>
 
@@ -114,7 +114,7 @@
         <field name="user_id" ref="user_hr_staff2"/>
         <field name="department_id" ref="department_hr"/>
         <field name="job_id" ref="job_hr_staff"/>
-        <field name="x_user_tag" ref="staff"/>
+        <field name="x_user_tag">staff</field>
         <field name="parent_id" ref="employee_hr_manager2"/>
     </record>
 
