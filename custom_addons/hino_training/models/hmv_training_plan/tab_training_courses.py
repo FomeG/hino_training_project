@@ -6,6 +6,7 @@ class tabTrainingCourses(models.Model):
     _name = 'hmv.tab.training.courses.provided.by.company'
     _description = 'Training courses provided by company'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _rec_name = 'course_title'
 
     training_plan_id = fields.Many2one(
         'hmv.training.plan',
