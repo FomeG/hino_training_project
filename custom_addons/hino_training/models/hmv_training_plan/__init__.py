@@ -1,1 +1,1 @@
-from . import tab_training_courses,tab_other,tab_factory_training,hmv_training_plan,tab_approval_history
+from . import tab_company_training,tab_other_training,tab_factory_training,tab_approval_history,hmv_training_plan
