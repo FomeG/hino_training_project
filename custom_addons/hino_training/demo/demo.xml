@@ -299,7 +299,44 @@
         </record>
 
         <!-- #endregion -->
+<!-- Training Courses -->
+        <record id="course_project_management" model="hmv.training.courses">
+            <field name="course_title">Basic Project Management</field>
+            <field name="start_date">2024-11-01</field>
+            <field name="end_date">2024-11-05</field>
+            <field name="slot">20</field>
+            <field name="training_content">Giới thiệu các nguyên tắc và thực hành quản lý dự án.</field>
+            <field name="confirmation_start_date">2024-10-15</field>
+            <field name="confirmation_end_date">2024-10-31</field>
+            <field name="training_method">in_person</field>
+            <field name="description">Khóa học cung cấp kiến thức nền tảng về quản lý dự án.</field>
+            <field name="status">active</field>
+        </record>
 
+        <record id="course_data_analysis" model="hmv.training.courses">
+            <field name="course_title">Advanced Data Analysis</field>
+            <field name="start_date">2024-10-15</field>
+            <field name="end_date">2024-10-20</field>
+            <field name="slot">15</field>
+            <field name="training_content">Tìm hiểu sâu về phương pháp thống kê và trực quan hóa dữ liệu.</field>
+            <field name="confirmation_start_date">2024-09-01</field>
+            <field name="confirmation_end_date">2024-09-15</field>
+            <field name="training_method">video</field>
+            <field name="description">Nâng cao kỹ năng phân tích dữ liệu với các kỹ thuật tiên tiến.</field>
+            <field name="status">in_progress</field>
+        </record>
 
+        <record id="course_leadership" model="hmv.training.courses">
+            <field name="course_title">Leadership Skills for Managers</field>
+            <field name="start_date">2024-09-01</field>
+            <field name="end_date">2024-09-03</field>
+            <field name="slot">10</field>
+            <field name="training_content">Phát triển phẩm chất lãnh đạo và kỹ năng quản lý đội nhóm.</field>
+            <field name="confirmation_start_date">2024-08-15</field>
+            <field name="confirmation_end_date">2024-08-31</field>
+            <field name="training_method">in_person</field>
+            <field name="description">Phát triển kỹ năng lãnh đạo thiết yếu cho quản lý hiệu quả.</field>
+            <field name="status">done</field>
+        </record>
     </data>
 </odoo>

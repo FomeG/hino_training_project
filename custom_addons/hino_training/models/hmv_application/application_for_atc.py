@@ -61,9 +61,9 @@ class ApplicationForATC(models.Model):
     @api.onchange('x_course_title')
     def _compute_computed_domain(self):
         if self.env.user.department_id.name == 'HR':
-            self.computed_domain = [('status', '=', 'active')]
+            self.computed_domain = [('status', '=', 'active'), ('remaining_slots', '>', 0)]
         else:
-            self.computed_domain = [('status', '=', 'active'), ('course_type', '=', 'public')]
+            self.computed_domain = [('status', '=', 'active'), ('course_type', '=', 'public'), ('remaining_slots', '>', 0)]
 
     # Compute
     def _compute_course_count(self):
@@ -330,21 +330,29 @@ class ApplicationForATC(models.Model):
     # Approval Workflow
     @staticmethod
     def _get_approval_flow():
-        return ["Manager", "Senior Manager", "DGM", "GM", "Officer", "HR Manager"]
+        # if self.x_workflow_template_id:
+        #     steps = self.x_workflow_template_id.x_step_ids.sorted(key=lambda step: step.x_sequence)
+        #     print([step.x_role for step in steps])
+        #     return [step.x_role for step in steps]
+        return ["manager", "senior_manager", "dgm", "gm", "officer", "hr_manager"]
 
     def _get_manager(self):
         approval_flow = self._get_approval_flow()
         managers = []
 
+        if not self.x_applicant_id.parent_id:
+            return managers
+
         current_manager = self.x_applicant_id.parent_id
         # Find the next matching manager in the approval flow
         while current_manager:
-            job_name = current_manager.job_id.name
-            if job_name in approval_flow:
+            user_tag = current_manager.x_user_tag
+            print(user_tag)
+            if user_tag in approval_flow:
                 managers.append(current_manager)
 
             current_manager = current_manager.parent_id
-
+        print(managers)
         return managers
 
     def _validate_workflow(self):
@@ -354,12 +362,12 @@ class ApplicationForATC(models.Model):
         approval_flow = self._get_approval_flow()
 
         #  Get current employee's job name
-        current_job = current_employee.job_id.name
+        current_tag = current_employee.x_user_tag
 
         # Find the index of the current employee's job in the approval flow
         current_index = -1
         for index in range(len(approval_flow)):
-            if approval_flow[index] == current_job:
+            if approval_flow[index] == current_tag:
                 current_index = index
                 break
         if current_index == -1:
@@ -370,7 +378,7 @@ class ApplicationForATC(models.Model):
             found = False
 
             for record in self.x_approval_history_ids:
-                if record.x_approval_employee_id.job_id.name == role_to_check:
+                if record.x_approval_employee_id.x_user_tag == role_to_check:
                     found = True
                     if record.x_approval_status != 'approved':
                         raise ValidationError(_('The previous approval for role "%s" is not approved.') % role_to_check)
@@ -381,14 +389,20 @@ class ApplicationForATC(models.Model):
         approval_history_model = self.env['approval.history']
 
         managers = self._get_manager()
-        if not managers:
-            managers.append(self.x_applicant_id)
 
-        # Create an approval history record for each manager
+        hr_managers = self.env['hr.employee'].search([('x_user_tag', 'in', ['hr_manager'])])
+
         for manager in managers:
             approval_history_model.create({
                 'x_application_ids': self.id,
                 'x_approval_employee_id': manager.id,
+                'x_approval_status': 'wait',
+            })
+
+        for hr_manager in hr_managers:
+            approval_history_model.create({
+                'x_application_ids': self.id,
+                'x_approval_employee_id': hr_manager.id,
                 'x_approval_status': 'wait',
             })
 
@@ -450,3 +464,17 @@ class ApplicationApprovalHistory(models.Model):
                 record.x_is_approval_readonly = True
             else:
                 record.x_is_approval_readonly = False
+
+
+class ApplicationInheritHREmployee(models.Model):
+    _inherit = 'hr.employee'
+
+    x_user_tag = fields.Selection([
+        ('staff', 'Staff'),
+        ('manager', 'Manager'),
+        ('senior_manager', 'Senior Manager'),
+        ('dgm', 'DGM'),
+        ('gm', 'GM'),
+        ('officer', 'Officer'),
+        ('hr_manager', 'HR Manager')
+    ], string='User Tag', required=True)
