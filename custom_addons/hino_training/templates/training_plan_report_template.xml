@@ -1,61 +1,109 @@
 <odoo>
     <data>
-<template id="training_plan_report_template">
-    <t t-call="web.html_container">
-        <t t-call="web.external_layout">
-            <div class="page">
-                <h1>Training Plan Report</h1>
-                <p>List of Training Courses:</p>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Course Title</th>
-                            <th>Vendor</th>
-                            <th>Location</th>
-                            <th>Slot</th>
-                            <th>Recommendation Levels</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Course Type</th>
-                            <th>Fee</th>
-                            <th>Other Fee</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="docs" t-as="doc">
-                            <t t-foreach="doc.tab_training_courses_id" t-as="course">
-                                <tr>
-                                    <td><t t-esc="course.course_title"/></td>
-                                    <td><t t-esc="course.vendor_id.name"/></td>
-                                    <td><t t-esc="course.location_id.name"/></td>
-                                    <td><t t-esc="course.slot"/></td>
-                                    <td>
-                                        <t t-foreach="course.recommend_level_ids" t-as="level">
-                                            <span><t t-esc="level.name"/> </span>
+        <template id="summary_training_report_template">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <t t-foreach="docs" t-as="doc">
+                        <!-- Header Section -->
+                        <div class="page" data-oe-model="hmv.training.plan" t-att-data-oe-id="doc.id">
+                            <div class="row mb-4">
+                                <div class="col-3">
+                                    <img src="/hmv_training/static/description/hino_logo.png" style="max-height: 50px;"/>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <h3>SUMMARY OF TRAINING PLAN FY2023</h3>
+                                </div>
+                     
+                            </div>
+
+                            <!-- Combined Training Plan Table -->
+                            <table class="table table-bordered" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background-color: #D3D3D3;">
+                                            <th rowspan="5" style="width: 5%; text-align: center; vertical-align: middle;">TT No</th>
+                                            <th rowspan="5" style="width: 20%; text-align: center; vertical-align: middle;">Họ và tên<br/>Full name</th>
+                                            <th rowspan="5" style="width: 20%; text-align: center; vertical-align: middle;">Chức vụ<br/>Position</th>
+                                            <th colspan="100" style="text-align: center; vertical-align: middle;">
+                                                Training course to be taken (please mark "x" to register)
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <t t-foreach="doc.tab_training_courses_id" t-as="course">
+                                                <th style="text-align: center;"><t t-esc="course.course_title"/></th>
+                                            </t>
+                                        </tr>
+                                        <tr>
+                                            <t t-foreach="doc.tab_training_courses_id" t-as="course">
+                                                <th style="text-align: center;"><t t-esc="course.start_date"/></th>
+                                            </t>
+                                        </tr>
+                                        <tr>
+                                            <t t-foreach="doc.tab_training_courses_id" t-as="course">
+                                                <th style="text-align: center;"><t t-esc="course.vendor_id.name"/></th>
+                                            </t>
+                                        </tr>
+                                        <tr>
+                                            <t t-foreach="doc.tab_training_courses_id" t-as="course">
+                                                <th style="text-align: center;"><t t-esc="course.estimated_fee"/></th>
+                                            </t>
+                                        </tr>
+                                        <!-- Thêm dòng text sau thead, trước tbody -->
+                                        <tr>
+                                            <td colspan="103" style="text-align: left; font-style: italic; padding: 5px;">
+                                                1. Các khóa đào tạo do Công ty giới thiệu/Training courses provided by Company 
+                                                (pls. refer to Training Brochure FY2023)
+                                            </td>
+                                        </tr>
+                                    </thead>
+
+
+                            <!-- <p>1. Các khóa đào tạo do Công ty giới thiệu/Training courses provided by Company (pls. refer to Training Brochure FY2023)</p> -->
+
+
+                                    <tbody>
+
+                                        <t t-foreach="docs" t-as="doc">
+                                            <t t-set="departments" t-value="request.env['hr.department'].search([('company_id', '=', doc.company_id.id)])"/>
+                                            <t t-set="seq" t-value="0"/>
+
+                                            <t t-foreach="departments" t-as="dept">
+                                                <tr>
+                                                    <t t-set="seq" t-value="seq + 1"/>
+                                                    <td style="text-align: center;"><t t-esc="seq"/></td>
+                                                    <td style="text-align: left;"></td>
+                                                    <td style="text-align: left;"> 
+                                                    <t t-esc="dept.manager_id.job_id.name or ''"/>
+                                                    </td>
+                                                    <t t-foreach="doc.tab_training_courses_id" t-as="course">
+                                                        <td style="border: 1px solid #ddd;"></td>
+                                                    </t>
+                                                </tr>
+                                            </t>
                                         </t>
-                                    </td>
-                                    <td><t t-esc="course.start_date"/></td>
-                                    <td><t t-esc="course.end_date"/></td>
-                                    <td><t t-esc="course.course_type"/></td>
-                                    <td><t t-esc="course.fee"/></td>
-                                    <td><t t-esc="course.other_fee"/></td>
-                                </tr>
-                            </t>
-                        </t>
-                    </tbody>
-                </table>
-            </div>
-        </t>
-    </t>
-</template>
-        <record id="action_report_training_plan" model="ir.actions.report">
-            <field name="name">Training Plan Report</field>
+
+                                    
+                                    </tbody>
+                            </table>
+
+
+          
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <record id="action_report_summary_plan" model="ir.actions.report">
+            <field name="name">Print detail(PDF)</field>
             <field name="model">hmv.training.plan</field>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">hino_training.training_plan_report_template</field>
-            <field name="report_file">hino_training.training_plan_report_template</field>
+            <field name="report_name">hino_training.summary_training_report_template</field>
+            <field name="report_file">hino_training.summary_training_report_template</field>
             <field name="binding_model_id" ref="model_hmv_training_plan"/>
             <field name="binding_type">report</field>
+            <field name="attachment_use">True</field>
+            <field name="attachment">('Training_Plan_Summary_' + object.name + '.pdf')</field>
         </record>
     </data>
 </odoo>
+
