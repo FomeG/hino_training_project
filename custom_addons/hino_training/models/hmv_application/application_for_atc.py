@@ -340,6 +340,9 @@ class ApplicationForATC(models.Model):
         approval_flow = self._get_approval_flow()
         managers = []
 
+        if not self.x_applicant_id.parent_id:
+            return managers
+
         current_manager = self.x_applicant_id.parent_id
         # Find the next matching manager in the approval flow
         while current_manager:
@@ -386,8 +389,6 @@ class ApplicationForATC(models.Model):
         approval_history_model = self.env['approval.history']
 
         managers = self._get_manager()
-        if not managers:
-            managers.append(self.x_applicant_id)
 
         hr_managers = self.env['hr.employee'].search([('x_user_tag', 'in', ['hr_manager'])])
 
