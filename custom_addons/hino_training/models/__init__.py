@@ -15,4 +15,5 @@ from . import hmv_training_brochure_line
 from . import hmv_application
 
 from . import hmv_training_plan
+from . import hmv_training_plan_line
 
