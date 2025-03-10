@@ -197,8 +197,11 @@ class TrainingPlan(models.Model):
 
     # action report
     def action_print_training_courses(self):
-        return self.env.ref('hino_training.action_report_training_plan').report_action(self)
+        return self.env.ref('hino_training.action_report_training_factory').report_action(self)
 
+    def action_print_training_courses_detail(self):
+        return self.env.ref('hino_training.action_report_summary_plan').report_action(self)
+    
     total_estimated_fee = fields.Float(
             string="Total Estimated Fee", 
             compute="_compute_total_fees", 

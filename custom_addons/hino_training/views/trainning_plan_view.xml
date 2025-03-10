@@ -73,16 +73,17 @@
                         string="Reject"
                         type="object"
                         class="btn-danger"
-                        modifiers="{'invisible': [('state', 'not in', ['hr_manager_processing', 'fd_processing','gd_processing', 'approved'])]}"/>
+                        invisible="state not in ('hr_manager_processing','fd_processing','gd_processing')"/>
+                        <!-- invisible = 'state not in ['hr_manager_processing', 'fd_processing','gd_processing', 'approved'])]}"/> -->
                 <button name="action_print_training_courses"
                     string="Print (PDF)"
                     type="object"
                     class="btn-primary"/>
 
-                <!-- <button name="action_print_training_courses_detail"
+                <button name="action_print_training_courses_detail"
                     string="Print Detail (PDF)"
                     type="object"
-                    class="btn-secondary"/> -->
+                    class="btn-primary"/>
 
                 <field name="state" widget="statusbar" statusbar_visible="draft,hr_manager_processing,fd_processing,gd_processing,approved,cancel"/>
             </header>
