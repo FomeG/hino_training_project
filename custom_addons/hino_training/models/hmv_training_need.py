@@ -12,8 +12,8 @@ class TrainingNeed(models.Model):
     name = fields.Char(
         string='Training Need No.',
         required=True,
-        readonly=False,
-        default=lambda self: self._get_default_code(),
+        readonly=True,
+        default=lambda self: _('New'),
         tracking=True,
         copy=False,
     )
@@ -119,16 +119,43 @@ class TrainingNeed(models.Model):
         string='Approval History'
     )
 
-    def _get_default_code(self):
-        # Lấy giá trị mặc định từ ir.sequence
-        return self.env['ir.sequence'].next_by_code('hmv.training.need.code') or 'TN0001'
-
+    def _get_next_code(self):
+        sequence = self.env['ir.sequence'].sudo().search([('code', '=', 'hmv.training.need.code')], limit=1)
+        if sequence:
+            existing_codes = self.search([('name', 'ilike', 'TN')])
+            if existing_codes:
+                codes = [code.name for code in existing_codes]
+                max_code = max(codes, key=lambda x: int(x[2:]) if x[2:].isdigit() else 0)
+                next_number = int(max_code[2:]) + 1
+            else:
+                next_number = sequence.number_next
+                sequence.sudo().write({'number_next': next_number + 1})
+            return f"{sequence.prefix or ''}{str(next_number).zfill(sequence.padding)}"
+        return 'TN0001'
     
-    # Sequence generation
+    # Api onchange method to generate the next code
+    @api.onchange('name')
+    def _onchange_name(self):
+        if not self.name or self.name == 'New':
+            self.name = self._get_next_code()
+    
+    # Sequence generation - updated to match brochure style
     @api.model
     def create(self, vals):
-        if not vals.get('name'):
-            vals['name'] = self._get_default_code()
+        if not vals.get('name') or vals.get('name') == 'New':
+            vals['name'] = self._get_next_code()
+            
+        # Check if code already exists and increment if needed
+        while self.search([('name', '=', vals['name'])], limit=1):
+            # Extract prefix (letters) and number
+            prefix = ''.join(filter(str.isalpha, vals['name']))
+            number = ''.join(filter(str.isdigit, vals['name']))
+            
+            # Increment number
+            next_number = int(number) + 1 if number else 1
+            # Create new code with padding
+            vals['name'] = f"{prefix}{str(next_number).zfill(4)}"
+            
         return super(TrainingNeed, self).create(vals)
 
     
