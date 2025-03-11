@@ -21,6 +21,7 @@ class TrainingNeedCompanyTab(models.Model):
         'hr.employee',
         string='Full Name',
         required=True,
+        domain="[('department_id', '=', parent.department_id)]"  # Filter by department from parent record
     )
     
     email = fields.Char(
@@ -135,7 +136,9 @@ class TrainingNeedFactoryTab(models.Model):
         'hr.employee',
         string='Full Name',
         required=True,
+        domain="[('department_id', '=', parent.department_id)]"  # Filter by department from parent record
     )
+    
     
     email = fields.Char(
         string='Email',
@@ -254,6 +257,7 @@ class TrainingNeedOtherTab(models.Model):
         'hr.employee',
         string='Full Name',
         required=True,
+        domain="[('department_id', '=', parent.department_id)]"  # Filter by department from parent record
     )
     
     email = fields.Char(
