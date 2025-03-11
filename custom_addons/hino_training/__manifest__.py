@@ -23,35 +23,35 @@ Long description of module's purpose
     'data': [
         'security/ir.model.access.csv',
 
-        # templates
-        'templates/training_plan_tab_factory_training.xml', 
-        'templates/training_plan_report_template.xml',
-        'templates/hmv_training_courses_report.xml',
-        'templates/application_report_template.xml',
+        # report
+        'report/hmv_application_report.xml',
+        'report/hmv_training_courses_report.xml',
+        'report/hmv_training_plan_detail_report.xml',
+        'report/hmv_training_plan_summary_report.xml',
   
         # data,
-        'data/sequence.xml',
-        'data/department_data.xml',
-        'data/job_data.xml',
-        'data/user_data.xml',
+        'data/hmv_training_sequence.xml',
     
         # views
-        'views/hmv_training_brochure.xml',
-        'views/hmv_training_courses_form_view.xml',
-        'views/hmv_training_need_view.xml',
-        'views/trainning_plan_view.xml',
-        'views/application.xml',
-        'views/menu.xml',
+        'views/hmv_training_brochure_views.xml',
+        'views/hmv_training_need_views.xml',
+        'views/hmv_trainning_plan_views.xml',
+        'views/hmv_training_courses_views.xml',
+        'views/hmv_application_views.xml',
+        'views/hino_training_menus.xml',
 
         # Chỗ import wizard
-        'wizard/training_need_comment_wizard_view.xml',
-        'wizard/training_courses_approval_wizard_view.xml',
-        'wizard/training_plan_comment_wizard_view.xml',
-        'wizard/hmv_training_brochure_wizard.xml',
+        'wizard/hmv_training_brochure_wizard_views.xml',
+        'wizard/hmv_training_courses_approval_wizard_views.xml',
+        'wizard/hmv_training_need_comment_wizard_views.xml',
+        'wizard/hmv_training_plan_comment_wizard_views.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
-        'demo/demo.xml',
+        'demo/department_data.xml',
+        'demo/job_data.xml',
+        'demo/user_data.xml',
+        'demo/training_data.xml',
     ],
 
     'installable': True,
