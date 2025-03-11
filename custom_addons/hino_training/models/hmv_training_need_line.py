@@ -301,7 +301,7 @@ class TrainingNeedOtherTab(models.Model):
 
 
 # Hàm kiểm tra tổng số khóa học trên tất cả các tab
-    @api.onchange('employee_id', 'training_brochure_line_id')
+    @api.constrains('employee_id', 'training_brochure_line_id')
     def _check_max_courses_total(self):
         current_user_employee = self.env['hr.employee']._get_valid_employee_for_user()
         is_hr_employee = False
@@ -312,30 +312,17 @@ class TrainingNeedOtherTab(models.Model):
 
         if is_hr_employee:
             return
-
-        
+                
+                
         
         for record in self:
             if not record.employee_id:
                 continue
-
-            # Kiểm tra xem người dùng hiện tại có phải là nhân viên HR không
-            current_user_employee = self.env.user.employee_id
-            is_hr_employee = current_user_employee and current_user_employee.department_id.name == 'HR'
-
-            # Nếu là HR, bỏ qua kiểm tra
-            if is_hr_employee:
-                continue
-
-            # Đếm số khóa học trong tab Other
-            other_courses = len(record.training_brochure_line_id)
-
+            
+            
+            print("Chay")
             # Đếm số khóa học trong tab Company
-            company_tab = self.env['hmv.training.need.company'].search([
-                ('training_need_id', '=', record.training_need_id.id),
-                ('employee_id', '=', record.employee_id.id)
-            ])
-            company_courses = len(company_tab.training_brochure_line_id) if company_tab else 0
+            company_courses = len(record.training_brochure_line_id)
 
             # Đếm số khóa học trong tab Factory
             factory_tab = self.env['hmv.training.need.factory'].search([
@@ -344,13 +331,20 @@ class TrainingNeedOtherTab(models.Model):
             ])
             factory_courses = len(factory_tab.training_brochure_line_id) if factory_tab else 0
 
+            # Đếm số khóa học trong tab Other
+            other_tab = self.env['hmv.training.need.other'].search([
+                ('training_need_id', '=', record.training_need_id.id),
+                ('employee_id', '=', record.employee_id.id)
+            ])
+            other_courses = len(other_tab.training_brochure_line_id) if other_tab else 0
+
             # Tổng số khóa học
-            total_courses = other_courses + company_courses + factory_courses
+            total_courses = company_courses + factory_courses + other_courses
 
             if total_courses > 2:
                 raise ValidationError(
                     f'Employee {record.employee_id.name} can not register above 2 courses!'
-                )
+                )  
 
 
 
