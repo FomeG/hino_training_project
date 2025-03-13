@@ -180,7 +180,7 @@
             <field name="arch" type="xml">
                 <!-- Chèn tab mới vào trong notebook -->
             <xpath expr="//form/sheet/notebook" position="inside">
-                     <page string="Tad factory training" name="tab_factory_training">
+                     <page string="Tab factory training" name="tab_factory_training">
                                 <field name="tab_factory_id">
                                     <tree editable="bottom" create="false">
                                         <field name="course_title"/>
@@ -223,7 +223,7 @@
             <field name="arch" type="xml">
                 <!-- Chèn tab mới vào trong notebook -->
             <xpath expr="//form/sheet/notebook" position="inside">
-                        <page string="Tad other" name="tab_other">
+                        <page string="Tab other" name="tab_other">
                                 <field name="tab_others_id">
                                     <tree editable="bottom" create="false">
                                         <field name="course_title"/>
